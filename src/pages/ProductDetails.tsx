@@ -81,7 +81,7 @@ export function ProductDetails() {
           className="h-12 w-full rounded-2xl"
         >
           <ShoppingCart size={18} />
-          زوّد للسلة - {formatCurrency(product.price * quantity)}
+          زوّد للطلب - {formatCurrency(product.price * quantity)}
         </Button>
       </div>
     </div>

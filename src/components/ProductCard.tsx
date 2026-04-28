@@ -7,9 +7,9 @@ export function ProductCard({ product, onAdd, list = false }: { product: Product
   const canBuy = product.is_available && (product.stock_quantity ?? 1) > 0;
 
   return (
-    <article className={`relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-2 shadow-sm ${list ? 'grid grid-cols-[96px_1fr] gap-3' : 'min-h-[238px] max-h-[260px]'}`}>
-      {!canBuy && <span className="absolute right-2 top-2 z-10 rounded-full bg-rose-600 px-2 py-1 text-[10px] font-extrabold text-white">مش متاح</span>}
-      <Link to={`/products/${product.id}`} className={`block overflow-hidden rounded-xl bg-azraq-50 ${list ? 'h-24' : 'h-28 sm:h-32'}`}>
+    <article className={`relative overflow-hidden rounded-[20px] border border-slate-100 bg-white p-2 shadow-sm ${list ? 'grid grid-cols-[90px_1fr] gap-3' : 'min-h-[224px] max-h-[245px]'}`}>
+      {!canBuy && <span className="absolute right-2 top-2 z-10 rounded-full bg-rose-600 px-2 py-1 text-[10px] font-extrabold text-white">مش متاح دلوقتي</span>}
+      <Link to={`/products/${product.id}`} className={`block overflow-hidden rounded-2xl bg-[#F4FAFF] ${list ? 'h-24' : 'h-24 sm:h-28'}`}>
         {product.image_1_url ? (
           <img src={product.image_1_url} alt={product.name} className="h-full w-full object-cover" loading="lazy" />
         ) : (
@@ -22,7 +22,7 @@ export function ProductCard({ product, onAdd, list = false }: { product: Product
           {product.name}
         </Link>
         <p className="mt-1 text-[11px] font-bold text-slate-400">{unitLabels[product.unit_type]}</p>
-        <p className="mt-1 font-display text-base font-extrabold text-azraq-900">{formatCurrency(product.price)}</p>
+        <p className="mt-1 font-display text-lg font-extrabold text-azraq-900">{formatCurrency(product.price)}</p>
 
         <div className="mt-auto flex items-center justify-between gap-2 pt-2">
           <Link to={`/products/${product.id}`} className="inline-flex h-8 items-center gap-1 rounded-xl border border-slate-100 bg-white px-2 text-[11px] font-extrabold text-slate-600">

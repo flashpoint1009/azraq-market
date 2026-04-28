@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { Bell, Boxes, ClipboardList, Flame, Headphones, Home, LayoutDashboard, LogOut, MapPinHouse, MapPinned, Package, ReceiptText, ShoppingCart, Tags, UserRound, Users } from 'lucide-react';
 import { LogoMark } from './Brand';
 import { useAuth } from '../context/AuthContext';
@@ -37,13 +37,13 @@ const deliveryNav = [
 
 export function AppShell({ mode }: { mode: 'customer' | 'admin' | 'warehouse' | 'delivery' }) {
   const { profile, signOut } = useAuth();
-  const { count } = useCart();
+  const { count, total } = useCart();
   const { unreadCount } = useRealtimeNotifications(profile?.id);
   const location = useLocation();
   const nav = mode === 'admin' ? adminNav : mode === 'warehouse' ? warehouseNav : mode === 'delivery' ? deliveryNav : customerNav;
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,#d7efff_0,transparent_28%),linear-gradient(180deg,#f7fbff,#eef6ff)] text-ink">
+    <div className="min-h-screen bg-[#F4FAFF] text-ink">
       <aside className="fixed inset-y-0 right-0 z-30 hidden w-72 border-l border-white/80 bg-white/80 p-5 shadow-soft backdrop-blur-xl lg:block">
         <LogoMark />
         <div className="mt-8 rounded-[1.5rem] bg-gradient-to-br from-azraq-700 to-azraq-950 p-4 text-white shadow-soft">
@@ -84,7 +84,7 @@ export function AppShell({ mode }: { mode: 'customer' | 'admin' | 'warehouse' | 
       </aside>
 
       <main className="mx-auto max-w-7xl px-3 pb-20 pt-3 lg:mr-72 lg:px-6 lg:pb-8">
-        <header className="mb-3 flex items-center justify-between rounded-2xl border border-white/80 bg-white/70 p-2 shadow-sm backdrop-blur lg:hidden">
+        {mode !== 'customer' && <header className="mb-3 flex items-center justify-between rounded-2xl border border-white/80 bg-white/70 p-2 shadow-sm backdrop-blur lg:hidden">
           <LogoMark compact />
           <div className="flex items-center gap-2">
             <div className="relative grid h-9 w-9 place-items-center rounded-xl bg-azraq-50 text-azraq-700">
@@ -95,12 +95,22 @@ export function AppShell({ mode }: { mode: 'customer' | 'admin' | 'warehouse' | 
               <LogOut size={16} />
             </button>
           </div>
-        </header>
+        </header>}
         <Outlet />
       </main>
 
-      <nav className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-4 rounded-2xl border border-white/80 bg-white/95 p-1.5 shadow-soft backdrop-blur lg:hidden">
-        {nav.slice(0, 4).map((item) => {
+      {mode === 'customer' && location.pathname !== '/cart' && (
+        <Link to="/cart" className="fixed inset-x-3 bottom-[72px] z-40 flex items-center justify-between rounded-2xl border border-white bg-white/95 px-3 py-2 shadow-soft backdrop-blur lg:hidden">
+          <div>
+            <p className="text-xs font-extrabold text-slate-500">{count ? `${count} أصناف • ${total.toLocaleString('ar-EG')} ج.م` : 'طلبك فاضي'}</p>
+            <p className="text-[11px] font-bold text-slate-400">راجع الطلب قبل الإرسال</p>
+          </div>
+          <span className="rounded-xl bg-azraq-700 px-3 py-2 text-xs font-extrabold text-white">كمّل طلبك</span>
+        </Link>
+      )}
+
+      <nav className={`fixed inset-x-3 bottom-3 z-40 grid ${mode === 'customer' ? 'grid-cols-5' : 'grid-cols-4'} rounded-2xl border border-white/80 bg-white/95 p-1.5 shadow-soft backdrop-blur lg:hidden`}>
+        {nav.slice(0, mode === 'customer' ? 5 : 4).map((item) => {
           const active = location.pathname === item.to || (item.to !== '/' && location.pathname.startsWith(item.to));
           return (
             <NavLink key={item.to} to={item.to} end className={`relative flex flex-col items-center gap-0.5 rounded-xl px-1.5 py-1.5 text-[10px] font-extrabold ${active ? 'bg-azraq-700 text-white' : 'text-slate-500'}`}>
