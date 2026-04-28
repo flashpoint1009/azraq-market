@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Bell, Boxes, ChevronLeft, Flame, Menu, MoreHorizontal, PackageCheck, Search, Sparkles, Zap } from 'lucide-react';
+import { Bell, Boxes, ChevronLeft, Flame, Headphones, Home, Menu, MoreHorizontal, PackageCheck, Search, ShoppingCart, Sparkles, Tags, UserRound, X, Zap } from 'lucide-react';
 import { LogoMark } from '../components/Brand';
 import { ProductCard } from '../components/ProductCard';
 import { EmptyState, ErrorState, LoadingState } from '../components/ui';
@@ -10,6 +11,11 @@ import { formatCurrency } from '../lib/labels';
 import { supabase } from '../lib/supabase';
 import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
 import type { Category, Product } from '../types/database';
+
+type BeforeInstallPromptEvent = Event & {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
+};
 
 const categoryIcons = [Boxes, PackageCheck, Sparkles, Zap];
 
@@ -26,8 +32,19 @@ function SkeletonGrid() {
 export function CustomerHome() {
   const [query, setQuery] = useState('');
   const [categoryId, setCategoryId] = useState<string>('all');
-  const { profile } = useAuth();
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const { profile, signOut } = useAuth();
   const { addItem, total } = useCart();
+
+  useEffect(() => {
+    const handler = (event: Event) => {
+      event.preventDefault();
+      setInstallPrompt(event as BeforeInstallPromptEvent);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
 
   const { data, loading, error } = useSupabaseQuery(async () => {
     const [categoriesResult, productsResult] = await Promise.all([
@@ -62,6 +79,26 @@ export function CustomerHome() {
     toast.success('المنتج اتضاف');
   };
 
+  const closeDrawer = () => setDrawerOpen(false);
+
+  const installApp = async () => {
+    if (!installPrompt) return;
+    await installPrompt.prompt();
+    await installPrompt.userChoice;
+    setInstallPrompt(null);
+    closeDrawer();
+  };
+
+  const drawerLinks = [
+    { to: '/', label: 'الرئيسية', icon: Home },
+    { to: '/', label: 'الأقسام', icon: Tags },
+    { to: '/deals', label: 'العروض', icon: Flame },
+    { to: '/orders', label: 'طلباتي', icon: PackageCheck },
+    { to: '/cart', label: 'طلبك', icon: ShoppingCart },
+    { to: '/profile', label: 'حسابي', icon: UserRound },
+    { to: '/profile', label: 'الدعم', icon: Headphones },
+  ];
+
   const renderProductGrid = (items: Product[]) => (
     <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 xl:grid-cols-5">
       {items.map((product) => <ProductCard key={product.id} product={product} onAdd={add} />)}
@@ -74,8 +111,10 @@ export function CustomerHome() {
         <div className="flex items-center justify-between gap-2">
           <LogoMark compact />
           <div className="mr-auto flex items-center gap-2">
-            <button className="grid h-9 w-9 place-items-center rounded-2xl bg-[#F4FAFF] text-azraq-700"><Menu size={18} /></button>
-            <button className="grid h-9 w-9 place-items-center rounded-2xl bg-[#F4FAFF] text-azraq-700"><Bell size={18} /></button>
+            <button type="button" onClick={() => setDrawerOpen(true)} className="grid h-9 w-9 place-items-center rounded-2xl bg-[#F4FAFF] text-azraq-700" aria-label="افتح القائمة">
+              <Menu size={18} />
+            </button>
+            <button className="grid h-9 w-9 place-items-center rounded-2xl bg-[#F4FAFF] text-azraq-700" aria-label="الإشعارات"><Bell size={18} /></button>
           </div>
           <div className="rounded-2xl bg-azraq-700 px-3 py-2 text-left text-white">
             <p className="text-[10px] font-bold text-white/70">السلة</p>
@@ -87,6 +126,43 @@ export function CustomerHome() {
           <p className="text-xs font-bold text-slate-400">طلباتك أوامر</p>
         </div>
       </header>
+
+      {drawerOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <button type="button" className="absolute inset-0 bg-slate-950/35" onClick={closeDrawer} aria-label="اقفل القائمة" />
+          <aside className="absolute inset-y-0 right-0 w-[82vw] max-w-sm rounded-l-[28px] bg-white p-4 shadow-2xl">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <LogoMark compact />
+                <p className="mt-4 text-xs font-bold text-slate-400">أهلًا</p>
+                <h2 className="font-display text-xl font-extrabold text-ink">{profile?.full_name || profile?.phone || 'عميل أزرق'}</h2>
+                {profile?.phone && <p className="mt-1 text-xs font-bold text-slate-400" dir="ltr">{profile.phone}</p>}
+              </div>
+              <button type="button" onClick={closeDrawer} className="grid h-9 w-9 place-items-center rounded-2xl bg-[#F4FAFF] text-slate-600">
+                <X size={18} />
+              </button>
+            </div>
+
+            <nav className="mt-5 grid gap-2">
+              {drawerLinks.map((item) => (
+                <Link key={`${item.to}-${item.label}`} to={item.to} onClick={closeDrawer} className="flex items-center gap-3 rounded-2xl bg-[#F4FAFF] px-4 py-3 text-sm font-extrabold text-slate-700">
+                  <item.icon size={18} className="text-azraq-700" />
+                  {item.label}
+                </Link>
+              ))}
+              {installPrompt && (
+                <button type="button" onClick={installApp} className="flex items-center gap-3 rounded-2xl bg-orange-50 px-4 py-3 text-sm font-extrabold text-orange-600">
+                  <Zap size={18} />
+                  ثبّت التطبيق
+                </button>
+              )}
+              <button type="button" onClick={() => { closeDrawer(); signOut(); }} className="mt-2 flex items-center justify-center rounded-2xl border border-slate-100 bg-white px-4 py-3 text-sm font-extrabold text-slate-600">
+                اخرج من الحساب
+              </button>
+            </nav>
+          </aside>
+        </div>
+      )}
 
       <section className="sticky top-2 z-20 mt-3 rounded-[20px] border border-white bg-white/95 p-2 shadow-sm backdrop-blur">
         <div className="relative">

@@ -1,15 +1,15 @@
 {
-  "name": "أزرق ماركت | Azraq Market",
-  "short_name": "أزرق ماركت",
-  "description": "تطبيق طلب المنتجات وإدارة الطلبات للمشرف والمخزن والحركة.",
+  "name": "أزرق ماركت",
+  "short_name": "أزرق",
+  "description": "تطبيق أزرق ماركت لطلبات الجملة وإدارة الطلبات.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "dir": "rtl",
   "lang": "ar",
   "orientation": "portrait-primary",
-  "background_color": "#f7fbff",
-  "theme_color": "#0f78d2",
+  "background_color": "#F4FAFF",
+  "theme_color": "#0B66C3",
   "icons": [
     {
       "src": "/icon-192.png",

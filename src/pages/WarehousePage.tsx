@@ -156,8 +156,8 @@ export function WarehousePage() {
     };
     const result = editingProductId ? await supabase.from('products').update(payload).eq('id', editingProductId) : await supabase.from('products').insert(payload);
     if (result.error) {
-      console.error('WAREHOUSE_PRODUCT_SAVE_FAILED', result.error);
-      toast.error('تعذر تحميل البيانات، حاول مرة أخرى');
+      console.error('PRODUCT_CREATE_ERROR', result.error);
+      toast.error('مش قادرين نضيف المنتج، راجع البيانات أو الصلاحيات');
     } else {
       toast.success(editingProductId ? 'المنتج اتعدل' : 'المنتج اتضاف');
       setEditingProductId(null);

@@ -1,11 +1,8 @@
-import { PackageCheck, ShoppingCart } from 'lucide-react';
-
 export function LogoMark({ compact = false }: { compact?: boolean }) {
   return (
     <div className="flex items-center gap-3">
-      <div className="relative grid h-12 w-12 place-items-center rounded-3xl bg-gradient-to-br from-azraq-500 to-azraq-800 text-white shadow-glow">
-        <PackageCheck size={24} />
-        <ShoppingCart className="absolute -bottom-1 -left-1 rounded-full bg-white p-1 text-azraq-700 shadow-soft" size={22} />
+      <div className="grid h-12 w-12 place-items-center overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-azraq-100">
+        <img src="/assets/brand/app-icon-192.png" alt="أزرق ماركت" className="h-full w-full object-cover" />
       </div>
       {!compact && (
         <div>

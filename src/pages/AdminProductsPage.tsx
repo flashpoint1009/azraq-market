@@ -92,8 +92,8 @@ export function AdminProductsPage() {
       if (image1) image1Url = await uploadImage(image1, 'first');
       if (image2) image2Url = await uploadImage(image2, 'second');
     } catch (error) {
-      console.error('ADMIN_PRODUCT_IMAGE_UPLOAD_FAILED', error);
-      toast.error('تعذر تحميل البيانات، حاول مرة أخرى');
+      console.error('STORAGE_UPLOAD_ERROR', error);
+      toast.error('مش قادرين نضيف المنتج، راجع البيانات أو الصلاحيات');
       return;
     }
 
@@ -114,8 +114,8 @@ export function AdminProductsPage() {
 
     const result = editing ? await supabase.from('products').update(payload).eq('id', editing.id) : await supabase.from('products').insert(payload);
     if (result.error) {
-      console.error('ADMIN_PRODUCT_SAVE_FAILED', result.error);
-      toast.error('تعذر تحميل البيانات، حاول مرة أخرى');
+      console.error('PRODUCT_CREATE_ERROR', result.error);
+      toast.error('مش قادرين نضيف المنتج، راجع البيانات أو الصلاحيات');
       return;
     }
 

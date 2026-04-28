@@ -19,7 +19,7 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 const BOOT_SPLASH_TIMEOUT_MS = 2000;
-const AUTH_QUERY_TIMEOUT_MS = 3000;
+const AUTH_QUERY_TIMEOUT_MS = 8000;
 
 function timeoutError(label: string) {
   return new Error(`${label} timed out`);
@@ -129,8 +129,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         } catch (error) {
           toast.error('معرفناش نحمل بيانات الحساب');
-          console.error('PROFILE LOAD FAILED', error);
-          if (data.session) setProfile(fallbackProfile(data.session));
+          console.error('AUTH_PROFILE_ERROR', error);
+          setProfile(null);
           setProfileResolved(true);
         } finally {
           clearTimeout(splashTimer);
@@ -154,8 +154,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         loadProfile(nextSession)
           .catch((error) => {
             toast.error('معرفناش نحدث بيانات الحساب');
-            console.error('PROFILE REFRESH FAILED', error);
-            setProfile(fallbackProfile(nextSession));
+            console.error('AUTH_PROFILE_ERROR', error);
+            setProfile(null);
           })
           .finally(() => setProfileResolved(true));
       } else {
