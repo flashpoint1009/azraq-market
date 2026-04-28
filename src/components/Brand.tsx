@@ -2,7 +2,7 @@ export function LogoMark({ compact = false }: { compact?: boolean }) {
   return (
     <div className="flex items-center gap-3">
       <div className="grid h-12 w-12 place-items-center overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-azraq-100">
-        <img src="/assets/brand/app-icon-192.png" alt="أزرق ماركت" className="h-full w-full object-cover" />
+        <img src="/assets/brand/azraq-market.png" alt="أزرق ماركت" className="h-full w-full object-cover" />
       </div>
       {!compact && (
         <div>
