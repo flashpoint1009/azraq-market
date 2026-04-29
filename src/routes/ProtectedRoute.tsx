@@ -40,7 +40,7 @@ export function ProtectedRoute({ roles }: { roles?: Role[] }) {
     console.info('USER_ROLE', role);
     console.info('SHOULD_REDIRECT', false);
     console.info('REDIRECT_TARGET', null);
-    return <Outlet />;
+    return <SplashScreen />;
   }
 
   const shouldRedirect = Boolean(roles && (!role || !roles.includes(role)));

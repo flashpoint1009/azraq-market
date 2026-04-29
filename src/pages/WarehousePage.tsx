@@ -49,6 +49,8 @@ export function WarehousePage() {
   const [subcategoryForm, setSubcategoryForm] = useState({ id: '', category_id: '', name: '', sort_order: '0', is_active: true });
   const [productForm, setProductForm] = useState(emptyProduct);
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
+  const [image1, setImage1] = useState<File | null>(null);
+  const [image2, setImage2] = useState<File | null>(null);
 
   const { data, loading, error, reload } = useSupabaseQuery(async () => {
     const [orders, categories, subcategories] = await Promise.all([
@@ -135,11 +137,32 @@ export function WarehousePage() {
       stock_quantity: String(product.stock_quantity ?? 0),
       is_available: product.is_available,
     });
+    setImage1(null);
+    setImage2(null);
     openTab('products');
+  };
+
+  const uploadImage = async (file: File, slot: 'first' | 'second') => {
+    const safeName = file.name.replace(/[^\w.-]+/g, '-');
+    const path = `products/${Date.now()}-${slot}-${crypto.randomUUID()}-${safeName}`;
+    const { error } = await supabase.storage.from('product-images').upload(path, file);
+    if (error) throw error;
+    const { data } = supabase.storage.from('product-images').getPublicUrl(path);
+    return data.publicUrl;
   };
 
   const saveProduct = async (event: FormEvent) => {
     event.preventDefault();
+    let image1Url = productForm.image_1_url || null;
+    let image2Url = productForm.image_2_url || null;
+    try {
+      if (image1) image1Url = await uploadImage(image1, 'first');
+      if (image2) image2Url = await uploadImage(image2, 'second');
+    } catch (error) {
+      console.error('STORAGE_UPLOAD_ERROR', error);
+      toast.error('مش قادرين نضيف المنتج، راجع البيانات أو الصلاحيات');
+      return;
+    }
     const stockQuantity = Number(productForm.stock_quantity) || 0;
     const payload = {
       name: productForm.name,
@@ -149,8 +172,8 @@ export function WarehousePage() {
       price: Number(productForm.price) || 0,
       cost_price: Number(productForm.cost_price) || 0,
       unit_type: productForm.unit_type,
-      image_1_url: productForm.image_1_url || null,
-      image_2_url: productForm.image_2_url || null,
+      image_1_url: image1Url,
+      image_2_url: image2Url,
       stock_quantity: stockQuantity,
       is_available: productForm.is_available && stockQuantity > 0,
     };
@@ -162,6 +185,8 @@ export function WarehousePage() {
       toast.success(editingProductId ? 'المنتج اتعدل' : 'المنتج اتضاف');
       setEditingProductId(null);
       setProductForm(emptyProduct);
+      setImage1(null);
+      setImage2(null);
       reload();
     }
   };
@@ -279,6 +304,14 @@ export function WarehousePage() {
               </label>
               <Input dir="ltr" value={productForm.image_1_url} onChange={(event) => setProductForm({ ...productForm, image_1_url: event.target.value })} placeholder="رابط الصورة الأولى" />
               <Input dir="ltr" value={productForm.image_2_url} onChange={(event) => setProductForm({ ...productForm, image_2_url: event.target.value })} placeholder="رابط الصورة الثانية" />
+              <label className="block rounded-2xl border border-dashed border-azraq-200 bg-azraq-50/60 p-3 text-sm font-bold text-azraq-800">
+                ارفع الصورة الأولى
+                <input type="file" accept="image/*" onChange={(event) => setImage1(event.target.files?.[0] ?? null)} className="mt-2 block w-full text-xs text-slate-500" />
+              </label>
+              <label className="block rounded-2xl border border-dashed border-azraq-200 bg-azraq-50/60 p-3 text-sm font-bold text-azraq-800">
+                ارفع الصورة الثانية
+                <input type="file" accept="image/*" onChange={(event) => setImage2(event.target.files?.[0] ?? null)} className="mt-2 block w-full text-xs text-slate-500" />
+              </label>
               <Textarea value={productForm.description} onChange={(event) => setProductForm({ ...productForm, description: event.target.value })} placeholder="الوصف" rows={3} />
               <label className="flex items-center gap-2 text-sm font-bold text-slate-600">
                 <input type="checkbox" checked={productForm.is_available} onChange={(event) => setProductForm({ ...productForm, is_available: event.target.checked })} />

@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { Bell, Boxes, ClipboardList, Flame, Headphones, Home, LayoutDashboard, LogOut, MapPinHouse, MapPinned, Package, ReceiptText, ShoppingCart, Tags, UserRound, Users } from 'lucide-react';
 import { LogoMark } from './Brand';
@@ -35,12 +36,34 @@ const deliveryNav = [
   { to: '/delivery/orders', label: 'التوصيل', icon: ClipboardList },
 ];
 
+type BeforeInstallPromptEvent = Event & {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
+};
+
 export function AppShell({ mode }: { mode: 'customer' | 'admin' | 'warehouse' | 'delivery' }) {
   const { profile, signOut } = useAuth();
   const { count, total } = useCart();
   const { unreadCount } = useRealtimeNotifications(profile?.id);
   const location = useLocation();
   const nav = mode === 'admin' ? adminNav : mode === 'warehouse' ? warehouseNav : mode === 'delivery' ? deliveryNav : customerNav;
+  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+
+  useEffect(() => {
+    const handler = (event: Event) => {
+      event.preventDefault();
+      setInstallPrompt(event as BeforeInstallPromptEvent);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const installApp = async () => {
+    if (!installPrompt) return;
+    await installPrompt.prompt();
+    await installPrompt.userChoice;
+    setInstallPrompt(null);
+  };
 
   return (
     <div className="min-h-screen bg-[#F4FAFF] text-ink">
@@ -77,6 +100,11 @@ export function AppShell({ mode }: { mode: 'customer' | 'admin' | 'warehouse' | 
             ))}
           </div>
         )}
+        {installPrompt && (
+          <button onClick={installApp} className="mt-4 flex w-full items-center justify-center rounded-2xl bg-orange-50 px-4 py-3 text-sm font-extrabold text-orange-600">
+            ثبّت التطبيق
+          </button>
+        )}
         <button onClick={signOut} className="absolute bottom-5 right-5 left-5 flex items-center justify-center gap-2 rounded-2xl border border-slate-100 bg-white px-4 py-3 text-sm font-bold text-slate-600">
           <LogOut size={17} />
           اخرج من الحساب
@@ -94,6 +122,11 @@ export function AppShell({ mode }: { mode: 'customer' | 'admin' | 'warehouse' | 
             <button onClick={signOut} className="grid h-9 w-9 place-items-center rounded-xl bg-white text-slate-500">
               <LogOut size={16} />
             </button>
+            {installPrompt && (
+              <button onClick={installApp} className="rounded-xl bg-orange-50 px-3 py-2 text-xs font-extrabold text-orange-600">
+                ثبّت
+              </button>
+            )}
           </div>
         </header>}
         <Outlet />

@@ -40,13 +40,11 @@ async function withTimeout<T>(promise: PromiseLike<T>, ms: number, label: string
 
 function fallbackProfile(session: Session): Profile {
   const metadata = session.user.user_metadata;
-  const role = ['customer', 'admin', 'warehouse', 'delivery'].includes(metadata?.role) ? metadata.role as Role : 'customer';
-
   return {
     id: session.user.id,
     phone: metadata?.phone ?? null,
     full_name: metadata?.full_name ?? session.user.email ?? 'عميل أزرق',
-    role,
+    role: 'customer',
     address: metadata?.address ?? null,
     latitude: null,
     longitude: null,
