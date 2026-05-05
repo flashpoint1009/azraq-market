@@ -5,7 +5,22 @@
 :root {
   color-scheme: light;
   font-family: Cairo, Tajawal, sans-serif;
-  background: #f7fbff;
+  --azraq-50: #eef7fb;
+  --azraq-100: #d9edf5;
+  --azraq-200: #b8dceb;
+  --azraq-300: #88c2d8;
+  --azraq-400: #5aa2bf;
+  --azraq-500: #3f86a6;
+  --azraq-600: #316f8d;
+  --azraq-700: #2b5b74;
+  --azraq-800: #284d61;
+  --azraq-900: #253f50;
+  --azraq-950: #172a36;
+  --ink: #102033;
+  --pearl: #f7fbff;
+  --app-bg: #eef6fa;
+  --app-accent: #f97316;
+  background: var(--pearl);
 }
 
 * {
@@ -17,6 +32,7 @@ body {
   direction: rtl;
   min-width: 320px;
   min-height: 100vh;
+  background: var(--app-bg);
 }
 
 button,

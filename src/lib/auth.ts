@@ -23,14 +23,14 @@ export function normalizeEgyptPhone(value: string) {
 }
 
 export function phoneToInternalEmail(phone: string) {
-  return phoneToInternalEmailWithDomain(phone, import.meta.env.VITE_INTERNAL_EMAIL_DOMAIN || 'market.local');
+  return phoneToInternalEmailWithDomain(phone, 'azraqmarket.app');
 }
 
 function phoneToInternalEmailWithDomain(phone: string, domain: string) {
   return `phone${normalizeEgyptPhone(phone)}@${domain}`;
 }
 
-const internalEmailDomains = [import.meta.env.VITE_INTERNAL_EMAIL_DOMAIN || 'market.local', 'example.com'];
+const internalEmailDomains = ['azraqmarket.app', 'example.com'];
 
 function internalEmailsForPhone(phone: string) {
   return internalEmailDomains.map((domain) => phoneToInternalEmailWithDomain(phone, domain));

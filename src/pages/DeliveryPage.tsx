@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { MapPin, PhoneCall } from 'lucide-react';
 import { MapPreview } from '../components/MapPreview';
@@ -21,25 +20,6 @@ export function DeliveryPage() {
     if (error) throw error;
     return data as Order[];
   }, []);
-
-  useEffect(() => {
-    const activeOrder = data?.find((order) => order.status === 'with_delivery');
-    if (!activeOrder || !navigator.geolocation) return;
-
-    const sendLocation = () => {
-      navigator.geolocation.getCurrentPosition((position) => {
-        supabase.rpc('update_delivery_location', {
-          order_id_input: activeOrder.id,
-          latitude_input: position.coords.latitude,
-          longitude_input: position.coords.longitude,
-        });
-      });
-    };
-
-    sendLocation();
-    const timer = window.setInterval(sendLocation, 30000);
-    return () => window.clearInterval(timer);
-  }, [data]);
 
   const change = async (id: string, status: 'with_delivery' | 'delivered') => {
     if (!profile) return;

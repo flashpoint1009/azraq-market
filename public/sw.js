@@ -40,3 +40,37 @@ self.addEventListener('fetch', (event) => {
     }),
   );
 });
+
+self.addEventListener('push', (event) => {
+  const payload = event.data?.json() || {};
+  const title = payload.title || 'أزرق ماركت';
+  const options = {
+    body: payload.body || 'عندك تحديث جديد',
+    icon: '/icon-192.png',
+    badge: '/icon-192.png',
+    data: {
+      url: payload.url || '/',
+    },
+    dir: 'rtl',
+    lang: 'ar',
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const targetUrl = event.notification.data?.url || '/';
+
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      for (const client of clientList) {
+        if ('focus' in client) {
+          client.navigate(targetUrl);
+          return client.focus();
+        }
+      }
+      return self.clients.openWindow(targetUrl);
+    }),
+  );
+});

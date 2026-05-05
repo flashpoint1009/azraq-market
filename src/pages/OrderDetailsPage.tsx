@@ -1,13 +1,12 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Download, Printer, RotateCcw } from 'lucide-react';
+import { Printer, RotateCcw } from 'lucide-react';
 import { MapPreview } from '../components/MapPreview';
 import { StatusTimeline } from '../components/StatusTimeline';
 import { Button, Card, ErrorState, LoadingState, PageHeader, SecondaryButton } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { formatCurrency, formatDate, statusLabels, unitLabels } from '../lib/labels';
-import { downloadInvoicePdf } from '../lib/invoicePdf';
 import { supabase } from '../lib/supabase';
 import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
 import type { Order, Product } from '../types/database';
@@ -45,12 +44,32 @@ export function OrderDetailsPage() {
     navigate('/cart');
   };
 
+  if (role === 'customer') {
+    return (
+      <div className="space-y-4 pb-4">
+        <PageHeader
+          title={`طلب رقم #${order.id.slice(0, 8)}`}
+          subtitle={formatDate(order.created_at)}
+        />
+        <Card className="bg-white">
+          <h2 className="mb-3 font-display text-xl font-extrabold text-ink">حالة الطلب</h2>
+          <div className="rounded-[20px] border border-azraq-100 bg-azraq-50 p-4">
+            <p className="text-xs font-bold text-slate-400">الحالة الحالية</p>
+            <p className="mt-1 font-display text-2xl font-extrabold text-azraq-900">{statusLabels[order.status]}</p>
+            <p className="mt-2 text-xs font-bold text-slate-500">آخر تحديث: {formatDate(order.updated_at || order.created_at)}</p>
+          </div>
+        </Card>
+        <Button onClick={repeat} className="w-full"><RotateCcw size={17} /> كرر الطلب</Button>
+      </div>
+    );
+  }
+
   return (
     <div>
       <PageHeader
         title={`طلب رقم #${order.id.slice(0, 8)}`}
         subtitle={`${statusLabels[order.status]} - ${formatDate(order.created_at)}`}
-        action={<div className="flex gap-2"><SecondaryButton onClick={() => downloadInvoicePdf(order)}><Download size={17} /> تحميل PDF</SecondaryButton><SecondaryButton onClick={() => window.print()}><Printer size={17} /> اطبع</SecondaryButton></div>}
+        action={<SecondaryButton onClick={() => window.print()}><Printer size={17} /> اطبع</SecondaryButton>}
       />
       <div className="grid gap-5 lg:grid-cols-[1fr_380px]">
         <div className="space-y-5">
@@ -89,14 +108,6 @@ export function OrderDetailsPage() {
               <span>{formatCurrency(order.total_amount)}</span>
             </div>
           </Card>
-          {order.delivery_latitude && order.delivery_longitude && (
-            <Card>
-              <h2 className="mb-4 font-display text-2xl font-extrabold">موقع المندوب الآن</h2>
-              <MapPreview latitude={order.delivery_latitude} longitude={order.delivery_longitude} />
-              <p className="mt-3 text-sm font-bold text-slate-500">وقت الوصول المتوقع يتحدث حسب حركة المندوب.</p>
-            </Card>
-          )}
-          {role === 'customer' && <Button onClick={repeat}><RotateCcw size={17} /> كرر الطلب</Button>}
         </div>
         <div className="space-y-5">
           <Card>

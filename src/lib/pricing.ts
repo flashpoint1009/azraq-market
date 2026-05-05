@@ -1,6 +1,11 @@
 import type { Product } from '../types/database';
 
-export function getProductPricing(product: Product) {
+type ProductWithInlineDiscount = Product & {
+  discount_type?: 'none' | 'percent' | 'amount' | null;
+  discount_value?: number | null;
+};
+
+export function getProductPricing(product: ProductWithInlineDiscount) {
   const basePrice = Number(product.price || 0);
   const discountType = product.discount_type ?? 'none';
   const rawDiscount = Number(product.discount_value || 0);

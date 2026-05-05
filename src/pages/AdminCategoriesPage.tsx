@@ -154,9 +154,9 @@ export function AdminCategoriesPage() {
   return (
     <div>
       <PageHeader title="الأقسام" subtitle="رتب الأقسام الرئيسية والفرعية اللي بتظهر للعميل." />
-      <div className="grid gap-5 xl:grid-cols-[420px_1fr]">
+      <div className="grid gap-4 lg:grid-cols-[360px_1fr]">
         <div className="grid gap-4">
-          <Card>
+          <Card className="p-4">
             <h2 className="mb-4 font-display text-2xl font-extrabold">{editingCategory ? 'تعديل قسم' : 'قسم جديد'}</h2>
             <form onSubmit={saveCategory} className="space-y-3">
               <Input required value={categoryForm.name} onChange={(event) => setCategoryForm({ ...categoryForm, name: event.target.value })} placeholder="اسم القسم" />
@@ -174,7 +174,7 @@ export function AdminCategoriesPage() {
             </form>
           </Card>
 
-          <Card>
+          <Card className="p-4">
             <h2 className="mb-4 font-display text-2xl font-extrabold">{editingSubcategory ? 'تعديل قسم فرعي' : 'قسم فرعي جديد'}</h2>
             <form onSubmit={saveSubcategory} className="space-y-3">
               <Select required value={subcategoryForm.category_id} onChange={(event) => setSubcategoryForm({ ...subcategoryForm, category_id: event.target.value })}>
@@ -202,7 +202,7 @@ export function AdminCategoriesPage() {
           {error && <ErrorState message={error} />}
           {!loading && !error && data?.categories.length === 0 && <EmptyState title="مفيش أقسام" body="ضيف أول قسم عشان يظهر للعميل." />}
           {data?.categories.map((category) => (
-            <Card key={category.id} className="grid gap-4">
+            <Card key={category.id} className="grid gap-3 p-4">
               <div className="grid gap-3 md:grid-cols-[1fr_auto] md:items-center">
                 <div>
                   <h3 className="font-display text-lg font-extrabold">{category.name}</h3>
@@ -226,7 +226,7 @@ export function AdminCategoriesPage() {
                           فرعي - الترتيب: {subcategory.sort_order} - {subcategory.is_active === false ? 'متوقف' : 'شغال'}
                         </p>
                       </div>
-                      <div className="flex gap-2">
+                      <div className="grid grid-cols-2 gap-2 sm:flex">
                         <button onClick={() => startSubcategoryEdit(subcategory)} className="rounded-2xl bg-white px-3 py-2 text-xs font-bold text-azraq-800">تعديل</button>
                         <button onClick={() => removeSubcategory(subcategory)} className="rounded-2xl bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700">حذف</button>
                       </div>

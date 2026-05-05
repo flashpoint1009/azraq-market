@@ -1,205 +1,177 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import { Plus, Save } from 'lucide-react';
-import { Button, Card, EmptyState, ErrorState, Input, LoadingState, PageHeader, Select, Textarea } from '../components/ui';
-import { useAuth } from '../context/AuthContext';
-import { roleLabels } from '../lib/labels';
-import { allPermissions, developerPermissions, isDeveloperProfile, managerPermissions, permissionLabels } from '../lib/permissions';
+import { CalendarClock, Plus, Save, Search, UserRound } from 'lucide-react';
+import { Button, Card, EmptyState, ErrorState, Input, LoadingState, PageHeader, Textarea } from '../components/ui';
 import { supabase } from '../lib/supabase';
 import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
-import type { PermissionKey, Profile, Role } from '../types/database';
+import { useAuth } from '../context/AuthContext';
+import type { Profile } from '../types/database';
 
-const staffRoles: Role[] = ['admin', 'warehouse', 'delivery'];
-const emptyEditForm = { full_name: '', address: '', role: 'customer' as Role, app_permissions: [] as PermissionKey[] };
-const emptyCreateForm = { full_name: '', phone: '', password: '', role: 'admin' as Role, app_permissions: [] as PermissionKey[] };
-
-function togglePermission(list: PermissionKey[], permission: PermissionKey) {
-  return list.includes(permission) ? list.filter((item) => item !== permission) : [...list, permission];
-}
-
-function isMissingColumn(error: unknown, column: string) {
-  return Boolean(error && typeof error === 'object' && 'message' in error && String((error as { message?: unknown }).message).includes(`'${column}' column`));
-}
+const emptyCreate = { full_name: '', phone: '', password: '', address: '' };
+const emptyEdit = { full_name: '', phone: '', address: '' };
 
 export function AdminCustomersPage() {
-  const { profile: currentProfile } = useAuth();
-  const canManageDeveloper = isDeveloperProfile(currentProfile);
-  const visiblePermissions = canManageDeveloper ? allPermissions : managerPermissions;
+  const { profile: currentUser } = useAuth();
+  const [query, setQuery] = useState('');
+  const [createForm, setCreateForm] = useState(emptyCreate);
   const [editing, setEditing] = useState<Profile | null>(null);
-  const [form, setForm] = useState(emptyEditForm);
-  const [createForm, setCreateForm] = useState(emptyCreateForm);
-  const [creating, setCreating] = useState(false);
+  const [editForm, setEditForm] = useState(emptyEdit);
+  const [reservationNote, setReservationNote] = useState('');
+  const [saving, setSaving] = useState(false);
+
   const { data, loading, error, reload } = useSupabaseQuery(async () => {
-    const { data, error } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('role', 'customer')
+      .order('created_at', { ascending: false });
     if (error) throw error;
-    const rows = (data as Profile[]) || [];
-    return canManageDeveloper ? rows : rows.filter((profile) => !isDeveloperProfile(profile));
-  }, [canManageDeveloper]);
+    return (data || []) as Profile[];
+  }, []);
 
-  const startEdit = (profile: Profile) => {
-    setEditing(profile);
-    setForm({
-      full_name: profile.full_name || '',
-      address: profile.address || '',
-      role: profile.role,
-      app_permissions: profile.app_permissions || [],
+  const customers = useMemo(() => {
+    const value = query.trim();
+    if (!value) return data || [];
+    return (data || []).filter((customer) =>
+      customer.full_name?.includes(value) ||
+      customer.phone?.includes(value) ||
+      customer.address?.includes(value),
+    );
+  }, [data, query]);
+
+  const startEdit = (customer: Profile) => {
+    setEditing(customer);
+    setEditForm({
+      full_name: customer.full_name || '',
+      phone: customer.phone || '',
+      address: customer.address || '',
     });
+    setReservationNote('');
   };
 
-  const reset = () => {
-    setEditing(null);
-    setForm(emptyEditForm);
-  };
-
-  const submit = async (event: FormEvent) => {
+  const createCustomer = async (event: FormEvent) => {
     event.preventDefault();
-    if (!editing) {
-      toast.error('اختار مستخدم من القائمة عشان تعدل بياناته');
+    if (createForm.password.length < 6) {
+      toast.error('كلمة المرور لازم تكون 6 أحرف على الأقل');
       return;
     }
-
-    const safePermissions = canManageDeveloper ? form.app_permissions : form.app_permissions.filter((permission) => !developerPermissions.includes(permission));
-    const payload = {
-      full_name: form.full_name,
-      address: form.address,
-      role: form.role,
-      app_permissions: form.role === 'admin' ? safePermissions : [],
-    };
-
-    let result = await supabase.from('profiles').update(payload).eq('id', editing.id);
-    if (result.error && isMissingColumn(result.error, 'app_permissions')) {
-      const legacyPayload = {
-        full_name: payload.full_name,
-        address: payload.address,
-        role: payload.role,
-      };
-      result = await supabase.from('profiles').update(legacyPayload).eq('id', editing.id);
-    }
-
-    if (result.error) {
-      toast.error(result.error.message);
-      return;
-    }
-
-    toast.success('بيانات المستخدم اتحدثت');
-    reset();
-    reload();
-  };
-
-  const createUser = async (event: FormEvent) => {
-    event.preventDefault();
-    if (!createForm.full_name.trim() || !createForm.phone.trim() || createForm.password.length < 6) {
-      toast.error('اكتب الاسم ورقم الهاتف وكلمة مرور 6 أحرف على الأقل');
-      return;
-    }
-
-    setCreating(true);
-    const { error } = await supabase.rpc('admin_create_staff_user', {
+    setSaving(true);
+    const { error } = await supabase.rpc('admin_create_customer_user', {
       phone_input: createForm.phone,
       password_input: createForm.password,
       full_name_input: createForm.full_name,
-      role_input: createForm.role,
-      permissions_input: createForm.role === 'admin' ? (canManageDeveloper ? createForm.app_permissions : createForm.app_permissions.filter((permission) => !developerPermissions.includes(permission))) : [],
+      address_input: createForm.address || null,
     });
-    setCreating(false);
-
+    setSaving(false);
     if (error) {
-      console.error('ADMIN_CREATE_STAFF_USER_FAILED', error);
-      toast.error(error.message.includes('function') ? 'شغّل ملف supabase/admin_permissions_migration.sql الأول' : error.message);
+      console.error('ADMIN_CREATE_CUSTOMER_FAILED', error);
+      toast.error(error.message.includes('function') ? 'شغل supabase/business_features_migration.sql أو fix_customer_order_rpc.sql' : error.message);
       return;
     }
-
-    toast.success('المستخدم اتضاف بالصلاحيات المحددة');
-    setCreateForm(emptyCreateForm);
+    toast.success('تم إضافة العميل');
+    setCreateForm(emptyCreate);
     reload();
+  };
+
+  const saveEdit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!editing) return;
+    setSaving(true);
+    const { error } = await supabase
+      .from('profiles')
+      .update({ full_name: editForm.full_name, phone: editForm.phone, address: editForm.address })
+      .eq('id', editing.id);
+    setSaving(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success('تم تعديل العميل');
+    setEditing(null);
+    reload();
+  };
+
+  const reserveCustomer = async () => {
+    if (!editing) {
+      toast.error('اختر عميل للحجز');
+      return;
+    }
+    const { error } = await supabase.from('customer_reservations').insert({
+      customer_id: editing.id,
+      reserved_by: currentUser?.id || null,
+      note: reservationNote || null,
+    });
+    if (error) {
+      console.error('CUSTOMER_RESERVATION_FAILED', error);
+      toast.error(error.message.includes('customer_reservations') ? 'شغل supabase/business_features_migration.sql الأول' : error.message);
+      return;
+    }
+    toast.success('تم حجز العميل');
+    setReservationNote('');
   };
 
   return (
     <div>
-      <PageHeader title="المستخدمين والصلاحيات" subtitle="أضف مستخدمين وحدد لكل واحد الصفحات والعمليات المسموحة." />
-      <div className="grid gap-5 xl:grid-cols-[420px_1fr]">
-        <div className="grid gap-4">
-          <Card>
-            <h2 className="mb-4 font-display text-2xl font-extrabold">مستخدم جديد</h2>
-            <form onSubmit={createUser} className="space-y-3">
-              <Input required value={createForm.full_name} onChange={(event) => setCreateForm({ ...createForm, full_name: event.target.value })} placeholder="اسم المستخدم" />
+      <PageHeader title="العملاء" subtitle="إضافة وتعديل وحجز العملاء، منفصلين عن مستخدمي الإدارة والمخزن والتوصيل." />
+      <div className="grid gap-4 xl:grid-cols-[380px_1fr]">
+        <div className="grid content-start gap-4">
+          <Card className="p-4">
+            <h2 className="mb-4 font-display text-xl font-extrabold">إضافة عميل</h2>
+            <form onSubmit={createCustomer} className="space-y-3">
+              <Input required value={createForm.full_name} onChange={(event) => setCreateForm({ ...createForm, full_name: event.target.value })} placeholder="اسم العميل" />
               <Input required dir="ltr" value={createForm.phone} onChange={(event) => setCreateForm({ ...createForm, phone: event.target.value })} placeholder="01000000000" />
-              <Input required type="password" value={createForm.password} onChange={(event) => setCreateForm({ ...createForm, password: event.target.value })} placeholder="كلمة المرور" />
-              <Select value={createForm.role} onChange={(event) => setCreateForm({ ...createForm, role: event.target.value as Role })}>
-                {staffRoles.map((role) => <option key={role} value={role}>{roleLabels[role]}</option>)}
-              </Select>
-              {createForm.role === 'admin' && (
-                <div className="grid gap-2 rounded-2xl bg-slate-50 p-3">
-                  {visiblePermissions.map((permission) => (
-                    <label key={permission} className="flex items-center gap-2 text-sm font-bold text-slate-600">
-                      <input
-                        type="checkbox"
-                        checked={createForm.app_permissions.includes(permission)}
-                        onChange={() => setCreateForm({ ...createForm, app_permissions: togglePermission(createForm.app_permissions, permission) })}
-                      />
-                      {permissionLabels[permission]}
-                    </label>
-                  ))}
-                </div>
-              )}
-              <Button disabled={creating} className="w-full"><Plus size={17} /> {creating ? 'جاري الإضافة...' : 'ضيف المستخدم'}</Button>
+              <Input required type="password" minLength={6} value={createForm.password} onChange={(event) => setCreateForm({ ...createForm, password: event.target.value })} placeholder="كلمة المرور" />
+              <Textarea value={createForm.address} onChange={(event) => setCreateForm({ ...createForm, address: event.target.value })} placeholder="العنوان" rows={3} />
+              <Button disabled={saving} className="w-full"><Plus size={17} /> إضافة عميل</Button>
             </form>
           </Card>
 
-          <Card>
-            <h2 className="mb-4 font-display text-2xl font-extrabold">{editing ? 'تعديل مستخدم' : 'اختار مستخدم'}</h2>
-            <form onSubmit={submit} className="space-y-3">
-              <Input required value={form.full_name} onChange={(event) => setForm({ ...form, full_name: event.target.value })} placeholder="الاسم" />
-              <Select value={form.role} onChange={(event) => setForm({ ...form, role: event.target.value as Role })}>
-                {Object.entries(roleLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-              </Select>
-              <Textarea value={form.address} onChange={(event) => setForm({ ...form, address: event.target.value })} placeholder="العنوان" rows={3} />
-              {form.role === 'admin' && (
-                <div className="grid gap-2 rounded-2xl bg-slate-50 p-3">
-                  {visiblePermissions.map((permission) => (
-                    <label key={permission} className="flex items-center gap-2 text-sm font-bold text-slate-600">
-                      <input
-                        type="checkbox"
-                        checked={form.app_permissions.includes(permission)}
-                        onChange={() => setForm({ ...form, app_permissions: togglePermission(form.app_permissions, permission) })}
-                      />
-                      {permissionLabels[permission]}
-                    </label>
-                  ))}
-                </div>
-              )}
-              <Button disabled={!editing} className="w-full"><Save size={17} /> حفظ التعديل</Button>
-              {editing && (
-                <button type="button" onClick={reset} className="w-full rounded-2xl bg-slate-100 px-4 py-3 text-sm font-bold text-slate-600">
-                  إلغاء
-                </button>
-              )}
+          <Card className="p-4">
+            <h2 className="mb-4 font-display text-xl font-extrabold">{editing ? 'تعديل وحجز عميل' : 'اختر عميل للتعديل'}</h2>
+            <form onSubmit={saveEdit} className="space-y-3">
+              <Input required disabled={!editing} value={editForm.full_name} onChange={(event) => setEditForm({ ...editForm, full_name: event.target.value })} placeholder="اسم العميل" />
+              <Input disabled={!editing} dir="ltr" value={editForm.phone} onChange={(event) => setEditForm({ ...editForm, phone: event.target.value })} placeholder="رقم الهاتف" />
+              <Textarea disabled={!editing} value={editForm.address} onChange={(event) => setEditForm({ ...editForm, address: event.target.value })} placeholder="العنوان" rows={3} />
+              <Button disabled={!editing || saving} className="w-full"><Save size={17} /> حفظ التعديل</Button>
             </form>
+            <div className="mt-4 border-t border-slate-100 pt-4">
+              <Textarea disabled={!editing} value={reservationNote} onChange={(event) => setReservationNote(event.target.value)} placeholder="ملاحظة الحجز" rows={3} />
+              <button type="button" disabled={!editing} onClick={reserveCustomer} className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-amber-50 px-4 py-3 text-sm font-extrabold text-amber-700 disabled:opacity-50">
+                <CalendarClock size={17} /> حجز العميل
+              </button>
+            </div>
           </Card>
         </div>
 
-        <div className="grid content-start gap-3">
+        <div>
+          <Card className="mb-4 p-3">
+            <div className="relative">
+              <Search className="absolute right-3 top-3 text-slate-400" size={17} />
+              <Input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="ابحث بالاسم أو الهاتف أو العنوان" className="pr-10" />
+            </div>
+          </Card>
           {loading && <LoadingState />}
           {error && <ErrorState message={error} />}
-          {!loading && !error && data?.length === 0 && <EmptyState title="مفيش مستخدمين" body="المستخدمين هيظهروا هنا بعد الإضافة." />}
-          {data?.map((profile) => (
-            <Card key={profile.id} className="grid gap-2 md:grid-cols-[1fr_auto] md:items-center">
-              <div>
-                <h3 className="font-display text-lg font-extrabold">{profile.full_name || 'من غير اسم'}</h3>
-                <p className="text-sm text-slate-500" dir="ltr">{profile.phone}</p>
-                <p className="text-xs text-slate-400">{profile.address || 'مفيش عنوان'}</p>
-                {profile.role === 'admin' && (
-                  <p className="mt-2 text-xs font-bold text-slate-500">
-                    {profile.app_permissions?.length ? profile.app_permissions.map((permission) => permissionLabels[permission]).join(' - ') : 'كل الصلاحيات'}
-                  </p>
-                )}
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="rounded-full bg-azraq-50 px-3 py-1 text-xs font-extrabold text-azraq-700">{roleLabels[profile.role]}</span>
-                <button onClick={() => startEdit(profile)} className="rounded-2xl bg-white px-4 py-2 text-sm font-bold text-azraq-700 shadow-sm">تعديل</button>
-              </div>
-            </Card>
-          ))}
+          {!loading && !error && customers.length === 0 && <EmptyState title="لا يوجد عملاء" body="أي عميل تسجله أو يسجل في التطبيق سيظهر هنا." />}
+          <div className="grid gap-3 md:grid-cols-2">
+            {customers.map((customer) => (
+              <Card key={customer.id} className="p-4">
+                <div className="flex items-start gap-3">
+                  <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-azraq-50 text-azraq-700">
+                    <UserRound size={20} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="truncate font-display text-lg font-extrabold text-ink">{customer.full_name || 'عميل بدون اسم'}</h3>
+                    <p className="mt-1 text-sm font-bold text-slate-500" dir="ltr">{customer.phone || '-'}</p>
+                    <p className="mt-2 line-clamp-2 text-xs leading-5 text-slate-400">{customer.address || 'لا يوجد عنوان'}</p>
+                  </div>
+                  <button onClick={() => startEdit(customer)} className="rounded-2xl bg-azraq-50 px-3 py-2 text-xs font-extrabold text-azraq-700">
+                    تعديل
+                  </button>
+                </div>
+              </Card>
+            ))}
+          </div>
         </div>
       </div>
     </div>

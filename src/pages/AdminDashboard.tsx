@@ -5,7 +5,6 @@ import { formatCurrency } from '../lib/labels';
 import { supabase } from '../lib/supabase';
 import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
 import type { AppAnnouncement, CustomerDebt, Order, OrderItem, Product } from '../types/database';
-import { APP_VERSION, checkForUpdate } from '../lib/version';
 
 const ANNOUNCEMENT_ID = '00000000-0000-0000-0000-000000000001';
 
@@ -30,7 +29,7 @@ function AdminAnnouncementCard() {
       return;
     }
     setSaving(true);
-    const { error } = await supabase.from('app_announcements').upsert({
+    const { error: saveError } = await supabase.from('app_announcements').upsert({
       id: ANNOUNCEMENT_ID,
       title: form.title.trim(),
       body: form.body.trim(),
@@ -38,9 +37,9 @@ function AdminAnnouncementCard() {
       updated_at: new Date().toISOString(),
     });
     setSaving(false);
-    if (error) {
-      console.error('APP_ANNOUNCEMENT_SAVE_FAILED', error);
-      toast.error('مش قادرين نحفظ الإعلان، شغل migration الأول');
+    if (saveError) {
+      console.error('APP_ANNOUNCEMENT_SAVE_FAILED', saveError);
+      toast.error('شغل migration الخاص بإعلانات العملاء الأول');
       return;
     }
     toast.success('الإعلان اتحفظ وهيظهر للعملاء');
@@ -52,7 +51,7 @@ function AdminAnnouncementCard() {
       <h2 className="font-display text-xl font-extrabold">إعلان العملاء</h2>
       <p className="mt-1 text-sm text-slate-500">رسالة عامة تظهر للعميل أول ما يفتح التطبيق.</p>
       {loading && <LoadingState label="بنحمّل الإعلان..." />}
-      {error && <ErrorState message="جدول الإعلانات لسه مش متفعل. شغل migration الخاص بالعروض والإعلانات." />}
+      {error && <ErrorState message="جدول الإعلانات لسه مش متفعل. شغل migration الخاص بالإعلانات." />}
       {!loading && (
         <form onSubmit={submit} className="mt-3 grid gap-3">
           <Input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} placeholder="مثال: عيد سعيد" />
@@ -69,10 +68,6 @@ function AdminAnnouncementCard() {
 }
 
 export function AdminDashboard() {
-  const [updateInfo, setUpdateInfo] = useState<{ version?: string; notes?: string; url?: string } | null>(null);
-  useEffect(() => {
-    checkForUpdate().then(setUpdateInfo).catch(() => setUpdateInfo(null));
-  }, []);
   const { data, loading, error } = useSupabaseQuery(async () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -144,12 +139,6 @@ export function AdminDashboard() {
 
       {!loading && !error && (
         <>
-          {updateInfo && (
-            <Card className="mb-4 border-amber-100 bg-amber-50">
-              <p className="text-sm font-extrabold text-amber-800">يوجد إصدار جديد {updateInfo.version}</p>
-              {updateInfo.notes && <p className="mt-1 text-sm text-amber-700">{updateInfo.notes}</p>}
-            </Card>
-          )}
           <div className="grid gap-3 grid-cols-2 xl:grid-cols-4">
             {orderCards.map(([label, value]) => (
               <Card key={label as string} className="min-h-[104px] p-4">
@@ -203,7 +192,6 @@ export function AdminDashboard() {
               </div>
             </Card>
           </div>
-          <p className="mt-6 text-center text-xs font-bold text-slate-400">v{APP_VERSION}</p>
         </>
       )}
     </div>

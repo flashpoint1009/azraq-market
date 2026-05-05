@@ -1,5 +1,5 @@
 import { createContext, useContext, useMemo, useState } from 'react';
-import { calculateCartTotals } from '../lib/cartMath';
+import { getProductPricing } from '../lib/pricing';
 import type { Product } from '../types/database';
 
 export type CartItem = {
@@ -24,7 +24,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
 
   const value = useMemo<CartContextValue>(() => {
-    const { total, count } = calculateCartTotals(items);
+    const total = items.reduce((sum, item) => sum + getProductPricing(item.product).finalPrice * item.quantity, 0);
+    const count = items.reduce((sum, item) => sum + item.quantity, 0);
 
     return {
       items,

@@ -1,78 +1,103 @@
-import { useMemo } from 'react';
 import toast from 'react-hot-toast';
-import { Clock3, Flame, Sparkles, Zap } from 'lucide-react';
+import { CalendarDays, Flame, Sparkles } from 'lucide-react';
 import { ProductCard } from '../components/ProductCard';
-import { EmptyState, ErrorState, LoadingState } from '../components/ui';
+import { Card, EmptyState, ErrorState, LoadingState } from '../components/ui';
 import { useCart } from '../context/CartContext';
+import { formatCurrency } from '../lib/labels';
 import { supabase } from '../lib/supabase';
 import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
-import type { Product } from '../types/database';
+import type { Product, Promotion } from '../types/database';
+
+function describePromotion(promotion: Promotion) {
+  const discount = promotion.discount_type === 'percentage' ? `${promotion.discount_value}%` : formatCurrency(promotion.discount_value);
+  if (promotion.promotion_type === 'order_total') return `خصم ${discount} على طلب بقيمة ${formatCurrency(promotion.min_order_amount || 0)}`;
+  if (promotion.promotion_type === 'quantity') return `خصم ${discount} عند شراء ${promotion.min_quantity || 1} قطع`;
+  if (promotion.promotion_type === 'bundle') return `عرض مجمع بخصم ${discount}`;
+  return `خصم ${discount}`;
+}
 
 export function DealsPage() {
   const { addItem } = useCart();
   const { data, loading, error } = useSupabaseQuery(async () => {
-    const { data, error } = await supabase.from('products').select('*, categories(id,name)').eq('is_available', true).order('created_at', { ascending: false });
-    if (error) throw error;
-    return (data || []) as Product[];
+    const now = new Date().toISOString();
+    const [promotions, products] = await Promise.all([
+      supabase
+        .from('promotions')
+        .select('*, products(id,name,price,image_1_url,unit_type,is_available,stock_quantity,category_id,subcategory_id,description,cost_price,image_2_url,created_at,updated_at)')
+        .eq('is_active', true)
+        .lte('starts_at', now)
+        .gte('ends_at', now)
+        .order('created_at', { ascending: false }),
+      supabase.from('products').select('*').eq('is_available', true).order('created_at', { ascending: false }),
+    ]);
+    if (promotions.error) {
+      console.error('DEALS_PROMOTIONS_FETCH_FAILED', promotions.error);
+      throw promotions.error;
+    }
+    if (products.error) throw products.error;
+    return {
+      promotions: (promotions.data || []) as Promotion[],
+      products: (products.data || []) as Product[],
+    };
   }, []);
 
-  const deals = useMemo(() => (data || []).filter((product) => (product.discount_type ?? 'none') !== 'none' && Number(product.discount_value || 0) > 0), [data]);
+  const productPromotions = (data?.promotions || []).filter((promotion) => promotion.promotion_type !== 'order_total');
+  const orderPromotions = (data?.promotions || []).filter((promotion) => promotion.promotion_type === 'order_total');
 
   return (
     <div className="pb-8">
-      <section className="overflow-hidden rounded-[2rem] bg-gradient-to-br from-azraq-950 via-azraq-800 to-orange-500 p-6 text-white shadow-glow">
+      <section className="overflow-hidden rounded-[2rem] bg-gradient-to-br from-azraq-900 via-azraq-700 to-sky-500 p-6 text-white shadow-glow">
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-extrabold backdrop-blur">
               <Flame size={14} />
-              Flash Deals
+              عروض محددة المدة
             </div>
-            <h1 className="mt-4 font-display text-4xl font-extrabold leading-tight">العروض الخاصة</h1>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-white/80">خصومات مختارة لمحلك، بتتجدد يوميًا على المنتجات المطلوبة.</p>
+            <h1 className="mt-4 font-display text-4xl font-extrabold leading-tight">عروض أزرق ماركت</h1>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-white/80">خصومات على منتجات، كميات، مجموعات، أو إجمالي الطلب.</p>
           </div>
-          <Sparkles className="text-orange-200" size={34} />
-        </div>
-        <div className="mt-6 grid grid-cols-3 gap-2 text-center">
-          {['05', '42', '18'].map((value, index) => (
-            <div key={index} className="rounded-2xl bg-white/15 p-3 backdrop-blur">
-              <p className="font-display text-2xl font-extrabold">{value}</p>
-              <p className="text-[11px] text-white/75">{['ساعات', 'دقائق', 'ثواني'][index]}</p>
-            </div>
-          ))}
+          <Sparkles className="text-sky-100" size={34} />
         </div>
       </section>
 
-      <div className="mt-5 grid gap-3 md:grid-cols-3">
-        {[
-          ['وفر أكتر', 'خصومات تقريبية على كميات الجملة', Zap],
-          ['توصيل أسرع', 'منتجات جاهزة تخرج', Clock3],
-          ['ترشيحات ذكية', 'حسب المنتجات الأكثر طلبًا', Sparkles],
-        ].map(([title, body, Icon]) => (
-          <div key={title as string} className="rounded-2xl bg-white p-4 shadow-soft">
-            <Icon className="text-orange-500" size={22} />
-            <h3 className="mt-3 font-display text-lg font-extrabold text-ink">{title as string}</h3>
-            <p className="mt-1 text-sm text-slate-500">{body as string}</p>
-          </div>
-        ))}
-      </div>
+      {loading && <LoadingState />}
+      {error && <ErrorState message={error} />}
+      {!loading && !error && data?.promotions.length === 0 && <EmptyState title="لا توجد عروض الآن" body="العروض الجديدة ستظهر هنا بمجرد إضافتها من الإدارة." />}
+
+      {!!orderPromotions.length && (
+        <section className="mt-5 grid gap-3 md:grid-cols-2">
+          {orderPromotions.map((promotion) => (
+            <Card key={promotion.id} className="p-4">
+              <h3 className="font-display text-xl font-extrabold text-ink">{promotion.title}</h3>
+              <p className="mt-2 text-sm font-bold text-azraq-700">{describePromotion(promotion)}</p>
+              <p className="mt-3 flex items-center gap-1 text-xs text-slate-400">
+                <CalendarDays size={13} />
+                {new Date(promotion.starts_at).toLocaleDateString('ar-EG')} - {new Date(promotion.ends_at).toLocaleDateString('ar-EG')}
+              </p>
+            </Card>
+          ))}
+        </section>
+      )}
 
       <section className="mt-8">
         <h2 className="font-display text-2xl font-extrabold text-ink">منتجات عليها عرض</h2>
-        <p className="mt-1 text-sm text-slate-500">كل كارت بيعرض توفير تقريبي قبل ما تزود المنتج.</p>
-        {loading && <LoadingState />}
-        {error && <ErrorState message={error} />}
-        {!loading && !error && deals.length === 0 && <EmptyState title="مفيش عروض دلوقتي" body="العروض هتظهر أول ما تتوفر منتجات مناسبة." />}
         <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {deals.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onAdd={(item) => {
-                addItem(item);
-                toast.success('العرض اتضاف لطلبك');
-              }}
-            />
-          ))}
+          {productPromotions.map((promotion) => {
+            const product = (promotion.products || data?.products.find((item) => item.id === promotion.product_id)) as Product | undefined;
+            if (!product) return null;
+            return (
+              <div key={promotion.id} className="grid gap-2">
+                <div className="rounded-2xl bg-white px-3 py-2 text-xs font-extrabold text-emerald-700 shadow-sm">{promotion.title}: {describePromotion(promotion)}</div>
+                <ProductCard
+                  product={product}
+                  onAdd={(item) => {
+                    addItem(item);
+                    toast.success('العرض اتضاف لطلبك');
+                  }}
+                />
+              </div>
+            );
+          })}
         </div>
       </section>
     </div>

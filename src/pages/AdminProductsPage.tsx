@@ -3,12 +3,10 @@ import toast from 'react-hot-toast';
 import { Plus } from 'lucide-react';
 import { Button, Card, EmptyState, ErrorState, Input, LoadingState, PageHeader, Select, Textarea } from '../components/ui';
 import { formatCurrency, unitLabels } from '../lib/labels';
-import { getProductPricing } from '../lib/pricing';
 import { saveProductPayload } from '../lib/productMutations';
-import { optimizeProductImage } from '../lib/imageOptimization';
 import { supabase } from '../lib/supabase';
 import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
-import type { Category, DiscountType, Product, Subcategory, UnitType } from '../types/database';
+import type { Category, Product, Subcategory, UnitType } from '../types/database';
 
 const emptyProduct = {
   name: '',
@@ -17,8 +15,6 @@ const emptyProduct = {
   description: '',
   price: '0',
   cost_price: '0',
-  discount_type: 'none' as DiscountType,
-  discount_value: '0',
   unit_type: 'carton' as UnitType,
   image_1_url: '',
   image_2_url: '',
@@ -72,8 +68,6 @@ export function AdminProductsPage() {
       description: product.description || '',
       price: String(product.price),
       cost_price: String(product.cost_price ?? 0),
-      discount_type: product.discount_type || 'none',
-      discount_value: String(product.discount_value ?? 0),
       unit_type: product.unit_type,
       image_1_url: product.image_1_url || '',
       image_2_url: product.image_2_url || '',
@@ -85,15 +79,11 @@ export function AdminProductsPage() {
   };
 
   const uploadImage = async (file: File, slot: 'first' | 'second') => {
-    const optimized = await optimizeProductImage(file);
-    const safeName = optimized.full.name.replace(/[^\w.-]+/g, '-');
-    const basePath = `products/${Date.now()}-${slot}-${crypto.randomUUID()}`;
-    const path = `${basePath}-${safeName}`;
-    const thumbPath = `${basePath}-${optimized.thumbnail.name.replace(/[^\w.-]+/g, '-')}`;
-    console.info('STORAGE_UPLOAD_START', { slot, path, thumbPath });
-    const { error } = await supabase.storage.from('product-images').upload(path, optimized.full);
+    const safeName = file.name.replace(/[^\w.-]+/g, '-');
+    const path = `products/${Date.now()}-${slot}-${crypto.randomUUID()}-${safeName}`;
+    console.info('STORAGE_UPLOAD_START', { slot, path });
+    const { error } = await supabase.storage.from('product-images').upload(path, file);
     if (error) throw error;
-    await supabase.storage.from('product-images').upload(thumbPath, optimized.thumbnail, { upsert: true });
     const { data } = supabase.storage.from('product-images').getPublicUrl(path);
     console.info('STORAGE_UPLOAD_SUCCESS', { slot, path, publicUrl: data.publicUrl });
     return data.publicUrl;
@@ -101,8 +91,7 @@ export function AdminProductsPage() {
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    const discountValue = Number(form.discount_value) || 0;
-    if (!form.name.trim() || !form.category_id || Number(form.price) < 0 || Number(form.cost_price) < 0 || Number(form.stock_quantity) < 0 || discountValue < 0 || (form.discount_type === 'percent' && discountValue > 100)) {
+    if (!form.name.trim() || !form.category_id || Number(form.price) < 0 || Number(form.cost_price) < 0 || Number(form.stock_quantity) < 0) {
       toast.error('راجع بيانات المنتج قبل الحفظ');
       return;
     }
@@ -125,8 +114,6 @@ export function AdminProductsPage() {
       description: form.description,
       price: Number(form.price) || 0,
       cost_price: Number(form.cost_price) || 0,
-      discount_type: form.discount_type,
-      discount_value: form.discount_type === 'none' ? 0 : discountValue,
       unit_type: form.unit_type,
       image_1_url: image1Url,
       image_2_url: image2Url,
@@ -187,25 +174,6 @@ export function AdminProductsPage() {
               سعر التكلفة
               <Input required type="number" min="0" step="0.01" value={form.cost_price} onChange={(e) => setForm({ ...form, cost_price: e.target.value })} />
             </label>
-            <div className="grid gap-2 rounded-2xl border border-orange-100 bg-orange-50/60 p-3">
-              <label className="grid gap-1 text-xs font-bold text-slate-600">
-                نوع العرض
-                <Select value={form.discount_type} onChange={(e) => setForm({ ...form, discount_type: e.target.value as DiscountType })}>
-                  <option value="none">بدون عرض</option>
-                  <option value="percent">خصم نسبة %</option>
-                  <option value="amount">خصم قيمة</option>
-                </Select>
-              </label>
-              <label className="grid gap-1 text-xs font-bold text-slate-600">
-                قيمة الخصم
-                <Input type="number" min="0" max={form.discount_type === 'percent' ? 100 : undefined} step="0.01" value={form.discount_value} onChange={(e) => setForm({ ...form, discount_value: e.target.value })} disabled={form.discount_type === 'none'} />
-              </label>
-              {form.discount_type !== 'none' && Number(form.discount_value) > 0 && (
-                <p className="text-xs font-extrabold text-orange-700">
-                  السعر بعد العرض: {formatCurrency(getProductPricing({ ...emptyProduct, ...form, id: editing?.id || '', price: Number(form.price) || 0, cost_price: Number(form.cost_price) || 0, discount_value: Number(form.discount_value) || 0, created_at: '', updated_at: '', stock_quantity: Number(form.stock_quantity) || 0 }).finalPrice)}
-                </p>
-              )}
-            </div>
             <label className="grid gap-1 text-xs font-bold text-slate-500">
               الكمية المتاحة
               <Input required type="number" min="0" value={form.stock_quantity} onChange={(e) => setForm({ ...form, stock_quantity: e.target.value })} />
@@ -246,8 +214,7 @@ export function AdminProductsPage() {
                 </div>
                 <div>
                   <h3 className="font-display text-lg font-extrabold">{product.name}</h3>
-                  <p className="text-sm text-slate-500">{product.categories?.name || 'بدون قسم'} / {product.subcategories?.name || 'بدون فرعي'} - {formatCurrency(getProductPricing(product).finalPrice)} / {unitLabels[product.unit_type]}</p>
-                  {getProductPricing(product).hasDiscount && <p className="text-xs font-extrabold text-orange-600">العرض وفر لك {formatCurrency(getProductPricing(product).saving)}</p>}
+                  <p className="text-sm text-slate-500">{product.categories?.name || 'بدون قسم'} / {product.subcategories?.name || 'بدون فرعي'} - {formatCurrency(product.price)} / {unitLabels[product.unit_type]}</p>
                   <p className="text-xs font-bold text-slate-500">المخزون: {product.stock_quantity ?? 'غير محفوظ'} - التكلفة: {formatCurrency(product.cost_price ?? 0)}</p>
                   <p className={(product.is_available && (product.stock_quantity == null || product.stock_quantity > 0)) ? 'text-xs font-bold text-emerald-600' : 'text-xs font-bold text-rose-600'}>{(product.is_available && (product.stock_quantity == null || product.stock_quantity > 0)) ? 'متاح' : 'مش متاح دلوقتي'}</p>
                 </div>

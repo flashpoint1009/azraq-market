@@ -18,7 +18,7 @@ export function AppAnnouncement() {
       .maybeSingle()
       .then(({ data, error }) => {
         if (!mounted || error || !data) return;
-        const storageKey = `market-announcement-${data.id}-${data.updated_at}`;
+        const storageKey = `azraq-announcement-${data.id}-${data.updated_at}`;
         if (localStorage.getItem(storageKey)) return;
         setAnnouncement(data as AppAnnouncementType);
       });
@@ -31,7 +31,7 @@ export function AppAnnouncement() {
   if (!announcement) return null;
 
   const close = () => {
-    localStorage.setItem(`market-announcement-${announcement.id}-${announcement.updated_at}`, 'seen');
+    localStorage.setItem(`azraq-announcement-${announcement.id}-${announcement.updated_at}`, 'seen');
     setAnnouncement(null);
   };
 

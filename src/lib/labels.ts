@@ -1,5 +1,4 @@
 import type { OrderStatus, Role, UnitType } from '../types/database';
-import { TENANT_CONFIG } from '../config/tenant';
 
 export const roleLabels: Record<Role, string> = {
   customer: 'عميل',
@@ -16,12 +15,12 @@ export const unitLabels: Record<UnitType, string> = {
 
 export const statusLabels: Record<OrderStatus, string> = {
   new: 'طلب جديد',
-  preparing: 'بنجهز طلبك',
+  preparing: 'جاري التجهيز',
   ready_for_delivery: 'جاهز للتسليم',
   with_delivery: 'في الطريق',
-  delivered: 'الطلب وصلك',
+  delivered: 'تم التوصيل',
   rejected: 'مرفوض',
-  cancelled: 'اتلغى',
+  cancelled: 'ملغي',
 };
 
 export const statusTone: Record<OrderStatus, string> = {
@@ -37,7 +36,7 @@ export const statusTone: Record<OrderStatus, string> = {
 export const statusFlow: OrderStatus[] = ['new', 'preparing', 'ready_for_delivery', 'with_delivery', 'delivered'];
 
 export const formatCurrency = (value: number | null | undefined) =>
-  new Intl.NumberFormat('ar-EG', { style: 'currency', currency: TENANT_CONFIG.currency, maximumFractionDigits: 2 }).format(value ?? 0);
+  new Intl.NumberFormat('ar-EG', { style: 'currency', currency: 'EGP', maximumFractionDigits: 2 }).format(value ?? 0);
 
 export const formatDate = (value: string) =>
   new Intl.DateTimeFormat('ar-EG', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value));

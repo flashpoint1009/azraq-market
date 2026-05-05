@@ -1,6 +1,5 @@
 import type { ButtonHTMLAttributes, InputHTMLAttributes, SelectHTMLAttributes, TextareaHTMLAttributes } from 'react';
 import { AlertCircle, Loader2 } from 'lucide-react';
-import { TENANT_CONFIG } from '../config/tenant';
 
 export function Button({ className = '', children, ...props }: ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
@@ -44,7 +43,7 @@ export function PageHeader({ title, subtitle, action }: { title: string; subtitl
   return (
     <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.25em] text-azraq-500">{TENANT_CONFIG.brandName}</p>
+        <p className="text-xs font-bold uppercase tracking-[0.25em] text-azraq-500">أزرق ماركت</p>
         <h1 className="mt-1 font-display text-3xl font-extrabold text-ink">{title}</h1>
         {subtitle && <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">{subtitle}</p>}
       </div>

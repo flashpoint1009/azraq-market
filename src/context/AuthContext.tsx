@@ -50,7 +50,7 @@ function profileFromSession(session: Session, role: Role): Profile {
   return {
     id: session.user.id,
     phone: metadata?.phone ?? null,
-    full_name: metadata?.full_name ?? 'مستخدم',
+    full_name: metadata?.full_name ?? 'مستخدم أزرق',
     role,
     address: metadata?.address ?? null,
     latitude: null,

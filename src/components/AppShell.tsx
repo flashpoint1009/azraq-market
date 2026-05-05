@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
-import { BarChart3, Bell, Boxes, ClipboardList, Flame, Headphones, Heart, Home, LayoutDashboard, LogOut, MapPinHouse, MapPinned, Package, ReceiptText, Settings2, ShoppingCart, Star, Tags, TicketPercent, UserRound, Users } from 'lucide-react';
+import { BarChart3, Bell, Boxes, ClipboardList, Code2, Headphones, Home, LayoutDashboard, LogOut, MapPinHouse, MapPinned, Package, Percent, ReceiptText, ShieldCheck, ShoppingCart, Tags, UserRound, Users } from 'lucide-react';
 import { AppAnnouncement } from './AppAnnouncement';
 import { LogoMark } from './Brand';
 import { useAuth } from '../context/AuthContext';
@@ -8,28 +8,25 @@ import { useCart } from '../context/CartContext';
 import { useRealtimeNotifications } from '../hooks/useRealtimeNotifications';
 import { roleLabels } from '../lib/labels';
 import { hasPermission } from '../lib/permissions';
-import { TENANT_CONFIG } from '../config/tenant';
 
 const customerNav = [
-  { to: '/wishlist', label: 'المفضلة', icon: Heart },
   { to: '/', label: 'الرئيسية', icon: Home },
-  { to: '/deals', label: 'العروض', icon: Flame },
   { to: '/orders', label: 'طلباتي', icon: ClipboardList },
   { to: '/cart', label: 'طلبك', icon: ShoppingCart },
   { to: '/profile', label: 'حسابي', icon: UserRound },
 ];
 
 const adminNav = [
-  { to: '/admin/analytics', label: 'التحليلات', icon: BarChart3 },
-  { to: '/admin/coupons', label: 'الكوبونات', icon: TicketPercent },
-  { to: '/admin/reviews', label: 'التقييمات', icon: Star },
-  { to: '/admin/setup', label: 'الإعداد الأول', icon: Settings2 },
   { to: '/admin', label: 'اللوحة', icon: LayoutDashboard },
+  { to: '/admin/reports', label: 'التقارير', icon: BarChart3 },
   { to: '/admin/products', label: 'المنتجات', icon: Package },
   { to: '/admin/purchases', label: 'المشتريات', icon: ReceiptText },
   { to: '/admin/categories', label: 'الأقسام', icon: Tags },
+  { to: '/admin/offers', label: 'العروض', icon: Percent },
   { to: '/admin/orders', label: 'الطلبات', icon: ClipboardList },
+  { to: '/admin/users', label: 'المستخدمين', icon: ShieldCheck },
   { to: '/admin/customers', label: 'العملاء', icon: Users },
+  { to: '/admin/developer', label: 'المطور', icon: Code2 },
 ];
 
 const warehouseNav = [
@@ -44,6 +41,11 @@ const deliveryNav = [
   { to: '/delivery/orders', label: 'التوصيل', icon: ClipboardList },
 ];
 
+const customerSecondaryNav = [
+  { to: '/profile', label: 'العناوين', icon: MapPinHouse },
+  { to: '/support', label: 'الدعم', icon: Headphones },
+];
+
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
@@ -56,16 +58,16 @@ export function AppShell({ mode }: { mode: 'customer' | 'admin' | 'warehouse' | 
   const location = useLocation();
   const nav = (mode === 'admin' ? adminNav : mode === 'warehouse' ? warehouseNav : mode === 'delivery' ? deliveryNav : customerNav).filter((item) => {
     if (mode !== 'admin') return true;
-    if (item.to === '/admin/analytics') return hasPermission(profile, 'reports');
-    if (item.to === '/admin/coupons') return hasPermission(profile, 'orders');
-    if (item.to === '/admin/reviews') return hasPermission(profile, 'products');
-    if (item.to === '/admin/setup') return hasPermission(profile, 'settings');
     if (item.to === '/admin') return hasPermission(profile, 'reports');
+    if (item.to === '/admin/reports') return hasPermission(profile, 'reports');
     if (item.to === '/admin/products') return hasPermission(profile, 'products');
     if (item.to === '/admin/purchases') return hasPermission(profile, 'purchases');
     if (item.to === '/admin/categories') return hasPermission(profile, 'categories');
+    if (item.to === '/admin/offers') return hasPermission(profile, 'offers');
     if (item.to === '/admin/orders') return hasPermission(profile, 'orders');
-    if (item.to === '/admin/customers') return hasPermission(profile, 'users');
+    if (item.to === '/admin/customers') return profile?.role === 'admin' || hasPermission(profile, 'customers');
+    if (item.to === '/admin/users') return profile?.role === 'admin' || hasPermission(profile, 'users');
+    if (item.to === '/admin/developer') return hasPermission(profile, 'developer');
     return true;
   });
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
@@ -87,19 +89,19 @@ export function AppShell({ mode }: { mode: 'customer' | 'admin' | 'warehouse' | 
   };
 
   return (
-    <div className="min-h-screen bg-[#F4FAFF] text-ink">
+    <div className="min-h-screen bg-pearl text-ink">
       <aside className="fixed inset-y-0 right-0 z-30 hidden w-72 border-l border-white/80 bg-white/80 p-5 shadow-soft backdrop-blur-xl lg:block">
         <LogoMark />
         <div className="mt-8 rounded-[1.5rem] bg-gradient-to-br from-azraq-700 to-azraq-950 p-4 text-white shadow-soft">
           <div className="mb-3 grid h-14 w-14 place-items-center rounded-2xl bg-white/15">
             <UserRound size={25} />
           </div>
-          <p className="text-xs font-bold text-azraq-500">{profile?.role ? roleLabels[profile.role] : 'مستخدم'}</p>
-          <p className="mt-1 font-display text-lg font-extrabold">{profile?.full_name || profile?.phone || TENANT_CONFIG.brandName}</p>
+          <p className="text-xs font-bold text-azraq-300">{profile?.role ? roleLabels[profile.role] : 'مستخدم'}</p>
+          <p className="mt-1 font-display text-lg font-extrabold">{profile?.full_name || profile?.phone || 'أزرق ماركت'}</p>
           {profile?.phone && <p className="mt-1 text-xs text-white/70" dir="ltr">{profile.phone}</p>}
           {profile?.address && <p className="mt-2 line-clamp-2 text-xs leading-5 text-white/70">{profile.address}</p>}
         </div>
-        <nav className="mt-6 space-y-2">
+        <nav className="mt-6 max-h-[calc(100vh-310px)] space-y-2 overflow-y-auto pr-1">
           {nav.map((item) => (
             <NavLink key={item.to} to={item.to} end className={({ isActive }) => `flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition ${isActive ? 'bg-azraq-700 text-white shadow-soft' : 'text-slate-600 hover:bg-azraq-50 hover:text-azraq-800'}`}>
               <item.icon size={18} />
@@ -110,20 +112,17 @@ export function AppShell({ mode }: { mode: 'customer' | 'admin' | 'warehouse' | 
         </nav>
         {mode === 'customer' && (
           <div className="mt-5 grid gap-2">
-            {[
-              ['العناوين', MapPinHouse],
-              ['الدعم', Headphones],
-            ].map(([label, Icon]) => (
-              <NavLink key={label as string} to="/profile" className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-slate-600 transition hover:bg-azraq-50 hover:text-azraq-800">
-                <Icon size={18} />
-                {label as string}
+            {customerSecondaryNav.map((item) => (
+              <NavLink key={item.to} to={item.to} className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-slate-600 transition hover:bg-azraq-50 hover:text-azraq-800">
+                <item.icon size={18} />
+                {item.label}
               </NavLink>
             ))}
           </div>
         )}
-        {installPrompt && (
+        {installPrompt && mode !== 'customer' && (
           <button onClick={installApp} className="mt-4 flex w-full items-center justify-center rounded-2xl bg-orange-50 px-4 py-3 text-sm font-extrabold text-orange-600">
-            ثبّت التطبيق
+            ثبت التطبيق
           </button>
         )}
         <button onClick={signOut} className="absolute bottom-5 right-5 left-5 flex items-center justify-center gap-2 rounded-2xl border border-slate-100 bg-white px-4 py-3 text-sm font-bold text-slate-600">
@@ -132,7 +131,7 @@ export function AppShell({ mode }: { mode: 'customer' | 'admin' | 'warehouse' | 
         </button>
       </aside>
 
-      <main className="mx-auto max-w-7xl px-3 pb-20 pt-3 lg:mr-72 lg:px-6 lg:pb-8">
+      <main className="mx-auto max-w-7xl px-2 pb-20 pt-2 sm:px-3 sm:pt-3 lg:mr-72 lg:px-6 lg:pb-8">
         {mode === 'customer' && <AppAnnouncement />}
         {mode !== 'customer' && <header className="mb-3 flex items-center justify-between rounded-2xl border border-white/80 bg-white/70 p-2 shadow-sm backdrop-blur lg:hidden">
           <LogoMark compact />
@@ -146,7 +145,7 @@ export function AppShell({ mode }: { mode: 'customer' | 'admin' | 'warehouse' | 
             </button>
             {installPrompt && (
               <button onClick={installApp} className="rounded-xl bg-orange-50 px-3 py-2 text-xs font-extrabold text-orange-600">
-                ثبّت
+                ثبت
               </button>
             )}
           </div>
@@ -160,12 +159,12 @@ export function AppShell({ mode }: { mode: 'customer' | 'admin' | 'warehouse' | 
             <p className="text-xs font-extrabold text-slate-500">{count ? `${count} أصناف • ${total.toLocaleString('ar-EG')} ج.م` : 'طلبك فاضي'}</p>
             <p className="text-[11px] font-bold text-slate-400">راجع الطلب قبل الإرسال</p>
           </div>
-          <span className="rounded-xl bg-azraq-700 px-3 py-2 text-xs font-extrabold text-white">كمّل طلبك</span>
+          <span className="rounded-xl bg-azraq-700 px-3 py-2 text-xs font-extrabold text-white">كمل طلبك</span>
         </Link>
       )}
 
-      <nav className={`fixed inset-x-3 bottom-3 z-40 grid ${mode === 'customer' ? 'grid-cols-6' : 'grid-cols-4'} rounded-2xl border border-white/80 bg-white/95 p-1.5 shadow-soft backdrop-blur lg:hidden`}>
-        {nav.slice(0, mode === 'customer' ? 6 : 4).map((item) => {
+      <nav className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-4 rounded-2xl border border-white/80 bg-white/95 p-1.5 shadow-soft backdrop-blur lg:hidden">
+        {(mode === 'admin' ? nav.filter((item) => ['/admin', '/admin/reports', '/admin/orders', '/admin/users'].includes(item.to)) : nav.slice(0, mode === 'customer' ? 5 : 4)).map((item) => {
           const active = location.pathname === item.to || (item.to !== '/' && location.pathname.startsWith(item.to));
           return (
             <NavLink key={item.to} to={item.to} end className={`relative flex flex-col items-center gap-0.5 rounded-xl px-1.5 py-1.5 text-[10px] font-extrabold ${active ? 'bg-azraq-700 text-white' : 'text-slate-500'}`}>

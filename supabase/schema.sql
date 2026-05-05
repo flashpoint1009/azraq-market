@@ -36,21 +36,10 @@ create table if not exists public.products (
   name text not null,
   description text,
   price numeric(12,2) not null default 0 check (price >= 0),
-  discount_type text not null default 'none' check (discount_type in ('none', 'percent', 'amount')),
-  discount_value numeric(12,2) not null default 0 check (discount_value >= 0),
   unit_type public.unit_type not null default 'carton',
   image_1_url text,
   image_2_url text,
   is_available boolean not null default true,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
-
-create table if not exists public.app_announcements (
-  id uuid primary key default gen_random_uuid(),
-  title text not null default '',
-  body text not null default '',
-  is_active boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -118,9 +107,6 @@ create trigger products_touch_updated_at before update on public.products for ea
 
 drop trigger if exists orders_touch_updated_at on public.orders;
 create trigger orders_touch_updated_at before update on public.orders for each row execute function public.touch_updated_at();
-
-drop trigger if exists app_announcements_touch_updated_at on public.app_announcements;
-create trigger app_announcements_touch_updated_at before update on public.app_announcements for each row execute function public.touch_updated_at();
 
 create or replace function public.current_role()
 returns public.user_role
@@ -241,7 +227,6 @@ alter table public.orders enable row level security;
 alter table public.order_items enable row level security;
 alter table public.notifications enable row level security;
 alter table public.order_status_history enable row level security;
-alter table public.app_announcements enable row level security;
 
 drop policy if exists "profiles_select" on public.profiles;
 create policy "profiles_select" on public.profiles for select using (id = auth.uid() or public.is_staff());
@@ -259,11 +244,6 @@ drop policy if exists "products_select" on public.products;
 create policy "products_select" on public.products for select using (auth.role() = 'authenticated');
 drop policy if exists "products_admin_all" on public.products;
 create policy "products_admin_all" on public.products for all using (public.is_admin()) with check (public.is_admin());
-
-drop policy if exists "app_announcements_customer_select" on public.app_announcements;
-create policy "app_announcements_customer_select" on public.app_announcements for select using ((auth.role() = 'authenticated' and is_active = true) or public.is_staff());
-drop policy if exists "app_announcements_admin_all" on public.app_announcements;
-create policy "app_announcements_admin_all" on public.app_announcements for all using (public.is_admin()) with check (public.is_admin());
 
 drop policy if exists "orders_select" on public.orders;
 create policy "orders_select" on public.orders for select using (customer_id = auth.uid() or public.is_staff());
