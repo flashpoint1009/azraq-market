@@ -4,6 +4,8 @@ import { AppShell } from './components/AppShell';
 import { ProtectedRoute } from './routes/ProtectedRoute';
 import { useAuth } from './context/AuthContext';
 
+const AdminAnalyticsPage = lazy(() => import('./pages/AdminAnalyticsPage').then((module) => ({ default: module.AdminAnalyticsPage })));
+const AdminCouponsPage = lazy(() => import('./pages/AdminCouponsPage').then((module) => ({ default: module.AdminCouponsPage })));
 const AdminCustomersPage = lazy(() => import('./pages/AdminCustomersPage').then((module) => ({ default: module.AdminCustomersPage })));
 const AdminCategoriesPage = lazy(() => import('./pages/AdminCategoriesPage').then((module) => ({ default: module.AdminCategoriesPage })));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard').then((module) => ({ default: module.AdminDashboard })));
@@ -12,6 +14,7 @@ const AdminProductsPage = lazy(() => import('./pages/AdminProductsPage').then((m
 const AdminPurchasesPage = lazy(() => import('./pages/AdminPurchasesPage').then((module) => ({ default: module.AdminPurchasesPage })));
 const AdminOffersPage = lazy(() => import('./pages/AdminOffersPage').then((module) => ({ default: module.AdminOffersPage })));
 const AdminReportsPage = lazy(() => import('./pages/AdminReportsPage').then((module) => ({ default: module.AdminReportsPage })));
+const AdminReviewsPage = lazy(() => import('./pages/AdminReviewsPage').then((module) => ({ default: module.AdminReviewsPage })));
 const AdminUsersPage = lazy(() => import('./pages/AdminUsersPage').then((module) => ({ default: module.AdminUsersPage })));
 const CartPage = lazy(() => import('./pages/CartPage').then((module) => ({ default: module.CartPage })));
 const CustomerHome = lazy(() => import('./pages/CustomerHome').then((module) => ({ default: module.CustomerHome })));
@@ -25,6 +28,7 @@ const ProductDetails = lazy(() => import('./pages/ProductDetails').then((module)
 const ProfilePage = lazy(() => import('./pages/ProfilePage').then((module) => ({ default: module.ProfilePage })));
 const SupportPage = lazy(() => import('./pages/SupportPage').then((module) => ({ default: module.SupportPage })));
 const WarehousePage = lazy(() => import('./pages/WarehousePage').then((module) => ({ default: module.WarehousePage })));
+const WishlistPage = lazy(() => import('./pages/WishlistPage').then((module) => ({ default: module.WishlistPage })));
 
 function PageFallback() {
   return (
@@ -51,6 +55,7 @@ export function App() {
             <Route path="products/:id" element={<ProductDetails />} />
             <Route path="cart" element={<CartPage />} />
             <Route path="orders" element={<OrdersPage />} />
+            <Route path="wishlist" element={<WishlistPage />} />
             <Route path="profile" element={<ProfilePage />} />
             <Route path="support" element={<SupportPage />} />
           </Route>
@@ -59,10 +64,13 @@ export function App() {
           <Route element={<AppShell mode="admin" />}>
             <Route path="admin" element={<ProtectedRoute permissions={['reports']}><AdminDashboard /></ProtectedRoute>} />
             <Route path="admin/reports" element={<ProtectedRoute permissions={['reports']}><AdminReportsPage /></ProtectedRoute>} />
+            <Route path="admin/analytics" element={<ProtectedRoute permissions={['reports']}><AdminAnalyticsPage /></ProtectedRoute>} />
             <Route path="admin/products" element={<ProtectedRoute permissions={['products']}><AdminProductsPage /></ProtectedRoute>} />
             <Route path="admin/purchases" element={<ProtectedRoute permissions={['purchases']}><AdminPurchasesPage /></ProtectedRoute>} />
             <Route path="admin/categories" element={<ProtectedRoute permissions={['categories']}><AdminCategoriesPage /></ProtectedRoute>} />
             <Route path="admin/offers" element={<ProtectedRoute permissions={['offers']}><AdminOffersPage /></ProtectedRoute>} />
+            <Route path="admin/coupons" element={<ProtectedRoute permissions={['offers']}><AdminCouponsPage /></ProtectedRoute>} />
+            <Route path="admin/reviews" element={<ProtectedRoute permissions={['products']}><AdminReviewsPage /></ProtectedRoute>} />
             <Route path="admin/orders" element={<ProtectedRoute permissions={['orders']}><OrdersManagementPage /></ProtectedRoute>} />
             <Route path="admin/customers" element={<ProtectedRoute permissions={['customers']}><AdminCustomersPage /></ProtectedRoute>} />
             <Route path="admin/users" element={<ProtectedRoute permissions={['users']}><AdminUsersPage /></ProtectedRoute>} />

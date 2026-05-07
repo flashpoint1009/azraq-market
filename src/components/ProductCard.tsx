@@ -1,15 +1,43 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Package, Plus } from 'lucide-react';
+import { Heart, Package, Plus } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { formatCurrency, unitLabels } from '../lib/labels';
 import { getProductPricing } from '../lib/pricing';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../context/AuthContext';
 import type { Product } from '../types/database';
 
 export function ProductCard({ product, onAdd, list = false }: { product: Product; onAdd: (product: Product) => void; list?: boolean }) {
+  const { profile } = useAuth();
+  const [wishlisted, setWishlisted] = useState(false);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
+
   const hasStockColumn = product.stock_quantity !== null && product.stock_quantity !== undefined;
   const canBuy = product.is_available && (!hasStockColumn || product.stock_quantity > 0);
   const pricing = getProductPricing(product);
   const imageUrl = product.image_1_url || product.image_2_url || '';
   const shouldLoadImage = Boolean(imageUrl);
+
+  const toggleWishlist = async () => {
+    if (!profile?.id) return;
+    setWishlistLoading(true);
+    try {
+      if (wishlisted) {
+        await supabase.from('wishlists').delete().eq('user_id', profile.id).eq('product_id', product.id);
+        setWishlisted(false);
+        toast.success('اتشال من المفضلة');
+      } else {
+        await supabase.from('wishlists').upsert({ user_id: profile.id, product_id: product.id }, { onConflict: 'user_id,product_id' });
+        setWishlisted(true);
+        toast.success('اتضاف للمفضلة');
+      }
+    } catch {
+      toast.error('في مشكلة، حاول تاني');
+    } finally {
+      setWishlistLoading(false);
+    }
+  };
 
   return (
     <article className={`relative overflow-hidden rounded-[18px] border border-slate-100 bg-white p-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${list ? 'grid min-h-[132px] grid-cols-[96px_1fr] gap-2' : 'h-[268px] pb-14'}`}>
@@ -18,6 +46,18 @@ export function ProductCard({ product, onAdd, list = false }: { product: Product
         <span className="absolute left-2 top-2 z-10 rounded-full bg-orange-500 px-2 py-1 text-[10px] font-extrabold text-white">
           وفر {pricing.discountLabel || formatCurrency(pricing.saving)}
         </span>
+      )}
+
+      {profile?.role === 'customer' && (
+        <button
+          type="button"
+          onClick={toggleWishlist}
+          disabled={wishlistLoading}
+          className={`absolute left-2 bottom-2 z-10 grid h-8 w-8 place-items-center rounded-full shadow transition ${wishlisted ? 'bg-rose-500 text-white' : 'bg-white text-slate-400 ring-1 ring-slate-200'}`}
+          aria-label="أضف للمفضلة"
+        >
+          <Heart size={14} fill={wishlisted ? 'currentColor' : 'none'} />
+        </button>
       )}
 
       <Link to={`/products/${product.id}`} className={`block overflow-hidden rounded-2xl bg-[#eef6fa] ${list ? 'h-24' : 'h-[132px]'}`}>

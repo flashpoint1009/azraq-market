@@ -5,6 +5,7 @@ export type PaymentMethod = 'cash_on_delivery';
 export type PermissionKey = 'reports' | 'products' | 'purchases' | 'categories' | 'orders' | 'customers' | 'users' | 'offers' | 'developer' | 'settings' | 'data';
 export type DiscountType = 'percentage' | 'fixed';
 export type PromotionType = 'product' | 'quantity' | 'bundle' | 'order_total';
+export type CouponType = 'percent' | 'fixed';
 
 export type Profile = {
   id: string;
@@ -220,6 +221,38 @@ export type OrderStatusHistory = {
   profiles?: Pick<Profile, 'full_name' | 'role'> | null;
 };
 
+export type Coupon = {
+  id: string;
+  code: string;
+  type: CouponType;
+  value: number;
+  min_order: number;
+  max_uses: number | null;
+  used_count: number;
+  expires_at: string | null;
+  is_active: boolean;
+  created_at: string;
+};
+
+export type ProductReview = {
+  id: string;
+  product_id: string;
+  user_id: string;
+  rating: number;
+  comment: string | null;
+  created_at: string;
+  profiles?: Pick<Profile, 'full_name' | 'phone'> | null;
+  products?: Pick<Product, 'id' | 'name'> | null;
+};
+
+export type Wishlist = {
+  id: string;
+  user_id: string;
+  product_id: string;
+  created_at: string;
+  products?: Product | null;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -242,6 +275,9 @@ export type Database = {
       developer_reports: { Row: DeveloperReport; Insert: Partial<DeveloperReport>; Update: Partial<DeveloperReport>; Relationships: [] };
       customer_debts: { Row: CustomerDebt; Insert: Partial<CustomerDebt>; Update: Partial<CustomerDebt>; Relationships: [] };
       customer_reservations: { Row: CustomerReservation; Insert: Partial<CustomerReservation>; Update: Partial<CustomerReservation>; Relationships: [] };
+      coupons: { Row: Coupon; Insert: Partial<Coupon>; Update: Partial<Coupon>; Relationships: [] };
+      product_reviews: { Row: ProductReview; Insert: Partial<ProductReview>; Update: Partial<ProductReview>; Relationships: [] };
+      wishlists: { Row: Wishlist; Insert: Partial<Wishlist>; Update: Partial<Wishlist>; Relationships: [] };
     };
     Views: Record<string, never>;
     Functions: {
