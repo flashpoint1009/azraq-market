@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Bell, Boxes, Headphones, Home, Menu, PackageCheck, Search, ShoppingCart, Sparkles, Tags, UserRound, X, Zap } from 'lucide-react';
+import { Bell, Boxes, Headphones, Heart, Home, Menu, PackageCheck, Search, ShoppingCart, Sparkles, Tags, UserRound, X, Zap } from 'lucide-react';
 import { LogoMark } from '../components/Brand';
 import { ProductCard } from '../components/ProductCard';
 import { EmptyState, ErrorState, LoadingState, SecondaryButton } from '../components/ui';
@@ -117,6 +117,7 @@ export function CustomerHome() {
     { to: '/', label: 'الأقسام', icon: Tags },
     { to: '/orders', label: 'طلباتي', icon: PackageCheck },
     { to: '/cart', label: 'طلبك', icon: ShoppingCart },
+    { to: '/wishlist', label: 'المفضلة', icon: Heart },
     { to: '/profile', label: 'حسابي', icon: UserRound },
     { to: '/support', label: 'الدعم', icon: Headphones },
   ];

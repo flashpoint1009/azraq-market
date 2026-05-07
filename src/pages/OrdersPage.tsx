@@ -1,13 +1,39 @@
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { ChevronLeft, Plus } from 'lucide-react';
-import { Button, Card, EmptyState, ErrorState, LoadingState } from '../components/ui';
+import { Button, Card, EmptyState, ErrorState } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { formatCurrency, statusLabels } from '../lib/labels';
 import { supabase } from '../lib/supabase';
 import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
 import type { Order, Product } from '../types/database';
+
+function SkeletonOrderCard() {
+  return (
+    <div className="animate-pulse rounded-[1.75rem] border border-white/80 bg-white/90 p-5 shadow-soft">
+      <div className="flex items-start justify-between gap-3">
+        <div className="space-y-2">
+          <div className="h-3 w-24 rounded-full bg-slate-100" />
+          <div className="h-5 w-32 rounded-full bg-slate-100" />
+        </div>
+        <div className="h-5 w-20 rounded-full bg-slate-100" />
+      </div>
+      <div className="mt-3 h-3 w-36 rounded-full bg-slate-100" />
+      <div className="mt-4 h-9 w-full rounded-2xl bg-slate-100" />
+    </div>
+  );
+}
+
+const statusColors: Record<string, string> = {
+  new: 'bg-blue-50 text-blue-700',
+  preparing: 'bg-amber-50 text-amber-700',
+  ready_for_delivery: 'bg-purple-50 text-purple-700',
+  with_delivery: 'bg-orange-50 text-orange-700',
+  delivered: 'bg-emerald-50 text-emerald-700',
+  rejected: 'bg-rose-50 text-rose-700',
+  cancelled: 'bg-slate-100 text-slate-500',
+};
 
 export function OrdersPage() {
   const { profile } = useAuth();
@@ -43,20 +69,31 @@ export function OrdersPage() {
         <h1 className="font-display text-2xl font-extrabold text-ink">طلباتي</h1>
         <p className="text-xs font-bold text-slate-400">تابع حالة كل طلب بسرعة</p>
       </div>
-      {loading && <LoadingState />}
+
+      {loading && (
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, index) => <SkeletonOrderCard key={index} />)}
+        </div>
+      )}
       {error && <ErrorState message={error} />}
       {!loading && !error && orders?.length === 0 && <EmptyState title="لسه مفيش طلبات" body="أول طلب هتبعته هيظهر هنا." />}
+
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {orders?.map((order) => (
           <Card key={order.id} className="p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs font-bold text-slate-400">طلب #{order.id.slice(0, 8)}</p>
-                <h2 className="mt-1 text-lg font-extrabold text-ink">{statusLabels[order.status]}</h2>
+                <span className={`mt-1 inline-block rounded-full px-3 py-1 text-xs font-extrabold ${statusColors[order.status] || 'bg-slate-100 text-slate-500'}`}>
+                  {statusLabels[order.status]}
+                </span>
               </div>
-              <strong className="text-azraq-800">{formatCurrency(order.total_amount)}</strong>
+              <strong className="text-lg font-extrabold text-azraq-800">{formatCurrency(order.total_amount)}</strong>
             </div>
             <p className="mt-3 text-xs font-bold text-slate-400">{new Date(order.created_at).toLocaleString('ar-EG')}</p>
+            {order.order_items && order.order_items.length > 0 && (
+              <p className="mt-1 text-xs font-bold text-slate-400">{order.order_items.length} أصناف</p>
+            )}
             <div className="mt-4 grid gap-2">
               <Link to={`/orders/${order.id}`} className="inline-flex items-center justify-center gap-1 rounded-2xl bg-[#F4FAFF] px-4 py-2 text-sm font-extrabold text-azraq-700">
                 عرض التفاصيل <ChevronLeft size={15} />
