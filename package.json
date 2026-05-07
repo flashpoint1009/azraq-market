@@ -1,6 +1,6 @@
 {
   "name": "azraq-market",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "description": "Azraq Market Arabic B2B PWA powered by React, Vite, TypeScript, Tailwind CSS, and Supabase.",
@@ -14,6 +14,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@sentry/react": "^8.0.0",
     "@supabase/supabase-js": "^2.43.4",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.468.0",

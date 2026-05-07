@@ -6,7 +6,10 @@ import { App } from './App';
 import { AppTheme } from './components/Brand';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { initSentry } from './lib/sentry';
 import './styles.css';
+
+initSentry();
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

@@ -1,5 +1,4 @@
 import { supabase } from './supabase';
-import type { Profile } from '../types/database';
 
 export type SignUpCustomerInput = {
   fullName: string;
@@ -61,6 +60,7 @@ export async function signUpCustomer({ fullName, phone, password, address }: Sig
   if (password.length < 6) throw new Error('الباسورد لازم يكون 6 حروف أو أكتر');
 
   const normalizedPhone = normalizeEgyptPhone(phone);
+
   let signUpResult = await supabase.auth.signUp({
     email: phoneToInternalEmail(normalizedPhone),
     password,
@@ -69,7 +69,6 @@ export async function signUpCustomer({ fullName, phone, password, address }: Sig
         phone: normalizedPhone,
         full_name: fullName,
         address,
-        role: 'customer',
       },
     },
   });
@@ -83,7 +82,6 @@ export async function signUpCustomer({ fullName, phone, password, address }: Sig
           phone: normalizedPhone,
           full_name: fullName,
           address,
-          role: 'customer',
           internal_email_fallback: true,
         },
       },
@@ -95,19 +93,6 @@ export async function signUpCustomer({ fullName, phone, password, address }: Sig
 
   if (!data.session) {
     throw new Error('الحساب اتعمل، بس الدخول التلقائي منفعش. غالبًا Confirm Email شغال في Supabase. اقفله أو فعّل المستخدم يدويًا.');
-  }
-
-  if (data.user) {
-    const profile: Partial<Profile> = {
-      id: data.user.id,
-      phone: normalizedPhone,
-      full_name: fullName,
-      role: 'customer',
-      address,
-    };
-
-    const { error: profileError } = await supabase.from('profiles').upsert(profile, { onConflict: 'id' });
-    if (profileError) throw profileError;
   }
 
   return data;

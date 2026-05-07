@@ -20,7 +20,6 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | null>(null);
 const BOOT_SPLASH_TIMEOUT_MS = 2000;
 const AUTH_QUERY_TIMEOUT_MS = 8000;
-const roles: Role[] = ['customer', 'admin', 'warehouse', 'delivery'];
 
 function timeoutError(label: string) {
   return new Error(`${label} timed out`);
@@ -39,19 +38,13 @@ async function withTimeout<T>(promise: PromiseLike<T>, ms: number, label: string
   }
 }
 
-function metadataRoleForSession(session: Session): Role | null {
-  const metadata = session.user.user_metadata;
-  const metadataRole = metadata?.role;
-  return roles.includes(metadataRole) ? metadataRole as Role : null;
-}
-
-function profileFromSession(session: Session, role: Role): Profile {
+function profileFallbackFromSession(session: Session): Profile {
   const metadata = session.user.user_metadata;
   return {
     id: session.user.id,
     phone: metadata?.phone ?? null,
     full_name: metadata?.full_name ?? 'مستخدم أزرق',
-    role,
+    role: 'customer',
     address: metadata?.address ?? null,
     latitude: null,
     longitude: null,
@@ -80,8 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return data;
     }
 
-    const fallbackRole = metadataRoleForSession(nextSession) ?? 'customer';
-    const missingProfile = profileFromSession(nextSession, fallbackRole);
+    const missingProfile = profileFallbackFromSession(nextSession);
 
     const insertResult = await withTimeout(
       supabase.from('profiles').insert(missingProfile).select('*').single(),
