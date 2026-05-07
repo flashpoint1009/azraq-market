@@ -1,6 +1,6 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
-import { BarChart3, Bell, Boxes, ClipboardList, Code2, Headphones, Home, LayoutDashboard, LogOut, MapPinHouse, MapPinned, Package, Percent, ReceiptText, ShieldCheck, ShoppingCart, Tags, UserRound, Users } from 'lucide-react';
+import { BarChart3, Bell, Boxes, ClipboardList, Code2, Heart, Headphones, Home, LayoutDashboard, LineChart, LogOut, MapPinHouse, MapPinned, Package, Percent, ReceiptText, ShieldCheck, ShoppingCart, Star, Tags, Ticket, UserRound, Users } from 'lucide-react';
 import { AppAnnouncement } from './AppAnnouncement';
 import { LogoMark } from './Brand';
 import { useAuth } from '../context/AuthContext';
@@ -13,16 +13,20 @@ const customerNav = [
   { to: '/', label: 'الرئيسية', icon: Home },
   { to: '/orders', label: 'طلباتي', icon: ClipboardList },
   { to: '/cart', label: 'طلبك', icon: ShoppingCart },
+  { to: '/wishlist', label: 'المفضلة', icon: Heart },
   { to: '/profile', label: 'حسابي', icon: UserRound },
 ];
 
 const adminNav = [
   { to: '/admin', label: 'اللوحة', icon: LayoutDashboard },
   { to: '/admin/reports', label: 'التقارير', icon: BarChart3 },
+  { to: '/admin/analytics', label: 'التحليلات', icon: LineChart },
   { to: '/admin/products', label: 'المنتجات', icon: Package },
   { to: '/admin/purchases', label: 'المشتريات', icon: ReceiptText },
   { to: '/admin/categories', label: 'الأقسام', icon: Tags },
   { to: '/admin/offers', label: 'العروض', icon: Percent },
+  { to: '/admin/coupons', label: 'الكوبونات', icon: Ticket },
+  { to: '/admin/reviews', label: 'التقييمات', icon: Star },
   { to: '/admin/orders', label: 'الطلبات', icon: ClipboardList },
   { to: '/admin/users', label: 'المستخدمين', icon: ShieldCheck },
   { to: '/admin/customers', label: 'العملاء', icon: Users },
@@ -60,10 +64,13 @@ export function AppShell({ mode }: { mode: 'customer' | 'admin' | 'warehouse' | 
     if (mode !== 'admin') return true;
     if (item.to === '/admin') return hasPermission(profile, 'reports');
     if (item.to === '/admin/reports') return hasPermission(profile, 'reports');
+    if (item.to === '/admin/analytics') return hasPermission(profile, 'reports');
     if (item.to === '/admin/products') return hasPermission(profile, 'products');
     if (item.to === '/admin/purchases') return hasPermission(profile, 'purchases');
     if (item.to === '/admin/categories') return hasPermission(profile, 'categories');
     if (item.to === '/admin/offers') return hasPermission(profile, 'offers');
+    if (item.to === '/admin/coupons') return hasPermission(profile, 'offers');
+    if (item.to === '/admin/reviews') return hasPermission(profile, 'products');
     if (item.to === '/admin/orders') return hasPermission(profile, 'orders');
     if (item.to === '/admin/customers') return profile?.role === 'admin' || hasPermission(profile, 'customers');
     if (item.to === '/admin/users') return profile?.role === 'admin' || hasPermission(profile, 'users');
@@ -164,7 +171,7 @@ export function AppShell({ mode }: { mode: 'customer' | 'admin' | 'warehouse' | 
       )}
 
       <nav className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-4 rounded-2xl border border-white/80 bg-white/95 p-1.5 shadow-soft backdrop-blur lg:hidden">
-        {(mode === 'admin' ? nav.filter((item) => ['/admin', '/admin/reports', '/admin/orders', '/admin/users'].includes(item.to)) : nav.slice(0, mode === 'customer' ? 5 : 4)).map((item) => {
+        {(mode === 'admin' ? nav.filter((item) => ['/admin', '/admin/reports', '/admin/orders', '/admin/users'].includes(item.to)) : nav.slice(0, 4)).map((item) => {
           const active = location.pathname === item.to || (item.to !== '/' && location.pathname.startsWith(item.to));
           return (
             <NavLink key={item.to} to={item.to} end className={`relative flex flex-col items-center gap-0.5 rounded-xl px-1.5 py-1.5 text-[10px] font-extrabold ${active ? 'bg-azraq-700 text-white' : 'text-slate-500'}`}>
