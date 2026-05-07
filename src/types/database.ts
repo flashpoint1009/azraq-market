@@ -65,6 +65,8 @@ export type Order = {
   total_amount: number;
   paid_amount: number;
   debt_amount: number;
+  discount_amount: number | null;
+  delivery_fee: number | null;
   payment_method: PaymentMethod;
   address: string | null;
   latitude: number | null;
