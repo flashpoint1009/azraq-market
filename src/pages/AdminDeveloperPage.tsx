@@ -115,6 +115,29 @@ const featureFlags = [
   { key: 'feature_map', label: 'خريطة العنوان', description: 'خريطة اختيار العنوان في الملف الشخصي' },
 ];
 
+type RawRow = Record<string, unknown>;
+type RawClient = {
+  from: (table: string) => {
+    select: (cols: string) => {
+      order: (col: string, opts: { ascending: boolean }) => {
+        limit: (n: number) => Promise<{ data: unknown; error: unknown }>;
+      };
+      eq: (col: string, val: string) => {
+        order: (col: string, opts: { ascending: boolean }) => Promise<{ data: unknown; error: unknown }>;
+      };
+    };
+  };
+};
+
+function asRaw() {
+  return supabase as unknown as RawClient;
+}
+
+async function rawFetch(table: string, cols: string, orderCol: string, asc: boolean, lim = 1000): Promise<RawRow[]> {
+  const result = await asRaw().from(table).select(cols).order(orderCol, { ascending: asc }).limit(lim);
+  return ((result as { data: unknown }).data as RawRow[] | null) || [];
+}
+
 const excelReports = [
   {
     id: 'sales',
@@ -122,20 +145,14 @@ const excelReports = [
     icon: '📊',
     color: 'bg-blue-50 text-blue-700',
     fetch: async () => {
-      const { data } = await supabase
-        .from('orders')
-        .select('id, created_at, status, total_amount, paid_amount, debt_amount, profiles(full_name, phone)')
-        .order('created_at', { ascending: false })
-        .limit(500);
-      return (data || []).map((row: Record<string, unknown> & { profiles?: { full_name?: string; phone?: string } | null }) => ({
-        'رقم الطلب': String(row.id).slice(0, 8),
+      const rows = await rawFetch('orders', 'id,created_at,status,total_amount,paid_amount,debt_amount,customer_id', 'created_at', false, 500);
+      return rows.map((row) => ({
+        'رقم الطلب': String(row.id || '').slice(0, 8),
         'التاريخ': row.created_at ? new Date(String(row.created_at)).toLocaleDateString('ar-EG') : '',
         'الحالة': String(row.status || ''),
         'الإجمالي': Number(row.total_amount || 0),
         'المدفوع': Number(row.paid_amount || 0),
         'المتبقي': Number(row.debt_amount || 0),
-        'اسم العميل': row.profiles?.full_name || '',
-        'هاتف العميل': row.profiles?.phone || '',
       }));
     },
   },
@@ -145,12 +162,9 @@ const excelReports = [
     icon: '👥',
     color: 'bg-emerald-50 text-emerald-700',
     fetch: async () => {
-      const { data } = await supabase
-        .from('profiles')
-        .select('full_name, phone, address, created_at')
-        .eq('role', 'customer')
-        .order('created_at', { ascending: false });
-      return (data || []).map((row: Record<string, unknown>) => ({
+      const result = await asRaw().from('profiles').select('full_name,phone,address,created_at').eq('role', 'customer').order('created_at', { ascending: false });
+      const rows = ((result as { data: unknown }).data as RawRow[] | null) || [];
+      return rows.map((row) => ({
         'الاسم': String(row.full_name || ''),
         'الهاتف': String(row.phone || ''),
         'العنوان': String(row.address || ''),
@@ -164,11 +178,8 @@ const excelReports = [
     icon: '📦',
     color: 'bg-amber-50 text-amber-700',
     fetch: async () => {
-      const { data } = await supabase
-        .from('products')
-        .select('name, unit_type, stock_quantity, price, cost_price, is_available')
-        .order('stock_quantity', { ascending: true });
-      return (data || []).map((row: Record<string, unknown>) => ({
+      const rows = await rawFetch('products', 'name,unit_type,stock_quantity,price,cost_price,is_available', 'stock_quantity', true);
+      return rows.map((row) => ({
         'اسم المنتج': String(row.name || ''),
         'الوحدة': String(row.unit_type || ''),
         'الكمية': Number(row.stock_quantity || 0),
@@ -185,14 +196,9 @@ const excelReports = [
     icon: '💳',
     color: 'bg-rose-50 text-rose-700',
     fetch: async () => {
-      const { data } = await supabase
-        .from('customer_debts')
-        .select('amount, paid_amount, remaining_amount, status, created_at, profiles(full_name, phone)')
-        .order('remaining_amount', { ascending: false })
-        .limit(300);
-      return (data || []).map((row: Record<string, unknown> & { profiles?: { full_name?: string; phone?: string } | null }) => ({
-        'اسم العميل': row.profiles?.full_name || '',
-        'هاتف العميل': row.profiles?.phone || '',
+      const rows = await rawFetch('customer_debts', 'amount,paid_amount,remaining_amount,status,created_at,customer_id', 'remaining_amount', false, 300);
+      return rows.map((row) => ({
+        'رقم العميل': String(row.customer_id || '').slice(0, 8),
         'إجمالي الدين': Number(row.amount || 0),
         'المدفوع': Number(row.paid_amount || 0),
         'المتبقي': Number(row.remaining_amount || 0),
@@ -207,11 +213,8 @@ const excelReports = [
     icon: '🎟️',
     color: 'bg-purple-50 text-purple-700',
     fetch: async () => {
-      const { data } = await supabase
-        .from('coupons')
-        .select('code, type, value, min_order, max_uses, used_count, is_active, expires_at')
-        .order('used_count', { ascending: false });
-      return (data || []).map((row: Record<string, unknown>) => ({
+      const rows = await rawFetch('coupons', 'code,type,value,min_order,max_uses,used_count,is_active,expires_at', 'used_count', false);
+      return rows.map((row) => ({
         'الكود': String(row.code || ''),
         'النوع': row.type === 'percent' ? 'نسبة مئوية' : 'قيمة ثابتة',
         'الخصم': String(row.value || ''),
@@ -229,23 +232,10 @@ const excelReports = [
     icon: '⭐',
     color: 'bg-orange-50 text-orange-700',
     fetch: async () => {
-      const result = await (supabase as unknown as {
-        from: (t: string) => {
-          select: (q: string) => {
-            order: (col: string, opts: { ascending: boolean }) => {
-              limit: (n: number) => Promise<{ data: unknown }>;
-            };
-          };
-        };
-      })
-        .from('product_reviews')
-        .select('rating, comment, created_at, product_id, user_id, profiles(full_name, phone)')
-        .order('created_at', { ascending: false })
-        .limit(300);
-      const rows = ((result.data || []) as Array<Record<string, unknown> & { profiles?: { full_name?: string; phone?: string } | null }>);
+      const rows = await rawFetch('product_reviews', 'rating,comment,created_at,product_id,user_id', 'created_at', false, 300);
       return rows.map((row) => ({
         'رقم المنتج': String(row.product_id || '').slice(0, 8),
-        'العميل': row.profiles?.full_name || row.profiles?.phone || String(row.user_id || '').slice(0, 8),
+        'رقم العميل': String(row.user_id || '').slice(0, 8),
         'التقييم': Number(row.rating || 0),
         'التعليق': String(row.comment || ''),
         'التاريخ': row.created_at ? new Date(String(row.created_at)).toLocaleDateString('ar-EG') : '',
