@@ -14,6 +14,7 @@ import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
 import type { Category, Notification as AppNotification, Product } from '../types/database';
 
 const categoryIcons = [Boxes, PackageCheck, Sparkles, Zap];
+const allCategoryImage = '/assets/brand/all-category.png';
 const PRODUCT_FETCH_LIMIT = 24;
 const VISIBLE_STEP = 12;
 
@@ -132,7 +133,9 @@ export function CustomerHome() {
     <div className="pb-28">
       <header className="rounded-[20px] bg-white p-3 shadow-sm">
         <div className="flex items-center justify-between gap-2">
-          <LogoMark compact />
+          <div className="h-14 w-14 shrink-0 overflow-hidden rounded-3xl bg-white shadow-sm ring-2 ring-white">
+            <img src={allCategoryImage} alt="الكل" className="h-full w-full object-cover" loading="eager" decoding="async" />
+          </div>
           <div className="mr-auto flex items-center gap-2">
             <button type="button" onClick={() => setDrawerOpen(true)} className="grid h-9 w-9 place-items-center rounded-2xl bg-[#eef6fa] text-azraq-700" aria-label="افتح القائمة">
               <Menu size={18} />
@@ -223,9 +226,14 @@ export function CustomerHome() {
       </section>
 
       <section className="mt-3 grid grid-cols-3 gap-1.5">
-        <button onClick={() => setCategoryId('all')} className={`grid h-[72px] place-items-center rounded-2xl bg-white px-1.5 text-[11px] font-extrabold shadow-sm ${categoryId === 'all' ? 'bg-azraq-700 text-white' : 'text-slate-600'}`}>
-          <span className={`grid h-8 w-8 place-items-center rounded-full ${categoryId === 'all' ? 'bg-white/20' : 'bg-[#eef6fa] text-azraq-700'}`}><Boxes size={15} /></span>
-          الكل
+        <button onClick={() => setCategoryId('all')} className={`relative grid h-[82px] place-items-center overflow-hidden rounded-2xl bg-white px-1.5 text-[11px] font-extrabold shadow-sm ${categoryId === 'all' ? 'bg-azraq-700 text-white' : 'text-slate-600'}`}>
+          <img src={allCategoryImage} alt="" className="absolute inset-0 h-full w-full object-cover opacity-95" loading="lazy" decoding="async" />
+          <span className={`absolute inset-0 ${categoryId === 'all' ? 'bg-azraq-950/55' : 'bg-white/20'}`} />
+          <span className="absolute -bottom-5 -left-4 h-16 w-16 rounded-full bg-white/35 blur-lg" />
+          <span className={`relative z-10 grid h-8 w-8 place-items-center rounded-full ${categoryId === 'all' ? 'bg-white/20 text-white' : 'bg-white/80 text-azraq-700 shadow-sm'}`}>
+            <Boxes size={15} />
+          </span>
+          <span className="relative z-10 line-clamp-1 rounded-full bg-white/85 px-2 py-0.5 text-ink shadow-sm">الكل</span>
         </button>
         {data?.categories.slice(0, 8).map((category, index) => {
           const Icon = categoryIcons[index % categoryIcons.length];
