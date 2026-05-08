@@ -22,6 +22,7 @@ export type Profile = {
 export type Category = {
   id: string;
   name: string;
+  image_url?: string | null;
   sort_order: number;
   is_active?: boolean;
   created_at: string;

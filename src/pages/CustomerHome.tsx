@@ -230,11 +230,18 @@ export function CustomerHome() {
         {data?.categories.slice(0, 8).map((category, index) => {
           const Icon = categoryIcons[index % categoryIcons.length];
           return (
-            <button key={category.id} onClick={() => setCategoryId(category.id)} className={`grid h-[72px] place-items-center rounded-2xl bg-white px-1.5 text-[11px] font-extrabold shadow-sm ${categoryId === category.id ? 'bg-azraq-700 text-white' : 'text-slate-600'}`}>
-              <span className={`grid h-8 w-8 place-items-center rounded-full ${categoryId === category.id ? 'bg-white/20' : 'bg-[#eef6fa] text-azraq-700'}`}>
+            <button key={category.id} onClick={() => setCategoryId(category.id)} className={`relative grid h-[82px] place-items-center overflow-hidden rounded-2xl bg-white px-1.5 text-[11px] font-extrabold shadow-sm ${categoryId === category.id ? 'bg-azraq-700 text-white' : 'text-slate-600'}`}>
+              {category.image_url ? (
+                <>
+                  <img src={category.image_url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-95" loading="lazy" decoding="async" />
+                  <span className={`absolute inset-0 ${categoryId === category.id ? 'bg-azraq-950/55' : 'bg-white/20'}`} />
+                  <span className="absolute -bottom-5 -left-4 h-16 w-16 rounded-full bg-white/35 blur-lg" />
+                </>
+              ) : null}
+              <span className={`relative z-10 grid h-8 w-8 place-items-center rounded-full ${categoryId === category.id ? 'bg-white/20 text-white' : category.image_url ? 'bg-white/80 text-azraq-700 shadow-sm' : 'bg-[#eef6fa] text-azraq-700'}`}>
                 <Icon size={15} />
               </span>
-              <span className="line-clamp-1">{category.name}</span>
+              <span className={`relative z-10 line-clamp-1 rounded-full px-2 py-0.5 ${category.image_url ? 'bg-white/85 text-ink shadow-sm' : ''}`}>{category.name}</span>
             </button>
           );
         })}

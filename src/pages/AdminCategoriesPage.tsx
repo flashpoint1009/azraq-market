@@ -1,12 +1,12 @@
 import { FormEvent, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import { Plus } from 'lucide-react';
+import { Image, Plus, Upload } from 'lucide-react';
 import { Button, Card, EmptyState, ErrorState, Input, LoadingState, PageHeader, Select } from '../components/ui';
 import { supabase } from '../lib/supabase';
 import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
 import type { Category, Subcategory } from '../types/database';
 
-const emptyCategory = { name: '', sort_order: '0', is_active: true };
+const emptyCategory = { name: '', sort_order: '0', image_url: '', is_active: true };
 const emptySubcategory = { category_id: '', name: '', sort_order: '0', is_active: true };
 
 function isMissingColumn(error: unknown, column: string) {
@@ -18,6 +18,8 @@ export function AdminCategoriesPage() {
   const [editingSubcategory, setEditingSubcategory] = useState<Subcategory | null>(null);
   const [categoryForm, setCategoryForm] = useState(emptyCategory);
   const [subcategoryForm, setSubcategoryForm] = useState(emptySubcategory);
+  const [categoryImage, setCategoryImage] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const { data, loading, error, reload } = useSupabaseQuery(async () => {
     const [categories, subcategories] = await Promise.all([
@@ -43,6 +45,7 @@ export function AdminCategoriesPage() {
   const resetCategory = () => {
     setEditingCategory(null);
     setCategoryForm(emptyCategory);
+    setCategoryImage(null);
   };
 
   const resetSubcategory = () => {
@@ -52,7 +55,13 @@ export function AdminCategoriesPage() {
 
   const startCategoryEdit = (category: Category) => {
     setEditingCategory(category);
-    setCategoryForm({ name: category.name, sort_order: String(category.sort_order), is_active: category.is_active ?? true });
+    setCategoryForm({
+      name: category.name,
+      sort_order: String(category.sort_order),
+      image_url: category.image_url || '',
+      is_active: category.is_active ?? true,
+    });
+    setCategoryImage(null);
   };
 
   const startSubcategoryEdit = (subcategory: Subcategory) => {
@@ -65,11 +74,34 @@ export function AdminCategoriesPage() {
     });
   };
 
+  const uploadCategoryImage = async () => {
+    if (!categoryImage) return categoryForm.image_url || null;
+    setUploading(true);
+    const safeName = categoryImage.name.replace(/[^\w.-]+/g, '-');
+    const path = `categories/${Date.now()}-${crypto.randomUUID()}-${safeName}`;
+    const { error: uploadError } = await supabase.storage.from('product-images').upload(path, categoryImage, { upsert: true });
+    setUploading(false);
+    if (uploadError) throw uploadError;
+    const { data: publicData } = supabase.storage.from('product-images').getPublicUrl(path);
+    return publicData.publicUrl;
+  };
+
   const saveCategory = async (event: FormEvent) => {
     event.preventDefault();
+
+    let imageUrl: string | null = categoryForm.image_url || null;
+    try {
+      imageUrl = await uploadCategoryImage();
+    } catch (uploadError) {
+      console.error('CATEGORY_IMAGE_UPLOAD_FAILED', uploadError);
+      toast.error('تعذر رفع صورة القسم');
+      return;
+    }
+
     const payload = {
       name: categoryForm.name.trim(),
       sort_order: Number(categoryForm.sort_order) || 0,
+      image_url: imageUrl,
       is_active: categoryForm.is_active,
     };
 
@@ -77,14 +109,21 @@ export function AdminCategoriesPage() {
       ? await supabase.from('categories').update(payload).eq('id', editingCategory.id)
       : await supabase.from('categories').insert(payload);
 
-    if (result.error && isMissingColumn(result.error, 'is_active')) {
-      const legacyPayload = {
+    const missingImageColumn = result.error && isMissingColumn(result.error, 'image_url');
+    const missingActiveColumn = result.error && isMissingColumn(result.error, 'is_active');
+    if (result.error && (missingImageColumn || missingActiveColumn)) {
+      const legacyPayload: Partial<Category> = {
         name: payload.name,
         sort_order: payload.sort_order,
       };
+      if (!missingActiveColumn) legacyPayload.is_active = payload.is_active;
       result = editingCategory
         ? await supabase.from('categories').update(legacyPayload).eq('id', editingCategory.id)
         : await supabase.from('categories').insert(legacyPayload);
+
+      if (!result.error && missingImageColumn) {
+        toast.error('شغل ملف supabase/category_images_migration.sql لتفعيل صور الأقسام');
+      }
     }
 
     if (result.error) {
@@ -161,11 +200,21 @@ export function AdminCategoriesPage() {
             <form onSubmit={saveCategory} className="space-y-3">
               <Input required value={categoryForm.name} onChange={(event) => setCategoryForm({ ...categoryForm, name: event.target.value })} placeholder="اسم القسم" />
               <Input required type="number" value={categoryForm.sort_order} onChange={(event) => setCategoryForm({ ...categoryForm, sort_order: event.target.value })} placeholder="الترتيب" />
+              <Input dir="ltr" value={categoryForm.image_url} onChange={(event) => setCategoryForm({ ...categoryForm, image_url: event.target.value })} placeholder="رابط صورة القسم أو ارفع صورة" />
+              <label className="block rounded-2xl border border-dashed border-azraq-200 bg-azraq-50/60 p-3 text-sm font-bold text-azraq-800">
+                <span className="flex items-center gap-2"><Upload size={16} /> ارفع صورة للقسم</span>
+                <input type="file" accept="image/*" onChange={(event) => setCategoryImage(event.target.files?.[0] ?? null)} className="mt-2 block w-full text-xs text-slate-500" />
+              </label>
+              {(categoryForm.image_url || categoryImage) && (
+                <div className="relative h-28 overflow-hidden rounded-3xl bg-gradient-to-br from-azraq-50 to-white p-2 shadow-inner">
+                  {categoryForm.image_url ? <img src={categoryForm.image_url} alt="" className="h-full w-full rounded-2xl object-cover shadow-lg" /> : <div className="grid h-full place-items-center rounded-2xl bg-white text-azraq-700"><Image size={34} /></div>}
+                </div>
+              )}
               <label className="flex items-center gap-2 text-sm font-bold text-slate-600">
                 <input type="checkbox" checked={categoryForm.is_active} onChange={(event) => setCategoryForm({ ...categoryForm, is_active: event.target.checked })} />
                 القسم شغال
               </label>
-              <Button className="w-full"><Plus size={17} /> {editingCategory ? 'احفظ التعديل' : 'ضيف القسم'}</Button>
+              <Button disabled={uploading} className="w-full"><Plus size={17} /> {uploading ? 'جاري رفع الصورة...' : editingCategory ? 'احفظ التعديل' : 'ضيف القسم'}</Button>
               {editingCategory && (
                 <button type="button" onClick={resetCategory} className="w-full rounded-2xl bg-slate-100 px-4 py-3 text-sm font-bold text-slate-600">
                   إلغاء
@@ -203,7 +252,10 @@ export function AdminCategoriesPage() {
           {!loading && !error && data?.categories.length === 0 && <EmptyState title="مفيش أقسام" body="ضيف أول قسم عشان يظهر للعميل." />}
           {data?.categories.map((category) => (
             <Card key={category.id} className="grid gap-3 p-4">
-              <div className="grid gap-3 md:grid-cols-[1fr_auto] md:items-center">
+              <div className="grid gap-3 md:grid-cols-[72px_1fr_auto] md:items-center">
+                <div className="grid h-16 w-16 place-items-center overflow-hidden rounded-3xl bg-azraq-50 text-azraq-700 shadow-inner">
+                  {category.image_url ? <img src={category.image_url} alt={category.name} className="h-full w-full object-cover" /> : <Image size={24} />}
+                </div>
                 <div>
                   <h3 className="font-display text-lg font-extrabold">{category.name}</h3>
                   <p className="text-sm text-slate-500">
@@ -211,8 +263,8 @@ export function AdminCategoriesPage() {
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={() => startCategoryEdit(category)} className="rounded-2xl bg-azraq-50 px-4 py-2 text-sm font-bold text-azraq-800">تعديل</button>
-                  <button onClick={() => removeCategory(category)} className="rounded-2xl bg-rose-50 px-4 py-2 text-sm font-bold text-rose-700">حذف</button>
+                  <button type="button" onClick={() => startCategoryEdit(category)} className="rounded-2xl bg-azraq-50 px-4 py-2 text-sm font-bold text-azraq-800">تعديل</button>
+                  <button type="button" onClick={() => removeCategory(category)} className="rounded-2xl bg-rose-50 px-4 py-2 text-sm font-bold text-rose-700">حذف</button>
                 </div>
               </div>
 
@@ -227,8 +279,8 @@ export function AdminCategoriesPage() {
                         </p>
                       </div>
                       <div className="grid grid-cols-2 gap-2 sm:flex">
-                        <button onClick={() => startSubcategoryEdit(subcategory)} className="rounded-2xl bg-white px-3 py-2 text-xs font-bold text-azraq-800">تعديل</button>
-                        <button onClick={() => removeSubcategory(subcategory)} className="rounded-2xl bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700">حذف</button>
+                        <button type="button" onClick={() => startSubcategoryEdit(subcategory)} className="rounded-2xl bg-white px-3 py-2 text-xs font-bold text-azraq-800">تعديل</button>
+                        <button type="button" onClick={() => removeSubcategory(subcategory)} className="rounded-2xl bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700">حذف</button>
                       </div>
                     </div>
                   ))
