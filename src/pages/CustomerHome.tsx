@@ -15,6 +15,7 @@ import type { Category, Notification as AppNotification, Product } from '../type
 
 const categoryIcons = [Boxes, PackageCheck, Sparkles, Zap];
 const allCategoryImage = '/assets/brand/all-category.png';
+const homeHeroImage = '/assets/brand/home-hero.png';
 const PRODUCT_FETCH_LIMIT = 24;
 const VISIBLE_STEP = 12;
 
@@ -131,10 +132,13 @@ export function CustomerHome() {
 
   return (
     <div className="pb-28">
-      <header className="rounded-[20px] bg-white p-3 shadow-sm">
+      <header
+        className="relative min-h-[165px] overflow-hidden rounded-[20px] bg-white bg-cover bg-center p-3 shadow-sm"
+        style={{ backgroundImage: `linear-gradient(90deg, rgba(255,255,255,.22), rgba(255,255,255,.82) 54%, rgba(255,255,255,.94)), url(${homeHeroImage})` }}
+      >
         <div className="flex items-center justify-between gap-2">
           <div className="h-14 w-14 shrink-0 overflow-hidden rounded-3xl bg-white shadow-sm ring-2 ring-white">
-            <img src={allCategoryImage} alt="الكل" className="h-full w-full object-cover" loading="eager" decoding="async" />
+            <img src={homeHeroImage} alt="أزرق ماركت" className="h-full w-full object-cover" loading="eager" decoding="async" />
           </div>
           <div className="mr-auto flex items-center gap-2">
             <button type="button" onClick={() => setDrawerOpen(true)} className="grid h-9 w-9 place-items-center rounded-2xl bg-[#eef6fa] text-azraq-700" aria-label="افتح القائمة">
@@ -176,7 +180,7 @@ export function CustomerHome() {
           </div>
         )}
 
-        <div className="mt-3">
+        <div className="relative z-10 mt-9 max-w-[70%] pr-1">
           <p className="text-base font-extrabold text-ink">صباح الخير يا {profile?.full_name || 'تاجر'}</p>
           <p className="text-xs font-bold text-slate-400">طلباتك أوامر</p>
         </div>
@@ -226,14 +230,10 @@ export function CustomerHome() {
       </section>
 
       <section className="mt-3 grid grid-cols-3 gap-1.5">
-        <button onClick={() => setCategoryId('all')} className={`relative grid h-[82px] place-items-center overflow-hidden rounded-2xl bg-white px-1.5 text-[11px] font-extrabold shadow-sm ${categoryId === 'all' ? 'bg-azraq-700 text-white' : 'text-slate-600'}`}>
-          <img src={allCategoryImage} alt="" className="absolute inset-0 h-full w-full object-cover opacity-95" loading="lazy" decoding="async" />
-          <span className={`absolute inset-0 ${categoryId === 'all' ? 'bg-azraq-950/55' : 'bg-white/20'}`} />
-          <span className="absolute -bottom-5 -left-4 h-16 w-16 rounded-full bg-white/35 blur-lg" />
-          <span className={`relative z-10 grid h-8 w-8 place-items-center rounded-full ${categoryId === 'all' ? 'bg-white/20 text-white' : 'bg-white/80 text-azraq-700 shadow-sm'}`}>
-            <Boxes size={15} />
-          </span>
-          <span className="relative z-10 line-clamp-1 rounded-full bg-white/85 px-2 py-0.5 text-ink shadow-sm">الكل</span>
+        <button onClick={() => setCategoryId('all')} className={`relative grid h-[82px] place-items-end overflow-hidden rounded-2xl bg-white px-1.5 pb-2 text-[11px] font-extrabold shadow-sm ${categoryId === 'all' ? 'ring-2 ring-azraq-700' : ''}`}>
+          <img src={allCategoryImage} alt="الكل" className="absolute inset-0 h-full w-full object-cover" loading="lazy" decoding="async" />
+          <span className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-white/95 to-white/0" />
+          <span className="relative z-10 line-clamp-1 rounded-full bg-white/90 px-3 py-0.5 text-ink shadow-sm">الكل</span>
         </button>
         {data?.categories.slice(0, 8).map((category, index) => {
           const Icon = categoryIcons[index % categoryIcons.length];
@@ -246,9 +246,11 @@ export function CustomerHome() {
                   <span className="absolute -bottom-5 -left-4 h-16 w-16 rounded-full bg-white/35 blur-lg" />
                 </>
               ) : null}
-              <span className={`relative z-10 grid h-8 w-8 place-items-center rounded-full ${categoryId === category.id ? 'bg-white/20 text-white' : category.image_url ? 'bg-white/80 text-azraq-700 shadow-sm' : 'bg-[#eef6fa] text-azraq-700'}`}>
-                <Icon size={15} />
-              </span>
+              {!category.image_url && (
+                <span className={`relative z-10 grid h-8 w-8 place-items-center rounded-full ${categoryId === category.id ? 'bg-white/20 text-white' : 'bg-[#eef6fa] text-azraq-700'}`}>
+                  <Icon size={15} />
+                </span>
+              )}
               <span className={`relative z-10 line-clamp-1 rounded-full px-2 py-0.5 ${category.image_url ? 'bg-white/85 text-ink shadow-sm' : ''}`}>{category.name}</span>
             </button>
           );
