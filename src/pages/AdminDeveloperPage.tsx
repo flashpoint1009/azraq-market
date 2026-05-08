@@ -229,14 +229,23 @@ const excelReports = [
     icon: '⭐',
     color: 'bg-orange-50 text-orange-700',
     fetch: async () => {
-      const { data } = await supabase
+      const result = await (supabase as unknown as {
+        from: (t: string) => {
+          select: (q: string) => {
+            order: (col: string, opts: { ascending: boolean }) => {
+              limit: (n: number) => Promise<{ data: unknown }>;
+            };
+          };
+        };
+      })
         .from('product_reviews')
-        .select('rating, comment, created_at, products(name), profiles(full_name, phone)')
+        .select('rating, comment, created_at, product_id, user_id, profiles(full_name, phone)')
         .order('created_at', { ascending: false })
         .limit(300);
-      return (data || []).map((row: Record<string, unknown> & { products?: { name?: string } | null; profiles?: { full_name?: string; phone?: string } | null }) => ({
-        'المنتج': row.products?.name || '',
-        'العميل': row.profiles?.full_name || row.profiles?.phone || '',
+      const rows = ((result.data || []) as Array<Record<string, unknown> & { profiles?: { full_name?: string; phone?: string } | null }>);
+      return rows.map((row) => ({
+        'رقم المنتج': String(row.product_id || '').slice(0, 8),
+        'العميل': row.profiles?.full_name || row.profiles?.phone || String(row.user_id || '').slice(0, 8),
         'التقييم': Number(row.rating || 0),
         'التعليق': String(row.comment || ''),
         'التاريخ': row.created_at ? new Date(String(row.created_at)).toLocaleDateString('ar-EG') : '',
