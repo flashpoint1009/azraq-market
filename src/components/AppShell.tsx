@@ -47,7 +47,6 @@ const deliveryNav = [
 ];
 
 const customerSecondaryNav = [
-  { to: '/profile', label: 'العناوين', icon: MapPinHouse },
   { to: '/support', label: 'الدعم', icon: Headphones },
 ];
 

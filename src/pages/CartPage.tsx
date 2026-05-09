@@ -83,8 +83,10 @@ export function CartPage() {
     setCouponLoading(false);
     if (error || !data) { setCouponError('الكود غير صحيح أو منتهي'); return; }
     const coupon = data as Coupon;
-    if (coupon.expires_at && new Date(coupon.expires_at) < new Date()) { setCouponError('انتهت صلاحية الكود'); return; }
-    if (coupon.max_uses && coupon.used_count >= coupon.max_uses) { setCouponError('الكود وصل للحد الأقصى من الاستخدام'); return; }
+    const now = new Date();
+    if (coupon.starts_at && new Date(coupon.starts_at) > now) { setCouponError('الكود لم يبدأ بعد'); return; }
+    if (coupon.expires_at && new Date(coupon.expires_at) < now) { setCouponError('انتهت صلاحية الكود'); return; }
+    if (coupon.max_uses != null && coupon.used_count >= coupon.max_uses) { setCouponError('الكود وصل للحد الأقصى من الاستخدام'); return; }
     if (total < Number(coupon.min_order || 0)) { setCouponError(`الطلب أقل من الحد الأدنى ${formatCurrency(coupon.min_order)}`); return; }
     setAppliedCoupon(coupon);
     toast.success(`تم تطبيق الكود — خصم ${coupon.type === 'percent' ? `${coupon.value}%` : formatCurrency(coupon.value)}`);

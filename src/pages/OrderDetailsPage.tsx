@@ -1,7 +1,6 @@
-import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { AlertCircle, Printer, RotateCcw, Trash2 } from 'lucide-react';
+import { Printer, RotateCcw } from 'lucide-react';
 import { MapPreview } from '../components/MapPreview';
 import { OrderEditor } from '../components/OrderEditor';
 import { StatusTimeline } from '../components/StatusTimeline';
@@ -48,23 +47,6 @@ export function OrderDetailsPage() {
 
   // ─── Customer view ─────────────────────────────────────────────────────────
   if (role === 'customer') {
-    // 2-hour edit window: only if status is still 'new' and created < 2h ago
-    const createdAt = new Date(order.created_at).getTime();
-    const twoHoursMs = 2 * 60 * 60 * 1000;
-    const canCancelOrder = order.status === 'new' && Date.now() - createdAt < twoHoursMs;
-    const minutesLeft = Math.max(0, Math.round((twoHoursMs - (Date.now() - createdAt)) / 60000));
-
-    const cancelOrder = async () => {
-      if (!window.confirm('هل تريد إلغاء الطلب؟')) return;
-      const { error: cancelError } = await supabase
-        .from('orders')
-        .update({ status: 'cancelled' })
-        .eq('id', order.id);
-      if (cancelError) { toast.error('تعذر إلغاء الطلب'); return; }
-      toast.success('تم إلغاء الطلب');
-      reload();
-    };
-
     return (
       <div className="space-y-4 pb-4">
         <PageHeader
@@ -80,26 +62,6 @@ export function OrderDetailsPage() {
             <p className="mt-1 font-display text-2xl font-extrabold">{statusLabels[order.status]}</p>
             <p className="mt-2 text-xs font-bold opacity-60">آخر تحديث: {formatDate(order.updated_at || order.created_at)}</p>
           </div>
-
-          {/* 2-hour cancel window */}
-          {canCancelOrder && (
-            <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4">
-              <div className="flex items-start gap-3">
-                <AlertCircle size={18} className="mt-0.5 shrink-0 text-amber-600" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-extrabold text-amber-800">يمكنك إلغاء الطلب</p>
-                  <p className="mt-0.5 text-xs font-bold text-amber-600">نافذة التعديل تنتهي خلال {minutesLeft} دقيقة أو عند بدء التجهيز</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={cancelOrder}
-                  className="inline-flex shrink-0 items-center gap-1.5 rounded-2xl bg-rose-500 px-4 py-2 text-xs font-extrabold text-white transition hover:bg-rose-600"
-                >
-                  <Trash2 size={13} /> إلغاء الطلب
-                </button>
-              </div>
-            </div>
-          )}
         </Card>
 
         {/* Invoice - items + totals */}
