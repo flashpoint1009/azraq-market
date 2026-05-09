@@ -2,7 +2,7 @@ import { FormEvent, useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import * as XLSX from 'xlsx';
 import {
-  BarChart3, CheckCircle2, ChevronDown, ChevronUp, Database, Download,
+  AlertCircle, BarChart3, CheckCircle2, ChevronDown, ChevronUp, Database, Download,
   Palette, Pencil, Power, Save, Settings2, Shield, Trash2, Upload, Users,
 } from 'lucide-react';
 import { applyThemeSettings } from '../components/Brand';
@@ -860,7 +860,64 @@ function DataBrowserCard() {
   );
 }
 
+const DEV_SESSION_KEY = 'azraq_dev_unlocked';
+const DEV_PASSWORD = 'azraq@dev2025';
+
+function DevPasswordGate({ onUnlock }: { onUnlock: () => void }) {
+  const [input, setInput] = useState('');
+  const [error, setError] = useState(false);
+
+  const attempt = () => {
+    if (input === DEV_PASSWORD) {
+      sessionStorage.setItem(DEV_SESSION_KEY, '1');
+      onUnlock();
+    } else {
+      setError(true);
+      setInput('');
+    }
+  };
+
+  return (
+    <div className="grid min-h-[70vh] place-items-center">
+      <div className="w-full max-w-sm">
+        <div className="mb-6 flex flex-col items-center gap-3 text-center">
+          <div className="grid h-16 w-16 place-items-center rounded-3xl bg-azraq-900 text-white">
+            <Shield size={28} />
+          </div>
+          <h1 className="font-display text-2xl font-extrabold text-ink">لوحة المطور</h1>
+          <p className="text-sm font-bold text-slate-500">هذه الصفحة محمية — أدخل كلمة المرور للمتابعة</p>
+        </div>
+        <Card>
+          <div className="space-y-3">
+            <Input
+              type="password"
+              value={input}
+              onChange={(event) => { setInput(event.target.value); setError(false); }}
+              placeholder="كلمة المرور"
+              dir="ltr"
+              onKeyDown={(event) => { if (event.key === 'Enter') attempt(); }}
+              autoFocus
+            />
+            {error && (
+              <div className="flex items-center gap-2 rounded-2xl bg-rose-50 px-4 py-3 text-sm font-bold text-rose-600">
+                <AlertCircle size={16} /> كلمة المرور غير صحيحة
+              </div>
+            )}
+            <Button type="button" onClick={attempt} className="w-full">
+              <Shield size={17} /> فتح لوحة المطور
+            </Button>
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
 export function AdminDeveloperPage() {
+  const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem(DEV_SESSION_KEY) === '1');
+
+  if (!unlocked) return <DevPasswordGate onUnlock={() => setUnlocked(true)} />;
+
   return (
     <div className="mx-auto w-full max-w-5xl pb-10">
       <DeveloperHeader />

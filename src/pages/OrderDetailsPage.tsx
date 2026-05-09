@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Printer, RotateCcw } from 'lucide-react';
+import { AlertCircle, Printer, RotateCcw, Trash2 } from 'lucide-react';
 import { MapPreview } from '../components/MapPreview';
 import { OrderEditor } from '../components/OrderEditor';
 import { StatusTimeline } from '../components/StatusTimeline';
@@ -45,14 +46,33 @@ export function OrderDetailsPage() {
     navigate('/cart');
   };
 
-  // ─── Customer view (read-only) ────────────────────────────────────────────
+  // ─── Customer view ─────────────────────────────────────────────────────────
   if (role === 'customer') {
+    // 2-hour edit window: only if status is still 'new' and created < 2h ago
+    const createdAt = new Date(order.created_at).getTime();
+    const twoHoursMs = 2 * 60 * 60 * 1000;
+    const canCancelOrder = order.status === 'new' && Date.now() - createdAt < twoHoursMs;
+    const minutesLeft = Math.max(0, Math.round((twoHoursMs - (Date.now() - createdAt)) / 60000));
+
+    const cancelOrder = async () => {
+      if (!window.confirm('هل تريد إلغاء الطلب؟')) return;
+      const { error: cancelError } = await supabase
+        .from('orders')
+        .update({ status: 'cancelled' })
+        .eq('id', order.id);
+      if (cancelError) { toast.error('تعذر إلغاء الطلب'); return; }
+      toast.success('تم إلغاء الطلب');
+      reload();
+    };
+
     return (
       <div className="space-y-4 pb-4">
         <PageHeader
           title={`طلب رقم #${order.id.slice(0, 8)}`}
           subtitle={formatDate(order.created_at)}
         />
+
+        {/* Status */}
         <Card className="bg-white">
           <h2 className="mb-3 font-display text-xl font-extrabold text-ink">حالة الطلب</h2>
           <div className={`rounded-[20px] border p-4 ${statusTone[order.status]}`}>
@@ -60,7 +80,97 @@ export function OrderDetailsPage() {
             <p className="mt-1 font-display text-2xl font-extrabold">{statusLabels[order.status]}</p>
             <p className="mt-2 text-xs font-bold opacity-60">آخر تحديث: {formatDate(order.updated_at || order.created_at)}</p>
           </div>
+
+          {/* 2-hour cancel window */}
+          {canCancelOrder && (
+            <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+              <div className="flex items-start gap-3">
+                <AlertCircle size={18} className="mt-0.5 shrink-0 text-amber-600" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-extrabold text-amber-800">يمكنك إلغاء الطلب</p>
+                  <p className="mt-0.5 text-xs font-bold text-amber-600">نافذة التعديل تنتهي خلال {minutesLeft} دقيقة أو عند بدء التجهيز</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={cancelOrder}
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-2xl bg-rose-500 px-4 py-2 text-xs font-extrabold text-white transition hover:bg-rose-600"
+                >
+                  <Trash2 size={13} /> إلغاء الطلب
+                </button>
+              </div>
+            </div>
+          )}
         </Card>
+
+        {/* Invoice - items + totals */}
+        <Card>
+          <h2 className="mb-4 font-display text-xl font-extrabold text-ink">فاتورة طلبك</h2>
+
+          {/* Mobile cards */}
+          <div className="grid gap-2 sm:hidden">
+            {order.order_items?.map((item) => (
+              <div key={item.id} className="rounded-2xl bg-slate-50 p-3 text-sm">
+                <p className="font-bold text-slate-800">{item.product_name_snapshot}</p>
+                <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
+                  <span>الوحدة: {unitLabels[item.unit_type_snapshot]}</span>
+                  <span>الكمية: {item.quantity}</span>
+                  <span>السعر: {formatCurrency(item.unit_price_snapshot)}</span>
+                </div>
+                <p className="mt-2 font-extrabold text-azraq-800">{formatCurrency(item.line_total)}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden overflow-x-auto sm:block">
+            <table className="w-full min-w-[420px] text-sm">
+              <thead className="text-slate-400">
+                <tr className="border-b border-slate-100 text-right">
+                  <th className="py-3">المنتج</th>
+                  <th>الكمية</th>
+                  <th>السعر</th>
+                  <th>الإجمالي</th>
+                </tr>
+              </thead>
+              <tbody>
+                {order.order_items?.map((item) => (
+                  <tr key={item.id} className="border-b border-slate-50">
+                    <td className="py-3 font-bold">{item.product_name_snapshot}</td>
+                    <td>{item.quantity} {unitLabels[item.unit_type_snapshot]}</td>
+                    <td>{formatCurrency(item.unit_price_snapshot)}</td>
+                    <td className="font-extrabold text-azraq-800">{formatCurrency(item.line_total)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Totals */}
+          <div className="mt-4 space-y-2 rounded-2xl bg-[#F4FAFF] p-4 text-sm">
+            <div className="flex justify-between font-bold text-slate-500">
+              <span>مجموع الأصناف</span>
+              <span>{order.order_items?.length || 0} صنف</span>
+            </div>
+            {order.discount_amount != null && order.discount_amount > 0 && (
+              <div className="flex justify-between font-bold text-emerald-700">
+                <span>الخصم المطبّق</span>
+                <span>- {formatCurrency(order.discount_amount)}</span>
+              </div>
+            )}
+            <div className="flex justify-between border-t border-slate-200 pt-2 font-display text-lg font-extrabold text-azraq-900">
+              <span>الإجمالي</span>
+              <span>{formatCurrency(order.total_amount)}</span>
+            </div>
+          </div>
+        </Card>
+
+        {order.notes && (
+          <Card>
+            <p className="mb-1 text-xs font-bold text-slate-400">ملاحظاتك</p>
+            <p className="text-sm font-bold text-slate-700">{order.notes}</p>
+          </Card>
+        )}
+
         <Button onClick={repeat} className="w-full"><RotateCcw size={17} /> كرر الطلب</Button>
       </div>
     );

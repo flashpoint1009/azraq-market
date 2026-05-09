@@ -107,12 +107,25 @@ export function CartPage() {
     });
 
     if (!rpc.error && rpc.data) {
-      if (appliedCoupon) {
+      const orderId = String(rpc.data);
+
+      // Apply coupon discount on top of the server-calculated promotion discounts
+      if (appliedCoupon && couponDiscount > 0) {
+        const { data: orderRow } = await supabase.from('orders').select('total_amount, debt_amount').eq('id', orderId).single();
+        if (orderRow) {
+          const newTotal = Math.max(0, Number(orderRow.total_amount) - couponDiscount);
+          await supabase.from('orders').update({
+            discount_amount: couponDiscount,
+            total_amount: newTotal,
+            debt_amount: newTotal,
+          }).eq('id', orderId);
+        }
         await supabase.from('coupons').update({ used_count: appliedCoupon.used_count + 1 }).eq('id', appliedCoupon.id);
       }
+
       setLoading(false);
       clear();
-      setSuccessOrderId(String(rpc.data));
+      setSuccessOrderId(orderId);
       toast.success('طلبك وصلنا');
       return;
     }
