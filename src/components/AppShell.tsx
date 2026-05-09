@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
-import { BarChart3, Bell, Boxes, ClipboardList, Code2, Heart, Headphones, Home, LayoutDashboard, LineChart, LogOut, MapPinHouse, MapPinned, Package, Percent, ReceiptText, ShieldCheck, ShoppingCart, Star, Tags, Ticket, UserRound, Users } from 'lucide-react';
+import { BarChart3, Bell, Boxes, ClipboardList, Code2, CreditCard, Heart, Headphones, Home, LayoutDashboard, LineChart, LogOut, MapPinHouse, MapPinned, Package, Percent, ReceiptText, ShieldCheck, ShoppingCart, Star, Tags, Ticket, UserRound, Users } from 'lucide-react';
 import { AppAnnouncement } from './AppAnnouncement';
 import { LogoMark } from './Brand';
 import { useAuth } from '../context/AuthContext';
@@ -28,6 +28,7 @@ const adminNav = [
   { to: '/admin/coupons', label: 'الكوبونات', icon: Ticket },
   { to: '/admin/reviews', label: 'التقييمات', icon: Star },
   { to: '/admin/orders', label: 'الطلبات', icon: ClipboardList },
+  { to: '/admin/debts', label: 'المديونيات', icon: CreditCard },
   { to: '/admin/users', label: 'المستخدمين', icon: ShieldCheck },
   { to: '/admin/customers', label: 'العملاء', icon: Users },
   { to: '/admin/developer', label: 'المطور', icon: Code2 },
@@ -72,6 +73,7 @@ export function AppShell({ mode }: { mode: 'customer' | 'admin' | 'warehouse' | 
     if (item.to === '/admin/coupons') return hasPermission(profile, 'offers');
     if (item.to === '/admin/reviews') return hasPermission(profile, 'products');
     if (item.to === '/admin/orders') return hasPermission(profile, 'orders');
+    if (item.to === '/admin/debts') return hasPermission(profile, 'orders');
     if (item.to === '/admin/customers') return profile?.role === 'admin' || hasPermission(profile, 'customers');
     if (item.to === '/admin/users') return profile?.role === 'admin' || hasPermission(profile, 'users');
     if (item.to === '/admin/developer') return hasPermission(profile, 'developer');

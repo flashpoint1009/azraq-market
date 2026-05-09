@@ -15,6 +15,7 @@ const AdminPurchasesPage = lazy(() => import('./pages/AdminPurchasesPage').then(
 const AdminOffersPage = lazy(() => import('./pages/AdminOffersPage').then((module) => ({ default: module.AdminOffersPage })));
 const AdminReportsPage = lazy(() => import('./pages/AdminReportsPage').then((module) => ({ default: module.AdminReportsPage })));
 const AdminReviewsPage = lazy(() => import('./pages/AdminReviewsPage').then((module) => ({ default: module.AdminReviewsPage })));
+const AdminDebtsPage = lazy(() => import('./pages/AdminDebtsPage').then((module) => ({ default: module.AdminDebtsPage })));
 const AdminUsersPage = lazy(() => import('./pages/AdminUsersPage').then((module) => ({ default: module.AdminUsersPage })));
 const CartPage = lazy(() => import('./pages/CartPage').then((module) => ({ default: module.CartPage })));
 const CustomerHome = lazy(() => import('./pages/CustomerHome').then((module) => ({ default: module.CustomerHome })));
@@ -72,6 +73,7 @@ export function App() {
             <Route path="admin/coupons" element={<ProtectedRoute permissions={['offers']}><AdminCouponsPage /></ProtectedRoute>} />
             <Route path="admin/reviews" element={<ProtectedRoute permissions={['products']}><AdminReviewsPage /></ProtectedRoute>} />
             <Route path="admin/orders" element={<ProtectedRoute permissions={['orders']}><OrdersManagementPage /></ProtectedRoute>} />
+            <Route path="admin/debts" element={<ProtectedRoute permissions={['orders']}><AdminDebtsPage /></ProtectedRoute>} />
             <Route path="admin/customers" element={<ProtectedRoute permissions={['customers']}><AdminCustomersPage /></ProtectedRoute>} />
             <Route path="admin/users" element={<ProtectedRoute permissions={['users']}><AdminUsersPage /></ProtectedRoute>} />
             <Route path="admin/developer" element={<ProtectedRoute permissions={['developer']}><AdminDeveloperPage /></ProtectedRoute>} />

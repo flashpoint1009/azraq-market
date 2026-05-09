@@ -7,7 +7,11 @@ import { supabase } from '../lib/supabase';
 import { Button, Input, Select } from './ui';
 import type { Order, OrderItem, OrderStatus } from '../types/database';
 
-const allStatuses: OrderStatus[] = ['new', 'preparing', 'ready_for_delivery', 'with_delivery', 'delivered', 'cancelled', 'rejected'];
+// Admin can change to any status
+const adminStatuses: OrderStatus[] = ['new', 'preparing', 'ready_for_delivery', 'with_delivery', 'delivered', 'cancelled', 'rejected'];
+
+// Warehouse can change to any status (as requested by user)
+const warehouseStatuses: OrderStatus[] = ['new', 'preparing', 'ready_for_delivery', 'with_delivery', 'delivered', 'cancelled', 'rejected'];
 
 type DraftItem = Pick<OrderItem, 'id' | 'product_name_snapshot'> & {
   quantity: string;
@@ -100,6 +104,9 @@ export function OrderEditor({ order, onSaved }: { order: Order; onSaved: () => v
   const [paidAmount, setPaidAmount] = useState(String(order.paid_amount || 0));
   const [saving, setSaving] = useState(false);
 
+  // Determine which statuses are available based on role
+  const availableStatuses = profile?.role === 'warehouse' ? warehouseStatuses : adminStatuses;
+
   useEffect(() => {
     setItems(draftItemsFromOrder(order));
     setStatus(order.status);
@@ -124,6 +131,7 @@ export function OrderEditor({ order, onSaved }: { order: Order; onSaved: () => v
         const price = Number(item.unit_price_snapshot) || 0;
         if (quantity <= 0 || price < 0) {
           toast.error('راجع الكمية والسعر قبل الحفظ');
+          setSaving(false);
           return;
         }
 
@@ -142,7 +150,7 @@ export function OrderEditor({ order, onSaved }: { order: Order; onSaved: () => v
       if (status !== order.status) await writeStatusHistory(order.id, status, profile.id);
       if (status === 'delivered') await syncDebt(order, total, paid, debt);
 
-      toast.success(itemErrors.length ? 'حالة الطلب اتحفظت، وبعض تعديلات الأصناف محتاجة صلاحيات' : 'تم حفظ التعديل');
+      toast.success(itemErrors.length ? 'حالة الطلب اتحفظت، بعض تعديلات الأصناف محتاجة صلاحيات' : 'تم حفظ التعديل');
       await onSaved();
     } catch (error) {
       console.error('ORDER_EDITOR_SAVE_FAILED', error);
@@ -154,58 +162,68 @@ export function OrderEditor({ order, onSaved }: { order: Order; onSaved: () => v
 
   return (
     <div className="mt-4 rounded-2xl bg-slate-50 p-3">
+      {/* Order items - mobile first grid */}
       <div className="grid gap-2">
         {items.map((item, index) => (
-          <div key={item.id} className="grid gap-2 rounded-2xl bg-white p-2 text-sm md:grid-cols-[1fr_90px_120px_120px] md:items-center">
-            <strong className="text-slate-700">{item.product_name_snapshot}</strong>
-            <label className="grid gap-1 text-xs font-bold text-slate-500">
-              الكمية
-              <Input
-                type="number"
-                min="1"
-                value={item.quantity}
-                onChange={(event) => setItems(items.map((entry, i) => (i === index ? { ...entry, quantity: event.target.value } : entry)))}
-              />
-            </label>
-            <label className="grid gap-1 text-xs font-bold text-slate-500">
-              سعر المنتج
-              <Input
-                type="number"
-                min="0"
-                step="0.01"
-                value={item.unit_price_snapshot}
-                onChange={(event) => setItems(items.map((entry, i) => (i === index ? { ...entry, unit_price_snapshot: event.target.value } : entry)))}
-              />
-            </label>
-            <span className="rounded-2xl bg-azraq-50 px-3 py-3 text-center font-extrabold text-azraq-800">
-              {formatCurrency((Number(item.quantity) || 0) * (Number(item.unit_price_snapshot) || 0))}
-            </span>
+          <div key={item.id} className="rounded-2xl bg-white p-3 text-sm">
+            <strong className="block text-slate-700 mb-2">{item.product_name_snapshot}</strong>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-[1fr_110px_130px_130px] sm:items-center">
+              <label className="grid gap-1 text-xs font-bold text-slate-500 col-span-2 sm:col-span-1">
+                <span className="sr-only">اسم المنتج</span>
+              </label>
+              <label className="grid gap-1 text-xs font-bold text-slate-500">
+                الكمية
+                <Input
+                  type="number"
+                  min="1"
+                  value={item.quantity}
+                  onChange={(event) => setItems(items.map((entry, i) => (i === index ? { ...entry, quantity: event.target.value } : entry)))}
+                />
+              </label>
+              <label className="grid gap-1 text-xs font-bold text-slate-500">
+                سعر المنتج
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={item.unit_price_snapshot}
+                  onChange={(event) => setItems(items.map((entry, i) => (i === index ? { ...entry, unit_price_snapshot: event.target.value } : entry)))}
+                />
+              </label>
+              <span className="col-span-2 rounded-2xl bg-azraq-50 px-3 py-2 text-center font-extrabold text-azraq-800 sm:col-span-1">
+                {formatCurrency((Number(item.quantity) || 0) * (Number(item.unit_price_snapshot) || 0))}
+              </span>
+            </div>
           </div>
         ))}
       </div>
 
-      <div className="mt-3 grid gap-2 md:grid-cols-[1fr_160px_160px_auto] md:items-end">
+      {/* Status change + totals - mobile first */}
+      <div className="mt-3 grid gap-3">
         <label className="grid gap-1 text-xs font-bold text-slate-500">
           حالة الطلب
           <Select value={status} onChange={(event) => setStatus(event.target.value as OrderStatus)}>
-            {allStatuses.map((item) => (
+            {availableStatuses.map((item) => (
               <option key={item} value={item}>
                 {statusLabels[item]}
               </option>
             ))}
           </Select>
         </label>
+
         {status === 'delivered' && (
           <label className="grid gap-1 text-xs font-bold text-slate-500">
             المدفوع
             <Input type="number" min="0" step="0.01" value={paidAmount} onChange={(event) => setPaidAmount(event.target.value)} />
           </label>
         )}
-        <div className="rounded-2xl bg-white p-3 text-sm font-extrabold text-slate-700">
-          الإجمالي: {formatCurrency(total)}
-          {status === 'delivered' && <span className="block text-rose-600">الباقي: {formatCurrency(debt)}</span>}
+
+        <div className="flex items-center justify-between rounded-2xl bg-white p-3 text-sm font-extrabold text-slate-700">
+          <span>الإجمالي: {formatCurrency(total)}</span>
+          {status === 'delivered' && <span className="text-rose-600">الباقي: {formatCurrency(debt)}</span>}
         </div>
-        <Button type="button" onClick={save} disabled={saving}>
+
+        <Button type="button" onClick={save} disabled={saving} className="w-full">
           <Save size={16} /> {saving ? 'جاري الحفظ...' : 'احفظ التعديل'}
         </Button>
       </div>
