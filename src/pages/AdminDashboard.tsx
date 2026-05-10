@@ -38,7 +38,6 @@ function AdminAnnouncementCard() {
     });
     setSaving(false);
     if (saveError) {
-      console.error('APP_ANNOUNCEMENT_SAVE_FAILED', saveError);
       toast.error('شغل migration الخاص بإعلانات العملاء الأول');
       return;
     }
@@ -47,20 +46,20 @@ function AdminAnnouncementCard() {
   };
 
   return (
-    <Card>
-      <h2 className="font-display text-xl font-extrabold">إعلان العملاء</h2>
-      <p className="mt-1 text-sm text-slate-500">رسالة عامة تظهر للعميل أول ما يفتح التطبيق.</p>
+    <Card className="p-3">
+      <h2 className="mb-1 font-display text-base font-extrabold">إعلان العملاء</h2>
+      <p className="mb-3 text-[11px] text-slate-500">رسالة تظهر للعميل أول ما يفتح التطبيق.</p>
       {loading && <LoadingState label="بنحمّل الإعلان..." />}
-      {error && <ErrorState message="جدول الإعلانات لسه مش متفعل. شغل migration الخاص بالإعلانات." />}
+      {error && <ErrorState message="جدول الإعلانات لسه مش متفعل." />}
       {!loading && (
-        <form onSubmit={submit} className="mt-3 grid gap-3">
-          <Input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} placeholder="مثال: عيد سعيد" />
-          <Textarea value={form.body} onChange={(event) => setForm({ ...form, body: event.target.value })} placeholder="اكتب نص الإعلان هنا..." rows={4} />
-          <label className="flex items-center gap-2 text-sm font-bold text-slate-600">
+        <form onSubmit={submit} className="grid gap-2">
+          <Input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} placeholder="عنوان الإعلان" />
+          <Textarea value={form.body} onChange={(event) => setForm({ ...form, body: event.target.value })} placeholder="نص الإعلان..." rows={3} />
+          <label className="flex items-center gap-2 text-xs font-bold text-slate-600">
             <input type="checkbox" checked={form.is_active} onChange={(event) => setForm({ ...form, is_active: event.target.checked })} />
-            الإعلان نشط ويظهر للعملاء
+            نشط ويظهر للعملاء
           </label>
-          <Button disabled={saving}>{saving ? 'جاري الحفظ...' : 'حفظ الإعلان'}</Button>
+          <Button disabled={saving} className="py-2 text-xs">{saving ? 'جاري الحفظ...' : 'حفظ الإعلان'}</Button>
         </form>
       )}
     </Card>
@@ -76,19 +75,11 @@ export function AdminDashboard() {
     month.setHours(0, 0, 0, 0);
 
     const ordersResult = await supabase.from('orders').select('*, profiles(full_name,phone)').gte('created_at', month.toISOString());
-    if (ordersResult.error) {
-      console.error('ADMIN_DASHBOARD_ORDERS_FETCH_FAILED', ordersResult.error);
-      throw ordersResult.error;
-    }
+    if (ordersResult.error) throw ordersResult.error;
 
     const debtsResult = await supabase.from('customer_debts').select('*, profiles(full_name,phone)').order('created_at', { ascending: false }).limit(8);
-    if (debtsResult.error) console.error('ADMIN_DASHBOARD_DEBTS_FETCH_FAILED', debtsResult.error);
-
     const productsResult = await supabase.from('products').select('*').order('stock_quantity', { ascending: true });
-    if (productsResult.error) console.error('ADMIN_DASHBOARD_PRODUCTS_FETCH_FAILED', productsResult.error);
-
     const itemsResult = await supabase.from('order_items').select('*').limit(500);
-    if (itemsResult.error) console.error('ADMIN_DASHBOARD_ITEMS_FETCH_FAILED', itemsResult.error);
 
     const orders = (ordersResult.data || []) as Order[];
     const products = (productsResult.data || []) as Product[];
@@ -115,80 +106,86 @@ export function AdminDashboard() {
   }, []);
 
   const orderCards = [
-    ['طلبات النهارده', data?.total ?? 0],
-    ['طلبات جديدة', data?.new ?? 0],
-    ['بنجّهزها', data?.preparing ?? 0],
-    ['خرجت للتوصيل', data?.delivery ?? 0],
-    ['اتسلمت', data?.delivered ?? 0],
-    ['بيع النهارده', formatCurrency(data?.sales ?? 0)],
-    ['بيع الشهر', formatCurrency(data?.monthSales ?? 0)],
-    ['مديونيات مفتوحة', formatCurrency(data?.debts.reduce((sum, debt) => sum + debt.remaining_amount, 0) ?? 0)],
+    { label: 'طلبات النهارده', value: data?.total ?? 0, color: 'text-azraq-800' },
+    { label: 'طلبات جديدة', value: data?.new ?? 0, color: 'text-blue-700' },
+    { label: 'بنجّهزها', value: data?.preparing ?? 0, color: 'text-amber-700' },
+    { label: 'خرجت للتوصيل', value: data?.delivery ?? 0, color: 'text-purple-700' },
+    { label: 'اتسلمت', value: data?.delivered ?? 0, color: 'text-emerald-700' },
+    { label: 'بيع النهارده', value: formatCurrency(data?.sales ?? 0), color: 'text-azraq-800' },
+    { label: 'بيع الشهر', value: formatCurrency(data?.monthSales ?? 0), color: 'text-azraq-800' },
+    { label: 'مديونيات مفتوحة', value: formatCurrency(data?.debts.reduce((sum, debt) => sum + debt.remaining_amount, 0) ?? 0), color: 'text-rose-700' },
   ];
 
   const stockCards = [
-    ['عدد وحدات المخزون', data?.stockUnits ?? 0],
-    ['قيمة المخزون بالتكلفة', formatCurrency(data?.stockCostValue ?? 0)],
-    ['قيمة المخزون بسعر البيع', formatCurrency(data?.stockSaleValue ?? 0)],
+    { label: 'وحدات المخزون', value: data?.stockUnits ?? 0 },
+    { label: 'قيمة المخزون بالتكلفة', value: formatCurrency(data?.stockCostValue ?? 0) },
+    { label: 'قيمة المخزون بالبيع', value: formatCurrency(data?.stockSaleValue ?? 0) },
   ];
 
   return (
-    <div>
+    <div className="pb-24">
       <PageHeader title="لوحة المشرف" subtitle="نظرة سريعة على الطلبات والبيع وحركة الشغل." />
       {loading && <LoadingState />}
       {error && <ErrorState message={error} />}
 
       {!loading && !error && (
         <>
-          <div className="grid gap-3 grid-cols-2 xl:grid-cols-4">
-            {orderCards.map(([label, value]) => (
-              <Card key={label as string} className="min-h-[104px] p-4">
-                <p className="text-xs font-bold text-slate-400 sm:text-sm">{label}</p>
-                <p className="mt-2 break-words font-display text-2xl font-extrabold text-azraq-800 sm:text-3xl">{value}</p>
-              </Card>
+          {/* Stat cards — compact on mobile */}
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {orderCards.map(({ label, value, color }) => (
+              <div key={label} className="rounded-2xl border border-white/80 bg-white p-3 shadow-sm">
+                <p className="text-[11px] font-bold text-slate-400 leading-4">{label}</p>
+                <p className={`mt-1 break-words font-display text-xl font-extrabold sm:text-2xl ${color}`}>{value}</p>
+              </div>
             ))}
           </div>
 
-          <div className="mt-4 grid gap-3 md:grid-cols-3">
-            {stockCards.map(([label, value]) => (
-              <Card key={label as string} className="p-4">
-                <p className="text-xs font-bold text-slate-400 sm:text-sm">{label}</p>
-                <p className="mt-2 break-words font-display text-2xl font-extrabold text-ink sm:text-3xl">{value}</p>
-              </Card>
+          {/* Stock cards */}
+          <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
+            {stockCards.map(({ label, value }) => (
+              <div key={label} className="rounded-2xl border border-white/80 bg-white p-3 shadow-sm">
+                <p className="text-[11px] font-bold text-slate-400">{label}</p>
+                <p className="mt-1 break-words font-display text-xl font-extrabold text-ink sm:text-2xl">{value}</p>
+              </div>
             ))}
           </div>
 
-          <div className="mt-5 grid gap-4 xl:grid-cols-3">
+          {/* Bottom section */}
+          <div className="mt-3 grid gap-3 xl:grid-cols-3">
             <AdminAnnouncementCard />
-            <Card>
-              <h2 className="font-display text-xl font-extrabold">المديونيات</h2>
-              <div className="mt-3 space-y-2">
+
+            <Card className="p-3">
+              <h2 className="mb-2 font-display text-base font-extrabold">المديونيات</h2>
+              <div className="grid gap-1.5">
                 {data?.debts.length ? data.debts.map((debt) => (
-                  <div key={debt.id} className="rounded-2xl bg-slate-50 p-3 text-sm">
-                    <p className="font-bold">{debt.profiles?.full_name || 'عميل'}</p>
-                    <p className="text-rose-600">الباقي: {formatCurrency(debt.remaining_amount)}</p>
+                  <div key={debt.id} className="rounded-xl bg-slate-50 px-3 py-2 text-xs">
+                    <p className="font-bold text-slate-700">{debt.profiles?.full_name || 'عميل'}</p>
+                    <p className="text-rose-600 font-bold">الباقي: {formatCurrency(debt.remaining_amount)}</p>
                   </div>
-                )) : <p className="text-sm text-slate-500">مفيش مديونيات مفتوحة.</p>}
+                )) : <p className="text-xs text-slate-500">مفيش مديونيات مفتوحة.</p>}
               </div>
             </Card>
-            <Card>
-              <h2 className="font-display text-xl font-extrabold">الأكثر طلبًا</h2>
-              <div className="mt-3 space-y-2">
+
+            <Card className="p-3">
+              <h2 className="mb-2 font-display text-base font-extrabold">الأكثر طلبًا</h2>
+              <div className="grid gap-1.5">
                 {data?.topProducts.length ? data.topProducts.map(([name, qty]) => (
-                  <div key={name} className="flex justify-between rounded-2xl bg-slate-50 p-3 text-sm font-bold">
-                    <span>{name}</span>
-                    <span>{qty}</span>
+                  <div key={name} className="flex justify-between rounded-xl bg-slate-50 px-3 py-2 text-xs font-bold">
+                    <span className="truncate">{name}</span>
+                    <span className="shrink-0 font-extrabold text-azraq-700">{qty}</span>
                   </div>
-                )) : <p className="text-sm text-slate-500">لسه مفيش بيانات كفاية.</p>}
+                )) : <p className="text-xs text-slate-500">لسه مفيش بيانات كفاية.</p>}
               </div>
             </Card>
-            <Card>
-              <h2 className="font-display text-xl font-extrabold">غير متاح</h2>
-              <div className="mt-3 space-y-2">
+
+            <Card className="p-3">
+              <h2 className="mb-2 font-display text-base font-extrabold">غير متاح</h2>
+              <div className="grid gap-1.5">
                 {data?.unavailable.length ? data.unavailable.map((product) => (
-                  <div key={product.id} className="rounded-2xl bg-rose-50 p-3 text-sm font-bold text-rose-700">
-                    {product.name} - المخزون {product.stock_quantity ?? 0}
+                  <div key={product.id} className="rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700">
+                    {product.name} — {product.stock_quantity ?? 0} وحدة
                   </div>
-                )) : <p className="text-sm text-slate-500">كل المنتجات متاحة.</p>}
+                )) : <p className="text-xs text-slate-500">كل المنتجات متاحة.</p>}
               </div>
             </Card>
           </div>

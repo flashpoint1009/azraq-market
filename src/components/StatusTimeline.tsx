@@ -16,31 +16,67 @@ export function StatusTimeline({ status, history = [] }: { status: OrderStatus; 
 
   if (terminal) {
     return (
-      <div className="rounded-2xl border border-rose-100 bg-gradient-to-br from-rose-50 to-white p-5 text-rose-700">
-        <ShieldX size={24} />
-        <p className="mt-3 font-display text-xl font-extrabold">حالة الطلب: {statusLabels[status]}</p>
-        <p className="mt-1 text-sm text-rose-500">الطلب وقف ومش هيخرج للتوصيل.</p>
+      <div className="rounded-xl border border-rose-100 bg-rose-50 p-3 text-rose-700">
+        <div className="flex items-center gap-2">
+          <ShieldX size={18} />
+          <p className="font-display text-sm font-extrabold">الطلب {statusLabels[status]}</p>
+        </div>
+        <p className="mt-1 text-xs text-rose-500">الطلب وقف ومش هيخرج للتوصيل.</p>
       </div>
     );
   }
 
   return (
-    <div className="relative grid gap-3 sm:grid-cols-5">
-      {statusFlow.map((item, index) => {
-        const active = index <= activeIndex;
-        const Icon = timelineIcons[item] || Circle;
-        const historyItem = history.find((entry) => entry.status === item);
-        return (
-          <div key={item} className={`relative overflow-hidden rounded-2xl border p-4 transition ${active ? 'border-azraq-100 bg-gradient-to-br from-azraq-50 to-white text-azraq-900 shadow-sm' : 'border-slate-100 bg-white text-slate-400'}`}>
-            <div className={`grid h-11 w-11 place-items-center rounded-2xl ${active ? 'bg-azraq-700 text-white' : 'bg-slate-100 text-slate-400'}`}>
-              <Icon size={20} />
+    <>
+      {/* Mobile: compact vertical list */}
+      <div className="grid gap-2 sm:hidden">
+        {statusFlow.map((item, index) => {
+          const active = index <= activeIndex;
+          const Icon = timelineIcons[item] || Circle;
+          const historyItem = history.find((entry) => entry.status === item);
+          const isCurrent = index === activeIndex;
+          return (
+            <div
+              key={item}
+              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 transition ${active ? 'bg-azraq-50 border border-azraq-100' : 'bg-slate-50 border border-transparent'}`}
+            >
+              <div className={`grid h-8 w-8 shrink-0 place-items-center rounded-xl ${active ? 'bg-azraq-700 text-white' : 'bg-slate-200 text-slate-400'}`}>
+                <Icon size={15} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className={`text-xs font-extrabold ${active ? 'text-azraq-900' : 'text-slate-400'}`}>{statusLabels[item]}</p>
+                {historyItem ? (
+                  <p className="text-[10px] text-slate-400">{formatDate(historyItem.created_at)}</p>
+                ) : active ? (
+                  <p className="text-[10px] text-azraq-400">الحالة الحالية</p>
+                ) : null}
+              </div>
+              {isCurrent && (
+                <span className="shrink-0 rounded-full bg-azraq-700 px-2 py-0.5 text-[10px] font-extrabold text-white">الآن</span>
+              )}
             </div>
-            <p className="mt-3 text-sm font-extrabold">{statusLabels[item]}</p>
-            <p className="mt-1 min-h-8 text-[11px] leading-4 text-slate-400">{historyItem ? formatDate(historyItem.created_at) : active ? 'اتحدث' : 'مستني دوره'}</p>
-            {active && <div className="absolute -left-8 -top-8 h-20 w-20 rounded-full bg-azraq-200/30" />}
-          </div>
-        );
-      })}
-    </div>
+          );
+        })}
+      </div>
+
+      {/* Desktop: horizontal grid */}
+      <div className="hidden gap-2 sm:grid sm:grid-cols-5">
+        {statusFlow.map((item, index) => {
+          const active = index <= activeIndex;
+          const Icon = timelineIcons[item] || Circle;
+          const historyItem = history.find((entry) => entry.status === item);
+          return (
+            <div key={item} className={`relative overflow-hidden rounded-2xl border p-3 transition ${active ? 'border-azraq-100 bg-gradient-to-br from-azraq-50 to-white text-azraq-900 shadow-sm' : 'border-slate-100 bg-white text-slate-400'}`}>
+              <div className={`grid h-9 w-9 place-items-center rounded-xl ${active ? 'bg-azraq-700 text-white' : 'bg-slate-100 text-slate-400'}`}>
+                <Icon size={17} />
+              </div>
+              <p className="mt-2 text-xs font-extrabold">{statusLabels[item]}</p>
+              <p className="mt-0.5 text-[10px] leading-4 text-slate-400">{historyItem ? formatDate(historyItem.created_at) : active ? 'اتحدث' : 'مستني'}</p>
+              {active && <div className="absolute -left-6 -top-6 h-14 w-14 rounded-full bg-azraq-200/30" />}
+            </div>
+          );
+        })}
+      </div>
+    </>
   );
 }
