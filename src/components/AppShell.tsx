@@ -164,8 +164,8 @@ export function AppShell({ mode }: { mode: 'customer' | 'admin' | 'warehouse' | 
       {mode === 'customer' && location.pathname !== '/cart' && (
         <Link to="/cart" className="fixed inset-x-3 bottom-[72px] z-40 flex items-center justify-between rounded-2xl border border-white bg-white/95 px-3 py-2 shadow-soft backdrop-blur lg:hidden">
           <div>
-            <p className="text-xs font-extrabold text-slate-500">{count ? `${count} أصناف • ${total.toLocaleString('ar-EG')} ج.م` : 'طلبك فاضي'}</p>
-            <p className="text-[11px] font-bold text-slate-400">راجع الطلب قبل الإرسال</p>
+            <p className="text-xs font-extrabold text-slate-500">{count ? `${count} أصناف • ${total.toLocaleString('ar-EG')} ج.م` : 'الحق العروض واطلب دلوقتي'}</p>
+            <p className="text-[11px] font-bold text-slate-400">{count ? 'راجع الطلب قبل الإرسال' : 'الحق العروض واطلب دلوقتي'}</p>
           </div>
           <span className="rounded-xl bg-azraq-700 px-3 py-2 text-xs font-extrabold text-white">كمل طلبك</span>
         </Link>
