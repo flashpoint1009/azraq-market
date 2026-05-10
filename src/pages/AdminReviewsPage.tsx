@@ -19,29 +19,30 @@ export function AdminReviewsPage() {
     if (!window.confirm('حذف التقييم؟')) return;
     const { error: deleteError } = await supabase.from('product_reviews').delete().eq('id', id);
     if (deleteError) toast.error(deleteError.message);
-    else {
-      toast.success('تم حذف التقييم');
-      reload();
-    }
+    else { toast.success('تم حذف التقييم'); reload(); }
   };
 
   return (
-    <div>
+    <div className="pb-24">
       <PageHeader title="تقييمات المنتجات" subtitle="مراجعة آراء العملاء وحذف غير المناسب." />
       {loading && <LoadingState />}
       {error && <ErrorState message={error} />}
-      <div className="grid gap-3">
+      <div className="grid gap-2">
         {data?.map((review) => (
-          <Card key={review.id} className="grid gap-3 md:grid-cols-[1fr_auto] md:items-center">
-            <div>
+          <Card key={review.id} className="flex items-start gap-3">
+            <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
-                <h3 className="font-display text-lg font-extrabold">{review.products?.name || 'منتج'}</h3>
-                <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-1 text-xs font-extrabold text-amber-600"><Star size={13} fill="currentColor" /> {review.rating}</span>
+                <h3 className="font-display text-sm font-extrabold">{review.products?.name || 'منتج'}</h3>
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-extrabold text-amber-600">
+                  <Star size={10} fill="currentColor" /> {review.rating}
+                </span>
               </div>
-              <p className="mt-1 text-sm font-bold text-slate-500">{review.profiles?.full_name || review.profiles?.phone || 'عميل'}</p>
-              {review.comment && <p className="mt-2 text-sm leading-6 text-slate-600">{review.comment}</p>}
+              <p className="mt-0.5 text-xs font-bold text-slate-500">{review.profiles?.full_name || review.profiles?.phone || 'عميل'}</p>
+              {review.comment && <p className="mt-1 text-xs leading-5 text-slate-600">{review.comment}</p>}
             </div>
-            <button type="button" onClick={() => remove(review.id)} className="grid h-10 w-10 place-items-center rounded-xl bg-rose-50 text-rose-600"><Trash2 size={16} /></button>
+            <button type="button" onClick={() => remove(review.id)} className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-rose-50 text-rose-600">
+              <Trash2 size={14} />
+            </button>
           </Card>
         ))}
       </div>

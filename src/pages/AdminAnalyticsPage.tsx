@@ -92,27 +92,76 @@ export function AdminAnalyticsPage() {
   };
 
   return (
-    <div>
-      <PageHeader title="التحليلات والتقارير" subtitle="مؤشرات البيع والعملاء والمنتجات حسب الفترة." action={<Button type="button" onClick={exportCsv}><Download size={17} /> تصدير Excel</Button>} />
-      <div className="mb-4 grid gap-3 sm:grid-cols-2">
-        <Input type="date" value={from} onChange={(event) => setFrom(event.target.value)} />
-        <Input type="date" value={to} onChange={(event) => setTo(event.target.value)} />
+    <div className="pb-24">
+      <PageHeader title="التحليلات والتقارير" subtitle="مؤشرات البيع والعملاء حسب الفترة." action={<Button type="button" onClick={exportCsv}><Download size={15} /> تصدير</Button>} />
+      <div className="mb-3 grid grid-cols-2 gap-2">
+        <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
+        <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
       </div>
       {loading && <LoadingState />}
       {error && <ErrorState message={error} />}
       {!loading && !error && (
-        <div className="grid gap-4">
-          <div className="grid gap-3 sm:grid-cols-3">
-            <Card><p className="text-sm font-bold text-slate-400">إجمالي الإيراد</p><p className="mt-2 font-display text-2xl font-extrabold">{formatCurrency(analytics.totalRevenue)}</p></Card>
-            <Card><p className="text-sm font-bold text-slate-400">متوسط الطلب</p><p className="mt-2 font-display text-2xl font-extrabold">{formatCurrency(analytics.averageOrder)}</p></Card>
-            <Card><p className="text-sm font-bold text-slate-400">عدد الطلبات</p><p className="mt-2 font-display text-2xl font-extrabold">{data?.orders.length || 0}</p></Card>
+        <div className="grid gap-3">
+          <div className="grid grid-cols-3 gap-2">
+            <Card>
+              <p className="text-[10px] font-bold text-slate-400">إجمالي الإيراد</p>
+              <p className="mt-1 font-display text-base font-extrabold">{formatCurrency(analytics.totalRevenue)}</p>
+            </Card>
+            <Card>
+              <p className="text-[10px] font-bold text-slate-400">متوسط الطلب</p>
+              <p className="mt-1 font-display text-base font-extrabold">{formatCurrency(analytics.averageOrder)}</p>
+            </Card>
+            <Card>
+              <p className="text-[10px] font-bold text-slate-400">عدد الطلبات</p>
+              <p className="mt-1 font-display text-base font-extrabold">{data?.orders.length || 0}</p>
+            </Card>
           </div>
-          <Card className="h-80"><ResponsiveContainer><LineChart data={analytics.revenue}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="date" /><YAxis /><Tooltip /><Line type="monotone" dataKey="revenue" stroke="#2b5b74" strokeWidth={3} /><Line type="monotone" dataKey="average" stroke="#f97316" strokeWidth={2} /></LineChart></ResponsiveContainer></Card>
-          <div className="grid gap-4 xl:grid-cols-2">
-            <Card className="h-80"><ResponsiveContainer><BarChart data={analytics.topProducts}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="name" hide /><YAxis /><Tooltip /><Bar dataKey="quantity" fill="#2b5b74" /></BarChart></ResponsiveContainer></Card>
-            <Card className="h-80"><ResponsiveContainer><PieChart><Pie data={analytics.statuses} dataKey="value" nameKey="name">{analytics.statuses.map((_, index) => <Cell key={index} fill={chartColors[index % chartColors.length]} />)}</Pie><Tooltip /></PieChart></ResponsiveContainer></Card>
+          <Card className="h-56">
+            <ResponsiveContainer>
+              <LineChart data={analytics.revenue}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" tick={{ fontSize: 9 }} />
+                <YAxis tick={{ fontSize: 9 }} />
+                <Tooltip />
+                <Line type="monotone" dataKey="revenue" stroke="#2b5b74" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="average" stroke="#f97316" strokeWidth={1.5} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </Card>
+          <div className="grid gap-3 xl:grid-cols-2">
+            <Card className="h-56">
+              <ResponsiveContainer>
+                <BarChart data={analytics.topProducts}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" hide />
+                  <YAxis tick={{ fontSize: 9 }} />
+                  <Tooltip />
+                  <Bar dataKey="quantity" fill="#2b5b74" />
+                </BarChart>
+              </ResponsiveContainer>
+            </Card>
+            <Card className="h-56">
+              <ResponsiveContainer>
+                <PieChart>
+                  <Pie data={analytics.statuses} dataKey="value" nameKey="name">
+                    {analytics.statuses.map((_, index) => <Cell key={index} fill={chartColors[index % chartColors.length]} />)}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </Card>
           </div>
-          <Card className="h-80"><ResponsiveContainer><LineChart data={analytics.customers}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="date" /><YAxis /><Tooltip /><Line type="monotone" dataKey="customers" stroke="#16a34a" strokeWidth={3} /></LineChart></ResponsiveContainer></Card>
+          <Card className="h-56">
+            <ResponsiveContainer>
+              <LineChart data={analytics.customers}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" tick={{ fontSize: 9 }} />
+                <YAxis tick={{ fontSize: 9 }} />
+                <Tooltip />
+                <Line type="monotone" dataKey="customers" stroke="#16a34a" strokeWidth={2} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </Card>
         </div>
       )}
     </div>

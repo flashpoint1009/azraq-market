@@ -70,175 +70,110 @@ export function AdminUsersPage() {
 
   const startEdit = (profile: Profile) => {
     const accountType = accountTypeForProfile(profile);
-    if (accountType === 'developer' && !canManageDevelopers) {
-      toast.error('تعديل المطور متاح للمطور فقط');
-      return;
-    }
+    if (accountType === 'developer' && !canManageDevelopers) { toast.error('تعديل المطور متاح للمطور فقط'); return; }
     setEditing(profile);
-    setForm({
-      full_name: profile.full_name || '',
-      address: profile.address || '',
-      account_type: accountType,
-      app_permissions: permissionsForAccountType(accountType, profile.app_permissions || []),
-    });
+    setForm({ full_name: profile.full_name || '', address: profile.address || '', account_type: accountType, app_permissions: permissionsForAccountType(accountType, profile.app_permissions || []) });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const reset = () => {
-    setEditing(null);
-    setForm(emptyEditForm);
-  };
+  const reset = () => { setEditing(null); setForm(emptyEditForm); };
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!editing) {
-      toast.error('اختر مستخدم من القائمة للتعديل');
-      return;
-    }
-
+    if (!editing) { toast.error('اختر مستخدم من القائمة للتعديل'); return; }
     const role = roleForAccountType(form.account_type);
-    const payload = {
-      full_name: form.full_name,
-      address: form.address,
-      role,
-      app_permissions: permissionsForAccountType(form.account_type, form.app_permissions),
-    };
-
+    const payload = { full_name: form.full_name, address: form.address, role, app_permissions: permissionsForAccountType(form.account_type, form.app_permissions) };
     let result = await supabase.from('profiles').update(payload).eq('id', editing.id);
     if (result.error && isMissingColumn(result.error, 'app_permissions')) {
-      const legacyPayload = { full_name: payload.full_name, address: payload.address, role: payload.role };
-      result = await supabase.from('profiles').update(legacyPayload).eq('id', editing.id);
+      result = await supabase.from('profiles').update({ full_name: payload.full_name, address: payload.address, role: payload.role }).eq('id', editing.id);
     }
-
-    if (result.error) {
-      toast.error(result.error.message);
-      return;
-    }
-
+    if (result.error) { toast.error(result.error.message); return; }
     toast.success('تم تحديث بيانات المستخدم');
-    reset();
-    reload();
+    reset(); reload();
   };
 
   const createUser = async (event: FormEvent) => {
     event.preventDefault();
-    if (!createForm.full_name.trim() || !createForm.phone.trim() || createForm.password.length < 6) {
-      toast.error('اكتب الاسم ورقم الهاتف وكلمة مرور 6 أحرف على الأقل');
-      return;
-    }
-
+    if (!createForm.full_name.trim() || !createForm.phone.trim() || createForm.password.length < 6) { toast.error('اكتب الاسم ورقم الهاتف وكلمة مرور 6 أحرف على الأقل'); return; }
     setCreating(true);
     const { error } = await supabase.rpc('admin_create_staff_user', {
-      phone_input: createForm.phone,
-      password_input: createForm.password,
-      full_name_input: createForm.full_name,
-      role_input: roleForAccountType(createForm.account_type),
-      permissions_input: permissionsForAccountType(createForm.account_type, createForm.app_permissions),
+      phone_input: createForm.phone, password_input: createForm.password, full_name_input: createForm.full_name,
+      role_input: roleForAccountType(createForm.account_type), permissions_input: permissionsForAccountType(createForm.account_type, createForm.app_permissions),
     });
     setCreating(false);
-
-    if (error) {
-      console.error('ADMIN_CREATE_STAFF_USER_FAILED', error);
-      toast.error(error.message.includes('function') ? 'شغل ملف supabase/admin_permissions_migration.sql الأول' : error.message);
-      return;
-    }
-
+    if (error) { toast.error(error.message.includes('function') ? 'شغل ملف supabase/admin_permissions_migration.sql الأول' : error.message); return; }
     toast.success('تم إضافة المستخدم بالصلاحيات المحددة');
-    setCreateForm(emptyCreateForm);
-    reload();
+    setCreateForm(emptyCreateForm); reload();
   };
 
   return (
-    <div>
-      <PageHeader title="المستخدمين والصلاحيات" subtitle="أضف مستخدمي الإدارة والمخزن والتوصيل وحدد صلاحيات كل مستخدم." />
-      <div className="grid gap-5 xl:grid-cols-[420px_1fr]">
-        <div className="grid gap-4">
+    <div className="pb-24">
+      <PageHeader title="المستخدمين والصلاحيات" subtitle="أضف مستخدمي الإدارة والمخزن والتوصيل." />
+      <div className="grid gap-3 xl:grid-cols-[380px_1fr]">
+        <div className="grid gap-3">
           <Card>
-            <h2 className="mb-4 font-display text-2xl font-extrabold">مستخدم جديد</h2>
-            <form onSubmit={createUser} className="space-y-3">
-              <Input required value={createForm.full_name} onChange={(event) => setCreateForm({ ...createForm, full_name: event.target.value })} placeholder="اسم المستخدم" />
-              <Input required dir="ltr" value={createForm.phone} onChange={(event) => setCreateForm({ ...createForm, phone: event.target.value })} placeholder="01000000000" />
-              <Input required type="password" value={createForm.password} onChange={(event) => setCreateForm({ ...createForm, password: event.target.value })} placeholder="كلمة المرور" />
-              <Select value={createForm.account_type} onChange={(event) => {
-                const accountType = event.target.value as StaffAccountType;
-                setCreateForm({ ...createForm, account_type: accountType, app_permissions: permissionsForAccountType(accountType) });
-              }}>
-                {availableAccountTypes.map((accountType) => <option key={accountType} value={accountType}>{accountTypeLabels[accountType]}</option>)}
+            <h2 className="mb-2 font-display text-base font-extrabold">مستخدم جديد</h2>
+            <form onSubmit={createUser} className="grid gap-2">
+              <Input required value={createForm.full_name} onChange={(e) => setCreateForm({ ...createForm, full_name: e.target.value })} placeholder="اسم المستخدم" />
+              <Input required dir="ltr" value={createForm.phone} onChange={(e) => setCreateForm({ ...createForm, phone: e.target.value })} placeholder="01000000000" />
+              <Input required type="password" value={createForm.password} onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })} placeholder="كلمة المرور (6 أحرف+)" />
+              <Select value={createForm.account_type} onChange={(e) => { const t = e.target.value as StaffAccountType; setCreateForm({ ...createForm, account_type: t, app_permissions: permissionsForAccountType(t) }); }}>
+                {availableAccountTypes.map((t) => <option key={t} value={t}>{accountTypeLabels[t]}</option>)}
               </Select>
               {createForm.account_type === 'manager' && (
-                <div className="grid gap-2 rounded-2xl bg-slate-50 p-3">
+                <div className="grid grid-cols-2 gap-1.5 rounded-xl bg-slate-50 p-2">
                   {managerPermissions.map((permission) => (
-                    <label key={permission} className="flex items-center gap-2 text-sm font-bold text-slate-600">
-                      <input
-                        type="checkbox"
-                        checked={createForm.app_permissions.includes(permission)}
-                        onChange={() => setCreateForm({ ...createForm, app_permissions: togglePermission(createForm.app_permissions, permission) })}
-                      />
+                    <label key={permission} className="flex items-center gap-1.5 text-xs font-bold text-slate-600">
+                      <input type="checkbox" checked={createForm.app_permissions.includes(permission)} onChange={() => setCreateForm({ ...createForm, app_permissions: togglePermission(createForm.app_permissions, permission) })} />
                       {permissionLabels[permission]}
                     </label>
                   ))}
                 </div>
               )}
-              {createForm.account_type === 'developer' && <p className="rounded-2xl bg-indigo-50 p-3 text-sm font-bold text-indigo-700">المطور فقط يملك لوحة المطور وإعدادات الهوية وبيانات المشروع الخام.</p>}
-              <Button disabled={creating} className="w-full"><Plus size={17} /> {creating ? 'جاري الإضافة...' : 'ضيف المستخدم'}</Button>
+              <Button disabled={creating} className="w-full"><Plus size={15} /> {creating ? 'جاري الإضافة...' : 'ضيف المستخدم'}</Button>
             </form>
           </Card>
 
           <Card>
-            <h2 className="mb-4 font-display text-2xl font-extrabold">{editing ? 'تعديل مستخدم' : 'اختر مستخدم'}</h2>
-            <form onSubmit={submit} className="space-y-3">
-              <Input required value={form.full_name} onChange={(event) => setForm({ ...form, full_name: event.target.value })} placeholder="الاسم" />
-              <Select value={form.account_type} onChange={(event) => {
-                const accountType = event.target.value as StaffAccountType;
-                setForm({ ...form, account_type: accountType, app_permissions: permissionsForAccountType(accountType, form.app_permissions) });
-              }}>
-                {availableAccountTypes.map((accountType) => <option key={accountType} value={accountType}>{accountTypeLabels[accountType]}</option>)}
+            <h2 className="mb-2 font-display text-base font-extrabold">{editing ? 'تعديل مستخدم' : 'اختر مستخدم للتعديل'}</h2>
+            <form onSubmit={submit} className="grid gap-2">
+              <Input required value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} placeholder="الاسم" />
+              <Select value={form.account_type} onChange={(e) => { const t = e.target.value as StaffAccountType; setForm({ ...form, account_type: t, app_permissions: permissionsForAccountType(t, form.app_permissions) }); }}>
+                {availableAccountTypes.map((t) => <option key={t} value={t}>{accountTypeLabels[t]}</option>)}
               </Select>
-              <Textarea value={form.address} onChange={(event) => setForm({ ...form, address: event.target.value })} placeholder="العنوان" rows={3} />
+              <Textarea value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} placeholder="العنوان" rows={2} />
               {form.account_type === 'manager' && (
-                <div className="grid gap-2 rounded-2xl bg-slate-50 p-3">
+                <div className="grid grid-cols-2 gap-1.5 rounded-xl bg-slate-50 p-2">
                   {managerPermissions.map((permission) => (
-                    <label key={permission} className="flex items-center gap-2 text-sm font-bold text-slate-600">
-                      <input
-                        type="checkbox"
-                        checked={form.app_permissions.includes(permission)}
-                        onChange={() => setForm({ ...form, app_permissions: togglePermission(form.app_permissions, permission) })}
-                      />
+                    <label key={permission} className="flex items-center gap-1.5 text-xs font-bold text-slate-600">
+                      <input type="checkbox" checked={form.app_permissions.includes(permission)} onChange={() => setForm({ ...form, app_permissions: togglePermission(form.app_permissions, permission) })} />
                       {permissionLabels[permission]}
                     </label>
                   ))}
                 </div>
               )}
-              {form.account_type === 'developer' && <p className="rounded-2xl bg-indigo-50 p-3 text-sm font-bold text-indigo-700">هذا المستخدم مطور: يقدر يعدل التطبيق والهوية والإعدادات والبيانات الخام فقط.</p>}
-              <Button disabled={!editing} className="w-full"><Save size={17} /> حفظ التعديل</Button>
-              {editing && (
-                <button type="button" onClick={reset} className="w-full rounded-2xl bg-slate-100 px-4 py-3 text-sm font-bold text-slate-600">
-                  إلغاء
-                </button>
-              )}
+              <Button disabled={!editing} className="w-full"><Save size={15} /> حفظ التعديل</Button>
+              {editing && <button type="button" onClick={reset} className="w-full rounded-xl bg-slate-100 px-4 py-2 text-xs font-bold text-slate-600">إلغاء</button>}
             </form>
           </Card>
         </div>
 
-        <div className="grid content-start gap-3">
+        <div className="grid content-start gap-2">
           {loading && <LoadingState />}
           {error && <ErrorState message={error} />}
           {!loading && !error && visibleProfiles.length === 0 && <EmptyState title="لا يوجد مستخدمين" body="المستخدمون سيظهرون هنا بعد الإضافة." />}
           {visibleProfiles.map((profile) => (
-            <Card key={profile.id} className="grid gap-2 md:grid-cols-[1fr_auto] md:items-center">
-              <div>
-                <h3 className="font-display text-lg font-extrabold">{profile.full_name || 'بدون اسم'}</h3>
-                <p className="text-sm text-slate-500" dir="ltr">{profile.phone}</p>
-                <p className="text-xs text-slate-400">{profile.address || 'لا يوجد عنوان'}</p>
-                {profile.role === 'admin' && (
-                  <p className="mt-2 text-xs font-bold text-slate-500">
-                    {profile.app_permissions?.length ? profile.app_permissions.map((permission) => permissionLabels[permission]).join(' - ') : 'كل الصلاحيات'}
-                  </p>
-                )}
+            <Card key={profile.id} className="flex items-center justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <h3 className="truncate font-display text-sm font-extrabold">{profile.full_name || 'بدون اسم'}</h3>
+                <p className="text-xs text-slate-400" dir="ltr">{profile.phone}</p>
+                {profile.role === 'admin' && profile.app_permissions?.length ? (
+                  <p className="mt-0.5 truncate text-[10px] font-bold text-slate-400">{profile.app_permissions.map((p) => permissionLabels[p as PermissionKey]).join(' · ')}</p>
+                ) : null}
               </div>
-              <div className="flex items-center gap-2">
-                <span className="rounded-full bg-azraq-50 px-3 py-1 text-xs font-extrabold text-azraq-700">{profile.role === 'admin' ? accountTypeLabels[accountTypeForProfile(profile)] : roleLabels[profile.role]}</span>
-                <button type="button" onClick={() => startEdit(profile)} className="rounded-2xl bg-white px-4 py-2 text-sm font-bold text-azraq-700 shadow-sm">تعديل</button>
+              <div className="flex shrink-0 items-center gap-1.5">
+                <span className="rounded-full bg-azraq-50 px-2 py-0.5 text-[10px] font-extrabold text-azraq-700">{profile.role === 'admin' ? accountTypeLabels[accountTypeForProfile(profile)] : roleLabels[profile.role]}</span>
+                <button type="button" onClick={() => startEdit(profile)} className="rounded-xl bg-slate-100 px-2.5 py-1.5 text-xs font-bold text-azraq-700">تعديل</button>
               </div>
             </Card>
           ))}

@@ -143,33 +143,33 @@ export function AdminDebtsPage() {
           <button
             onClick={() => filtered.length && exportCSV(filtered)}
             disabled={!filtered.length}
-            className="inline-flex items-center gap-2 rounded-2xl bg-white px-4 py-3 text-sm font-extrabold text-azraq-700 shadow-sm disabled:opacity-40"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-xs font-extrabold text-azraq-700 shadow-sm disabled:opacity-40"
           >
-            <Download size={16} /> تصدير CSV
+            <Download size={14} /> CSV
           </button>
         }
       />
 
       {/* Summary cards */}
       {!loading && data && (
-        <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-          <Card className="p-4">
-            <p className="text-xs font-bold text-slate-400">ديون مفتوحة</p>
-            <p className="mt-1 font-display text-3xl font-extrabold text-rose-600">{summary.totalOpen}</p>
+        <div className="mb-3 grid grid-cols-3 gap-2">
+          <Card>
+            <p className="text-[10px] font-bold text-slate-400">ديون مفتوحة</p>
+            <p className="mt-0.5 font-display text-xl font-extrabold text-rose-600">{summary.totalOpen}</p>
           </Card>
-          <Card className="p-4">
-            <p className="text-xs font-bold text-slate-400">إجمالي المتبقي</p>
-            <p className="mt-1 font-display text-2xl font-extrabold text-rose-700">{formatCurrency(summary.totalRemaining)}</p>
+          <Card>
+            <p className="text-[10px] font-bold text-slate-400">إجمالي المتبقي</p>
+            <p className="mt-0.5 font-display text-base font-extrabold text-rose-700">{formatCurrency(summary.totalRemaining)}</p>
           </Card>
-          <Card className="p-4 col-span-2 sm:col-span-1">
-            <p className="text-xs font-bold text-slate-400">إجمالي السجلات</p>
-            <p className="mt-1 font-display text-3xl font-extrabold text-ink">{summary.totalCount}</p>
+          <Card>
+            <p className="text-[10px] font-bold text-slate-400">إجمالي السجلات</p>
+            <p className="mt-0.5 font-display text-xl font-extrabold text-ink">{summary.totalCount}</p>
           </Card>
         </div>
       )}
 
       {/* Status filter tabs */}
-      <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
+      <div className="mb-3 flex gap-1.5 overflow-x-auto pb-1">
         {statusTabs.map((tab) => (
           <button
             key={tab.value}

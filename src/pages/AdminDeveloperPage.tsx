@@ -272,11 +272,11 @@ function togglePermission(list: PermissionKey[], permission: PermissionKey) {
 
 function SectionHeader({ icon, title, subtitle, color = 'bg-azraq-50 text-azraq-700' }: { icon: React.ReactNode; title: string; subtitle: string; color?: string }) {
   return (
-    <div className="mb-4 flex items-start gap-3">
-      <div className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl ${color}`}>{icon}</div>
+    <div className="mb-3 flex items-start gap-2.5">
+      <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${color}`}>{icon}</div>
       <div>
-        <h2 className="font-display text-xl font-extrabold text-ink sm:text-2xl">{title}</h2>
-        <p className="text-xs leading-5 text-slate-500 sm:text-sm">{subtitle}</p>
+        <h2 className="font-display text-sm font-extrabold text-ink sm:text-base">{title}</h2>
+        <p className="text-[11px] leading-5 text-slate-500">{subtitle}</p>
       </div>
     </div>
   );
@@ -284,16 +284,16 @@ function SectionHeader({ icon, title, subtitle, color = 'bg-azraq-50 text-azraq-
 
 function DeveloperHeader() {
   return (
-    <div className="mb-5 overflow-hidden rounded-[1.75rem] border border-white/80 bg-gradient-to-br from-azraq-700 via-azraq-800 to-azraq-950 p-5 text-white shadow-soft sm:p-8">
-      <p className="text-xs font-extrabold text-azraq-300">لوحة التحكم الكاملة</p>
-      <h1 className="mt-1 font-display text-2xl font-extrabold sm:text-4xl">لوحة المطور</h1>
-      <p className="mt-2 max-w-2xl text-sm leading-6 text-azraq-200">
-        تحكم كامل في هوية المشروع، إعداداته، بياناته، صلاحيات الفريق، وتصدير التقارير — كل شيء من مكان واحد.
+    <div className="mb-3 overflow-hidden rounded-2xl border border-white/80 bg-gradient-to-br from-azraq-700 via-azraq-800 to-azraq-950 p-4 text-white shadow-soft">
+      <p className="text-[10px] font-extrabold text-azraq-300">لوحة التحكم الكاملة</p>
+      <h1 className="mt-0.5 font-display text-lg font-extrabold sm:text-2xl">لوحة المطور</h1>
+      <p className="mt-1 text-xs leading-5 text-azraq-200">
+        تحكم كامل في هوية المشروع، إعداداته، بياناته، صلاحيات الفريق، وتصدير التقارير.
       </p>
-      <div className="mt-5 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
+      <div className="mt-3 flex flex-wrap gap-1.5">
         {['هوية المشروع', 'تقارير Excel', 'فيتشر فلاجز', 'صلاحيات الفريق', 'مصنع التقارير', 'قاعدة البيانات'].map((label) => (
-          <span key={label} className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold text-white">
-            <CheckCircle2 size={11} />
+          <span key={label} className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-bold text-white">
+            <CheckCircle2 size={10} />
             {label}
           </span>
         ))}
@@ -921,7 +921,7 @@ export function AdminDeveloperPage() {
   return (
     <div className="mx-auto w-full max-w-5xl pb-10">
       <DeveloperHeader />
-      <div className="grid gap-4 sm:gap-6">
+      <div className="grid gap-3">
         <DeveloperSettingsCard />
         <ExcelReportsCard />
         <FeatureFlagsCard />
