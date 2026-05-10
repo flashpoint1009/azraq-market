@@ -1,10 +1,11 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { ChevronLeft, Plus } from 'lucide-react';
+import { ChevronDown, ChevronUp, Plus } from 'lucide-react';
 import { Button, Card, EmptyState, ErrorState } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import { formatCurrency, statusLabels } from '../lib/labels';
+import { formatCurrency, statusLabels, unitLabels } from '../lib/labels';
 import { supabase } from '../lib/supabase';
 import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
 import type { Order, Product } from '../types/database';
@@ -35,15 +36,54 @@ const statusColors: Record<string, string> = {
   cancelled: 'bg-slate-100 text-slate-500',
 };
 
+function OrderItemsInline({ order }: { order: Order }) {
+  const [open, setOpen] = useState(false);
+  const items = order.order_items || [];
+
+  return (
+    <div className="mt-3 border-t border-slate-100 pt-3">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center justify-between text-xs font-extrabold text-azraq-700"
+      >
+        <span>الفاتورة ({items.length} {items.length === 1 ? 'صنف' : 'أصناف'})</span>
+        {open ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+      </button>
+
+      {open && (
+        <div className="mt-2 grid gap-1.5">
+          {items.map((item, i) => (
+            <div key={item.id || i} className="flex items-center justify-between rounded-xl bg-[#F4FAFF] px-3 py-2 text-xs">
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-bold text-slate-700">{item.product_name_snapshot}</p>
+                <p className="text-slate-400">
+                  {item.quantity} {unitLabels[item.unit_type_snapshot]} × {formatCurrency(item.unit_price_snapshot)}
+                </p>
+              </div>
+              <span className="mr-2 shrink-0 font-extrabold text-azraq-800">{formatCurrency(item.line_total)}</span>
+            </div>
+          ))}
+          <div className="flex justify-between rounded-xl bg-azraq-700 px-3 py-2 text-xs font-extrabold text-white">
+            <span>الإجمالي</span>
+            <span>{formatCurrency(order.total_amount)}</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function OrdersPage() {
   const { profile } = useAuth();
   const { fillFromOrder } = useCart();
   const navigate = useNavigate();
   const { data: orders, loading, error } = useSupabaseQuery(async () => {
+    if (!profile?.id) return [] as Order[];
     const { data, error } = await supabase
       .from('orders')
       .select('*, order_items(*)')
-      .eq('customer_id', profile?.id || '')
+      .eq('customer_id', profile.id)
       .order('created_at', { ascending: false });
     if (error) throw error;
     return data as Order[];
@@ -90,20 +130,17 @@ export function OrdersPage() {
               </div>
               <strong className="text-lg font-extrabold text-azraq-800">{formatCurrency(order.total_amount)}</strong>
             </div>
-            <p className="mt-3 text-xs font-bold text-slate-400">{new Date(order.created_at).toLocaleString('ar-EG')}</p>
-            {order.order_items && order.order_items.length > 0 && (
-              <p className="mt-1 text-xs font-bold text-slate-400">{order.order_items.length} أصناف</p>
-            )}
-            <div className="mt-4 grid gap-2">
-              <Link to={`/orders/${order.id}`} className="inline-flex items-center justify-center gap-1 rounded-2xl bg-[#F4FAFF] px-4 py-2 text-sm font-extrabold text-azraq-700">
-                عرض التفاصيل <ChevronLeft size={15} />
-              </Link>
-              {order.status === 'new' && (
-                <Button type="button" onClick={() => addProducts(order)} className="py-2">
+            <p className="mt-2 text-xs font-bold text-slate-400">{new Date(order.created_at).toLocaleString('ar-EG')}</p>
+
+            <OrderItemsInline order={order} />
+
+            {order.status === 'new' && (
+              <div className="mt-3">
+                <Button type="button" onClick={() => addProducts(order)} className="w-full py-2">
                   <Plus size={16} /> زوّد منتجات
                 </Button>
-              )}
-            </div>
+              </div>
+            )}
           </Card>
         ))}
       </div>

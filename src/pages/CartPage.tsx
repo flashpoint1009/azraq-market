@@ -1,7 +1,7 @@
 import { FormEvent, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { CheckCircle2, Loader2, Minus, Plus, Send, Tag, Trash2 } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Loader2, Minus, Plus, Send, Tag, Trash2 } from 'lucide-react';
 import { Button, Card, EmptyState, ErrorState, Input, Textarea } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
@@ -10,6 +10,8 @@ import { supabase } from '../lib/supabase';
 import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
 import { getProductPricing } from '../lib/pricing';
 import type { Coupon, Promotion } from '../types/database';
+
+const DEFAULT_MIN_ORDER = 50;
 
 function promotionDiscount(promotion: Promotion, amount: number) {
   const value = Number(promotion.discount_value || 0);
@@ -27,6 +29,17 @@ export function CartPage() {
   const [couponLoading, setCouponLoading] = useState(false);
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
   const [couponError, setCouponError] = useState('');
+
+  const { data: appSettings } = useSupabaseQuery(async () => {
+    const { data } = await supabase
+      .from('app_settings')
+      .select('key,value')
+      .eq('key', 'min_order_amount')
+      .maybeSingle();
+    return data as { key: string; value: string } | null;
+  }, []);
+
+  const minOrderAmount = appSettings ? Number(appSettings.value) || DEFAULT_MIN_ORDER : DEFAULT_MIN_ORDER;
 
   const { data: promotions } = useSupabaseQuery(async () => {
     const now = new Date().toISOString();
@@ -68,6 +81,8 @@ export function CartPage() {
   }, [appliedCoupon, total, promotionDiscount_]);
 
   const finalTotal = Math.max(0, total - promotionDiscount_ - couponDiscount);
+  const belowMinOrder = finalTotal < minOrderAmount && minOrderAmount > 0;
+  const remaining = Math.max(0, minOrderAmount - finalTotal);
 
   const applyCoupon = async () => {
     const code = couponCode.trim().toUpperCase();
@@ -101,6 +116,10 @@ export function CartPage() {
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (!profile || items.length === 0) return;
+    if (belowMinOrder) {
+      toast.error(`أكمل طلبك — الحد الأدنى ${formatCurrency(minOrderAmount)}`);
+      return;
+    }
     setLoading(true);
 
     const rpc = await supabase.rpc('customer_create_order', {
@@ -111,7 +130,6 @@ export function CartPage() {
     if (!rpc.error && rpc.data) {
       const orderId = String(rpc.data);
 
-      // Apply coupon discount on top of the server-calculated promotion discounts
       if (appliedCoupon && couponDiscount > 0) {
         const { data: orderRow } = await supabase.from('orders').select('total_amount, debt_amount').eq('id', orderId).single();
         if (orderRow) {
@@ -228,10 +246,23 @@ export function CartPage() {
             {couponDiscount > 0 && <div className="mt-3 flex justify-between text-sm font-bold text-azraq-700"><span>خصم الكوبون ({appliedCoupon?.code})</span><span>- {formatCurrency(couponDiscount)}</span></div>}
             <div className="mt-3 flex justify-between border-t border-slate-100 pt-3 text-lg font-extrabold"><span>الإجمالي</span><span className="text-azraq-800">{formatCurrency(finalTotal)}</span></div>
           </div>
+
+          {belowMinOrder && (
+            <div className="mb-3 flex items-start gap-2 rounded-2xl border border-amber-200 bg-amber-50 p-3">
+              <AlertCircle size={16} className="mt-0.5 shrink-0 text-amber-600" />
+              <div>
+                <p className="text-sm font-extrabold text-amber-700">أكمل طلبك</p>
+                <p className="mt-0.5 text-xs font-bold text-amber-600">
+                  الحد الأدنى للطلب {formatCurrency(minOrderAmount)} — باقي {formatCurrency(remaining)}
+                </p>
+              </div>
+            </div>
+          )}
+
           {loading && <div className="mb-3"><ErrorState message="جاري إرسال الطلب، لا تغلق الصفحة." /></div>}
-          <Button disabled={loading} className="w-full">
+          <Button disabled={loading || belowMinOrder} className="w-full">
             <Send size={18} />
-            {loading ? 'جاري الإرسال...' : 'ابعت الطلب'}
+            {loading ? 'جاري الإرسال...' : belowMinOrder ? `أكمل طلبك — باقي ${formatCurrency(remaining)}` : 'ابعت الطلب'}
           </Button>
         </Card>
       </div>

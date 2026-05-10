@@ -1,16 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import { Save } from 'lucide-react';
+import { Save, WalletCards } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { formatCurrency, statusLabels } from '../lib/labels';
 import { supabase } from '../lib/supabase';
 import { Button, Input, Select } from './ui';
 import type { Order, OrderItem, OrderStatus } from '../types/database';
 
-// Admin can change to any status
 const adminStatuses: OrderStatus[] = ['new', 'preparing', 'ready_for_delivery', 'with_delivery', 'delivered', 'cancelled', 'rejected'];
-
-// Warehouse can change to any status (as requested by user)
 const warehouseStatuses: OrderStatus[] = ['new', 'preparing', 'ready_for_delivery', 'with_delivery', 'delivered', 'cancelled', 'rejected'];
 
 type DraftItem = Pick<OrderItem, 'id' | 'product_name_snapshot'> & {
@@ -103,8 +100,8 @@ export function OrderEditor({ order, onSaved }: { order: Order; onSaved: () => v
   const [status, setStatus] = useState<OrderStatus>(order.status);
   const [paidAmount, setPaidAmount] = useState(String(order.paid_amount || 0));
   const [saving, setSaving] = useState(false);
+  const [acceptingDebt, setAcceptingDebt] = useState(false);
 
-  // Determine which statuses are available based on role
   const availableStatuses = profile?.role === 'warehouse' ? warehouseStatuses : adminStatuses;
 
   useEffect(() => {
@@ -160,9 +157,46 @@ export function OrderEditor({ order, onSaved }: { order: Order; onSaved: () => v
     }
   };
 
+  const acceptAsDebt = async () => {
+    if (!profile) return;
+    setAcceptingDebt(true);
+    try {
+      const orderTotal = total;
+
+      await saveOrderStatus(order.id, 'delivered', profile.id, orderTotal, 0, orderTotal);
+      await writeStatusHistory(order.id, 'delivered', profile.id);
+      await syncDebt(order, orderTotal, 0, orderTotal);
+
+      toast.success(`تم قبول الطلب وتسجيل ${formatCurrency(orderTotal)} كمديونية`);
+      await onSaved();
+    } catch (error) {
+      console.error('ACCEPT_AS_DEBT_FAILED', error);
+      toast.error('تعذر تحويل الطلب لمديونية، حاول تاني');
+    } finally {
+      setAcceptingDebt(false);
+    }
+  };
+
   return (
     <div className="mt-4 rounded-2xl bg-slate-50 p-3">
-      {/* Order items - mobile first grid */}
+      {/* Accept as debt — quick action for unpaid new orders */}
+      {(order.status === 'new' || order.status === 'preparing') && (
+        <div className="mb-3 rounded-2xl border border-amber-200 bg-amber-50 p-3">
+          <p className="text-xs font-extrabold text-amber-700">العميل مسددش؟</p>
+          <p className="mt-0.5 text-xs text-amber-600">اقبل الطلب وحوّله مديونية — هيتسجل في صفحة المديونيات تلقائياً.</p>
+          <button
+            type="button"
+            onClick={acceptAsDebt}
+            disabled={acceptingDebt || saving}
+            className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-amber-600 px-4 py-2.5 text-xs font-extrabold text-white transition hover:bg-amber-700 disabled:opacity-60"
+          >
+            <WalletCards size={14} />
+            {acceptingDebt ? 'جاري التحويل...' : `اقبل وحوّل لمديونية — ${formatCurrency(total)}`}
+          </button>
+        </div>
+      )}
+
+      {/* Order items */}
       <div className="grid gap-2">
         {items.map((item, index) => (
           <div key={item.id} className="rounded-2xl bg-white p-3 text-sm">
@@ -198,7 +232,7 @@ export function OrderEditor({ order, onSaved }: { order: Order; onSaved: () => v
         ))}
       </div>
 
-      {/* Status change + totals - mobile first */}
+      {/* Status + totals */}
       <div className="mt-3 grid gap-3">
         <label className="grid gap-1 text-xs font-bold text-slate-500">
           حالة الطلب
@@ -223,7 +257,7 @@ export function OrderEditor({ order, onSaved }: { order: Order; onSaved: () => v
           {status === 'delivered' && <span className="text-rose-600">الباقي: {formatCurrency(debt)}</span>}
         </div>
 
-        <Button type="button" onClick={save} disabled={saving} className="w-full">
+        <Button type="button" onClick={save} disabled={saving || acceptingDebt} className="w-full">
           <Save size={16} /> {saving ? 'جاري الحفظ...' : 'احفظ التعديل'}
         </Button>
       </div>

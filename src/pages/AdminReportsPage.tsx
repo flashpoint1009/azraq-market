@@ -38,11 +38,11 @@ function PrintStyle() {
       @media print {
         body > * { display: none !important; }
         #print-area { display: block !important; }
-        #print-area { position: fixed; top: 0; left: 0; width: 100%; background: white; z-index: 9999; padding: 24px; }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        th, td { border: 1px solid #e2e8f0; padding: 6px 10px; text-align: right; }
+        #print-area { position: fixed; top: 0; left: 0; width: 100%; background: white; z-index: 9999; padding: 16px; }
+        table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        th, td { border: 1px solid #e2e8f0; padding: 5px 8px; text-align: right; word-break: break-word; }
         th { background: #f8fafc; font-weight: 800; }
-        h1, h2 { margin-bottom: 12px; }
+        h1, h2 { margin-bottom: 10px; font-size: 16px; }
         .no-print { display: none !important; }
       }
     `}</style>
@@ -95,37 +95,38 @@ export function AdminReportsPage() {
   return (
     <div>
       <PrintStyle />
-      <PageHeader title="التقارير" subtitle="شاشة التقارير الجاهزة اللي المطور أضافها — تصدير Excel وطباعة مباشرة للمدير." />
-      <Card className="p-4 sm:p-6">
-        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
-            <div className="grid h-11 w-11 place-items-center rounded-2xl bg-azraq-50 text-azraq-700">
-              <BarChart3 size={22} />
+      <PageHeader title="التقارير" subtitle="شاشة التقارير الجاهزة — تصدير Excel وطباعة مباشرة." />
+      <Card className="p-3 sm:p-5">
+        {/* Header row */}
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-azraq-50 text-azraq-700">
+              <BarChart3 size={18} />
             </div>
             <div>
-              <h2 className="font-display text-xl font-extrabold text-ink sm:text-2xl">مركز التقارير</h2>
-              <p className="text-xs font-bold text-slate-400 sm:text-sm">اختار التقرير — اطبعه أو صدّره Excel.</p>
+              <h2 className="font-display text-lg font-extrabold text-ink">مركز التقارير</h2>
+              <p className="text-xs font-bold text-slate-400">اختار التقرير — اطبعه أو صدّره Excel.</p>
             </div>
           </div>
           <div className="no-print flex flex-wrap gap-2">
-            <Button type="button" onClick={() => { reload(); reloadRows(); }} className="gap-2 py-2.5">
-              <RefreshCw size={15} /> تحديث
+            <Button type="button" onClick={() => { reload(); reloadRows(); }} className="gap-1.5 py-2 text-xs">
+              <RefreshCw size={13} /> تحديث
             </Button>
             {!!rows?.length && (
               <>
                 <button
                   type="button"
                   onClick={exportExcel}
-                  className="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-700"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-emerald-700"
                 >
-                  <Download size={15} /> Excel
+                  <Download size={13} /> Excel
                 </button>
                 <button
                   type="button"
                   onClick={printReport}
-                  className="inline-flex items-center gap-2 rounded-2xl bg-slate-700 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-slate-800"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-slate-700 px-3 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-slate-800"
                 >
-                  <Printer size={15} /> طباعة
+                  <Printer size={13} /> طباعة
                 </button>
               </>
             )}
@@ -139,13 +140,13 @@ export function AdminReportsPage() {
         )}
 
         {!!reports?.length && (
-          <div className="grid gap-4">
+          <div className="grid gap-3">
             <Select value={selectedReport?.id || ''} onChange={(event) => setSelectedId(event.target.value)} className="no-print">
               {reports.map((report) => <option key={report.id} value={report.id}>{report.title}</option>)}
             </Select>
 
             {selectedReport?.description && (
-              <p className="no-print rounded-2xl bg-slate-50 p-3 text-sm font-bold text-slate-500">{selectedReport.description}</p>
+              <p className="no-print rounded-xl bg-slate-50 px-3 py-2 text-xs font-bold text-slate-500">{selectedReport.description}</p>
             )}
 
             {rowsLoading && <LoadingState label="بنحمل البيانات..." />}
@@ -153,26 +154,30 @@ export function AdminReportsPage() {
 
             {!rowsLoading && !rowsError && (
               <div id="print-area" ref={printRef}>
-                <div className="mb-4 hidden print:block">
-                  <h1 className="text-2xl font-bold">{selectedReport?.title}</h1>
-                  <p className="text-sm text-slate-500">{selectedReport?.description}</p>
+                <div className="mb-3 hidden print:block">
+                  <h1 className="text-xl font-bold">{selectedReport?.title}</h1>
+                  <p className="text-xs text-slate-500">{selectedReport?.description}</p>
                   <p className="text-xs text-slate-400 mt-1">تاريخ التصدير: {new Date().toLocaleDateString('ar-EG')}</p>
                 </div>
 
-                <div className="overflow-x-auto rounded-2xl border border-slate-100 bg-white">
-                  <table className="w-full min-w-[640px] text-sm">
-                    <thead className="bg-slate-50 text-right text-xs font-extrabold text-slate-500">
+                <div className="overflow-x-auto rounded-xl border border-slate-100 bg-white">
+                  <table className="w-full text-xs">
+                    <thead className="bg-slate-50 text-right font-extrabold text-slate-500">
                       <tr>
-                        <th className="px-3 py-3 text-slate-400">#</th>
-                        {fields.map((field) => <th key={field} className="px-3 py-3">{field}</th>)}
+                        <th className="px-2 py-2.5 text-slate-400 w-8">#</th>
+                        {fields.map((field) => (
+                          <th key={field} className="px-2 py-2.5 max-w-[160px]">
+                            {field.replace(/_/g, ' ')}
+                          </th>
+                        ))}
                       </tr>
                     </thead>
                     <tbody>
                       {rows?.map((row, index) => (
                         <tr key={index} className="border-t border-slate-100 hover:bg-slate-50">
-                          <td className="px-3 py-3 text-xs text-slate-400">{index + 1}</td>
+                          <td className="px-2 py-2 text-slate-400 w-8">{index + 1}</td>
                           {fields.map((field) => (
-                            <td key={field} className="max-w-[240px] truncate px-3 py-3 text-slate-600">
+                            <td key={field} className="max-w-[160px] truncate px-2 py-2 text-slate-600">
                               {valueText(row[field])}
                             </td>
                           ))}
@@ -182,14 +187,14 @@ export function AdminReportsPage() {
                     {!!rows?.length && (
                       <tfoot className="bg-slate-50">
                         <tr>
-                          <td colSpan={fields.length + 1} className="px-3 py-2 text-xs font-bold text-slate-400">
+                          <td colSpan={fields.length + 1} className="px-2 py-2 text-xs font-bold text-slate-400">
                             إجمالي: {rows.length} سطر
                           </td>
                         </tr>
                       </tfoot>
                     )}
                   </table>
-                  {!rows?.length && <p className="p-5 text-center text-sm font-bold text-slate-400">لا توجد بيانات في هذا التقرير.</p>}
+                  {!rows?.length && <p className="p-4 text-center text-xs font-bold text-slate-400">لا توجد بيانات في هذا التقرير.</p>}
                 </div>
               </div>
             )}
