@@ -68,13 +68,13 @@ export function EmptyState({ title, body }: { title: string; body: string }) {
 
 export function LoadingState({ label = 'بنحمّل البيانات...' }: { label?: string }) {
   return (
-    <div className="flex min-h-[80px] items-center justify-center gap-2 text-xs font-semibold text-azraq-700">
-      <Loader2 className="animate-spin" size={16} />
+    <div className="flex min-h-[80px] items-center justify-center gap-2 text-xs font-semibold text-azraq-700" role="status" aria-live="polite" aria-label={label}>
+      <Loader2 className="animate-spin" size={16} aria-hidden="true" />
       {label}
     </div>
   );
 }
 
 export function ErrorState({ message }: { message: string }) {
-  return <div className="rounded-xl border border-rose-100 bg-rose-50 p-3 text-xs font-semibold text-rose-700">{message}</div>;
+  return <div className="rounded-xl border border-rose-100 bg-rose-50 p-3 text-xs font-semibold text-rose-700" role="alert" aria-live="assertive">{message}</div>;
 }

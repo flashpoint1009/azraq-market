@@ -8,6 +8,7 @@ import { CategorySkeleton, ProductGridSkeleton } from '../components/Skeleton';
 import { EmptyState, ErrorState, SecondaryButton } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { useInfiniteScroll } from '../hooks/useInfiniteScroll';
 import { formatCurrency } from '../lib/labels';
 import { sanitizeSearchQuery } from '../lib/sanitize';
 import { isPushNotificationsConfigured, subscribeToPushNotifications } from '../lib/pushNotifications';
@@ -81,6 +82,11 @@ export function CustomerHome() {
   }, [data?.products, query]);
   const productsToRender = useMemo(() => visibleProducts.slice(0, visibleCount), [visibleProducts, visibleCount]);
   const hasMore = visibleProducts.length > productsToRender.length;
+
+  const { sentinelRef } = useInfiniteScroll(
+    () => setVisibleCount((count) => count + VISIBLE_STEP),
+    { enabled: hasMore }
+  );
 
   const add = (product: Product) => {
     addItem(product);
@@ -209,13 +215,14 @@ export function CustomerHome() {
         </div>
       )}
 
-      <section className="sticky top-2 z-20 mt-3 rounded-[20px] border border-white bg-white/95 p-2 shadow-sm backdrop-blur">
+      <section className="sticky top-2 z-20 mt-3 rounded-[20px] border border-white bg-white/95 p-2 shadow-sm backdrop-blur" role="search" aria-label="بحث المنتجات">
         <div className="relative">
-          <Search className="absolute right-3 top-3 text-slate-400" size={17} />
+          <Search className="absolute right-3 top-3 text-slate-400" size={17} aria-hidden="true" />
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="دور على منتج..."
+            aria-label="ابحث عن منتج"
             className="h-11 w-full rounded-2xl border border-slate-100 bg-[#eef6fa] pr-10 pl-3 text-sm font-semibold outline-none transition focus:border-azraq-300 focus:bg-white"
           />
         </div>
@@ -259,13 +266,7 @@ export function CustomerHome() {
             <span className="text-xs font-bold text-slate-400">{visibleProducts.length} منتج</span>
           </div>
           {productsToRender.length ? renderProductGrid(productsToRender) : <EmptyState title="مفيش منتجات دلوقتي" body="جرب تدور بكلمة تانية أو اختار قسم مختلف." />}
-          {hasMore && (
-            <div className="mt-4">
-              <SecondaryButton type="button" className="w-full" onClick={() => setVisibleCount((count) => count + VISIBLE_STEP)}>
-                عرض المزيد
-              </SecondaryButton>
-            </div>
-          )}
+          {hasMore && <div ref={sentinelRef} className="h-10" />}
         </section>
       )}
     </div>
