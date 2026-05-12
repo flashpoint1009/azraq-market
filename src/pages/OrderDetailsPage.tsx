@@ -57,12 +57,8 @@ export function OrderDetailsPage() {
 
         {/* Status */}
         <Card className="p-3">
-          <h2 className="mb-2 font-display text-sm font-extrabold text-ink">حالة الطلب</h2>
-          <div className={`rounded-xl border p-3 ${statusTone[order.status]}`}>
-            <p className="text-[11px] font-bold opacity-70">الحالة الحالية</p>
-            <p className="mt-0.5 font-display text-lg font-extrabold">{statusLabels[order.status]}</p>
-            <p className="mt-1 text-[11px] font-bold opacity-60">آخر تحديث: {formatDate(order.updated_at || order.created_at)}</p>
-          </div>
+          <h2 className="mb-2 font-display text-sm font-extrabold text-ink">تابع طلبك</h2>
+          <StatusTimeline status={order.status} history={order.order_status_history || []} />
         </Card>
 
         {/* Invoice */}

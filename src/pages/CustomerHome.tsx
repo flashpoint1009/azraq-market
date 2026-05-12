@@ -4,10 +4,12 @@ import toast from 'react-hot-toast';
 import { Bell, Boxes, Headphones, Heart, Home, Menu, PackageCheck, Search, ShoppingCart, Sparkles, Tags, UserRound, X, Zap } from 'lucide-react';
 import { LogoMark } from '../components/Brand';
 import { ProductCard } from '../components/ProductCard';
-import { EmptyState, ErrorState, LoadingState, SecondaryButton } from '../components/ui';
+import { CategorySkeleton, ProductGridSkeleton } from '../components/Skeleton';
+import { EmptyState, ErrorState, SecondaryButton } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { formatCurrency } from '../lib/labels';
+import { sanitizeSearchQuery } from '../lib/sanitize';
 import { isPushNotificationsConfigured, subscribeToPushNotifications } from '../lib/pushNotifications';
 import { supabase } from '../lib/supabase';
 import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
@@ -18,16 +20,6 @@ const allCategoryImage = '/assets/brand/all-category.png';
 const homeHeroImage = '/assets/brand/home-hero.png';
 const PRODUCT_FETCH_LIMIT = 24;
 const VISIBLE_STEP = 12;
-
-function SkeletonGrid() {
-  return (
-    <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 xl:grid-cols-5">
-      {Array.from({ length: 8 }).map((_, index) => (
-        <div key={index} className="h-56 animate-pulse rounded-[20px] bg-white shadow-sm" />
-      ))}
-    </div>
-  );
-}
 
 export function CustomerHome() {
   const [query, setQuery] = useState('');
@@ -81,7 +73,7 @@ export function CustomerHome() {
   }, [categoryId]);
 
   const visibleProducts = useMemo(() => {
-    const normalizedQuery = query.trim();
+    const normalizedQuery = sanitizeSearchQuery(query.trim());
     const source = data?.products ?? [];
     return source.filter((product) => (
       !normalizedQuery || product.name.includes(normalizedQuery) || product.description?.includes(normalizedQuery)
@@ -258,7 +250,7 @@ export function CustomerHome() {
       </section>
 
       {error && <div className="mt-3"><ErrorState message={error} /></div>}
-      {loading && <div className="mt-4"><LoadingState label="بنحمل المنتجات..." /><SkeletonGrid /></div>}
+      {loading && <div className="mt-4"><CategorySkeleton /><div className="mt-4"><ProductGridSkeleton /></div></div>}
 
       {!loading && !error && (
         <section className="mt-5">
