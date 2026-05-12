@@ -4,6 +4,7 @@ import { MapPreview } from '../components/MapPreview';
 import { OrderCard } from '../components/OrderCard';
 import { Button, Card, EmptyState, ErrorState, LoadingState, PageHeader } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
+import { useDriverGPS } from '../hooks/useDriverGPS';
 import { updateOrderStatus } from '../lib/orders';
 import { supabase } from '../lib/supabase';
 import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
@@ -11,6 +12,8 @@ import type { Order } from '../types/database';
 
 export function DeliveryPage() {
   const { profile } = useAuth();
+  // Broadcast GPS location while the delivery page is open
+  useDriverGPS(profile?.id, true);
   const { data, loading, error, reload } = useSupabaseQuery(async () => {
     const { data, error } = await supabase
       .from('orders')

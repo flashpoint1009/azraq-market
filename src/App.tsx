@@ -9,7 +9,9 @@ const AdminCouponsPage = lazy(() => import('./pages/AdminCouponsPage').then((mod
 const AdminCustomersPage = lazy(() => import('./pages/AdminCustomersPage').then((module) => ({ default: module.AdminCustomersPage })));
 const AdminCategoriesPage = lazy(() => import('./pages/AdminCategoriesPage').then((module) => ({ default: module.AdminCategoriesPage })));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard').then((module) => ({ default: module.AdminDashboard })));
+const AdminLiveTrackingPage = lazy(() => import('./pages/AdminLiveTrackingPage').then((module) => ({ default: module.AdminLiveTrackingPage })));
 const AdminDeveloperPage = lazy(() => import('./pages/AdminDeveloperPage').then((module) => ({ default: module.AdminDeveloperPage })));
+const DeveloperSaasPage = lazy(() => import('./pages/DeveloperSaasPage').then((module) => ({ default: module.DeveloperSaasPage })));
 const AdminProductsPage = lazy(() => import('./pages/AdminProductsPage').then((module) => ({ default: module.AdminProductsPage })));
 const AdminPurchasesPage = lazy(() => import('./pages/AdminPurchasesPage').then((module) => ({ default: module.AdminPurchasesPage })));
 const AdminOffersPage = lazy(() => import('./pages/AdminOffersPage').then((module) => ({ default: module.AdminOffersPage })));
@@ -28,6 +30,7 @@ const OrdersPage = lazy(() => import('./pages/OrdersPage').then((module) => ({ d
 const ProductDetails = lazy(() => import('./pages/ProductDetails').then((module) => ({ default: module.ProductDetails })));
 const ProfilePage = lazy(() => import('./pages/ProfilePage').then((module) => ({ default: module.ProfilePage })));
 const SupportPage = lazy(() => import('./pages/SupportPage').then((module) => ({ default: module.SupportPage })));
+const WarehouseAdvancedPage = lazy(() => import('./pages/WarehouseAdvancedPage').then((module) => ({ default: module.WarehouseAdvancedPage })));
 const WarehousePage = lazy(() => import('./pages/WarehousePage').then((module) => ({ default: module.WarehousePage })));
 const WishlistPage = lazy(() => import('./pages/WishlistPage').then((module) => ({ default: module.WishlistPage })));
 
@@ -77,6 +80,8 @@ export function App() {
             <Route path="admin/customers" element={<ProtectedRoute permissions={['customers']}><AdminCustomersPage /></ProtectedRoute>} />
             <Route path="admin/users" element={<ProtectedRoute permissions={['users']}><AdminUsersPage /></ProtectedRoute>} />
             <Route path="admin/developer" element={<ProtectedRoute permissions={['developer']}><AdminDeveloperPage /></ProtectedRoute>} />
+            <Route path="admin/developer/saas" element={<ProtectedRoute permissions={['developer']}><DeveloperSaasPage /></ProtectedRoute>} />
+            <Route path="admin/tracking" element={<ProtectedRoute permissions={['orders']}><AdminLiveTrackingPage /></ProtectedRoute>} />
           </Route>
         </Route>
         <Route element={<ProtectedRoute roles={['warehouse']} />}>
@@ -85,6 +90,7 @@ export function App() {
             <Route path="warehouse/orders" element={<WarehousePage />} />
             <Route path="warehouse/products" element={<WarehousePage />} />
             <Route path="warehouse/categories" element={<WarehousePage />} />
+            <Route path="warehouse/advanced" element={<WarehouseAdvancedPage />} />
           </Route>
         </Route>
         <Route element={<ProtectedRoute roles={['delivery']} />}>

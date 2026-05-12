@@ -4,10 +4,10 @@ import { Printer, RotateCcw } from 'lucide-react';
 import { MapPreview } from '../components/MapPreview';
 import { OrderEditor } from '../components/OrderEditor';
 import { StatusTimeline } from '../components/StatusTimeline';
-import { Button, Card, ErrorState, LoadingState, PageHeader, SecondaryButton } from '../components/ui';
+import { Button, Card, ErrorState, LoadingState, SecondaryButton } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import { formatCurrency, formatDate, statusLabels, statusTone, unitLabels } from '../lib/labels';
+import { formatCurrency, formatDate, statusLabels, unitLabels } from '../lib/labels';
 import { supabase } from '../lib/supabase';
 import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
 import type { Order, Product } from '../types/database';
@@ -57,12 +57,8 @@ export function OrderDetailsPage() {
 
         {/* Status */}
         <Card className="p-3">
-          <h2 className="mb-2 font-display text-sm font-extrabold text-ink">حالة الطلب</h2>
-          <div className={`rounded-xl border p-3 ${statusTone[order.status]}`}>
-            <p className="text-[11px] font-bold opacity-70">الحالة الحالية</p>
-            <p className="mt-0.5 font-display text-lg font-extrabold">{statusLabels[order.status]}</p>
-            <p className="mt-1 text-[11px] font-bold opacity-60">آخر تحديث: {formatDate(order.updated_at || order.created_at)}</p>
-          </div>
+          <h2 className="mb-2 font-display text-sm font-extrabold text-ink">تابع طلبك</h2>
+          <StatusTimeline status={order.status} history={order.order_status_history || []} />
         </Card>
 
         {/* Invoice */}

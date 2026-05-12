@@ -1,6 +1,5 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import * as XLSX from 'xlsx';
 import {
   AlertCircle, BarChart3, CheckCircle2, ChevronDown, ChevronUp, Database, Download,
   Palette, Pencil, Power, Save, Settings2, Shield, Trash2, Upload, Users,
@@ -423,6 +422,7 @@ function ExcelReportsCard() {
       const rows = await report.fetch();
       if (!rows.length) { toast.error('لا توجد بيانات لتصديرها'); setDownloading(null); return; }
 
+      const XLSX = await import('xlsx');
       const ws = XLSX.utils.json_to_sheet(rows);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, report.title.slice(0, 31));
@@ -760,8 +760,9 @@ function DataBrowserCard() {
     return [...keys].slice(0, 8);
   }, [data]);
 
-  const exportTable = () => {
+  const exportTable = async () => {
     if (!data?.length) { toast.error('لا توجد بيانات'); return; }
+    const XLSX = await import('xlsx');
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, selectedLabel.slice(0, 31));

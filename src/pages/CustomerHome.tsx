@@ -4,10 +4,13 @@ import toast from 'react-hot-toast';
 import { Bell, Boxes, Headphones, Heart, Home, Menu, PackageCheck, Search, ShoppingCart, Sparkles, Tags, UserRound, X, Zap } from 'lucide-react';
 import { LogoMark } from '../components/Brand';
 import { ProductCard } from '../components/ProductCard';
-import { EmptyState, ErrorState, LoadingState, SecondaryButton } from '../components/ui';
+import { CategorySkeleton, ProductGridSkeleton } from '../components/Skeleton';
+import { EmptyState, ErrorState } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { useInfiniteScroll } from '../hooks/useInfiniteScroll';
 import { formatCurrency } from '../lib/labels';
+import { sanitizeSearchQuery } from '../lib/sanitize';
 import { isPushNotificationsConfigured, subscribeToPushNotifications } from '../lib/pushNotifications';
 import { supabase } from '../lib/supabase';
 import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
@@ -18,16 +21,6 @@ const allCategoryImage = '/assets/brand/all-category.png';
 const homeHeroImage = '/assets/brand/home-hero.png';
 const PRODUCT_FETCH_LIMIT = 24;
 const VISIBLE_STEP = 12;
-
-function SkeletonGrid() {
-  return (
-    <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 xl:grid-cols-5">
-      {Array.from({ length: 8 }).map((_, index) => (
-        <div key={index} className="h-56 animate-pulse rounded-[20px] bg-white shadow-sm" />
-      ))}
-    </div>
-  );
-}
 
 export function CustomerHome() {
   const [query, setQuery] = useState('');
@@ -81,7 +74,7 @@ export function CustomerHome() {
   }, [categoryId]);
 
   const visibleProducts = useMemo(() => {
-    const normalizedQuery = query.trim();
+    const normalizedQuery = sanitizeSearchQuery(query.trim());
     const source = data?.products ?? [];
     return source.filter((product) => (
       !normalizedQuery || product.name.includes(normalizedQuery) || product.description?.includes(normalizedQuery)
@@ -89,6 +82,11 @@ export function CustomerHome() {
   }, [data?.products, query]);
   const productsToRender = useMemo(() => visibleProducts.slice(0, visibleCount), [visibleProducts, visibleCount]);
   const hasMore = visibleProducts.length > productsToRender.length;
+
+  const { sentinelRef } = useInfiniteScroll(
+    () => setVisibleCount((count) => count + VISIBLE_STEP),
+    { enabled: hasMore }
+  );
 
   const add = (product: Product) => {
     addItem(product);
@@ -217,13 +215,14 @@ export function CustomerHome() {
         </div>
       )}
 
-      <section className="sticky top-2 z-20 mt-3 rounded-[20px] border border-white bg-white/95 p-2 shadow-sm backdrop-blur">
+      <section className="sticky top-2 z-20 mt-3 rounded-[20px] border border-white bg-white/95 p-2 shadow-sm backdrop-blur" role="search" aria-label="بحث المنتجات">
         <div className="relative">
-          <Search className="absolute right-3 top-3 text-slate-400" size={17} />
+          <Search className="absolute right-3 top-3 text-slate-400" size={17} aria-hidden="true" />
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="دور على منتج..."
+            aria-label="ابحث عن منتج"
             className="h-11 w-full rounded-2xl border border-slate-100 bg-[#eef6fa] pr-10 pl-3 text-sm font-semibold outline-none transition focus:border-azraq-300 focus:bg-white"
           />
         </div>
@@ -258,7 +257,7 @@ export function CustomerHome() {
       </section>
 
       {error && <div className="mt-3"><ErrorState message={error} /></div>}
-      {loading && <div className="mt-4"><LoadingState label="بنحمل المنتجات..." /><SkeletonGrid /></div>}
+      {loading && <div className="mt-4"><CategorySkeleton /><div className="mt-4"><ProductGridSkeleton /></div></div>}
 
       {!loading && !error && (
         <section className="mt-5">
@@ -267,13 +266,7 @@ export function CustomerHome() {
             <span className="text-xs font-bold text-slate-400">{visibleProducts.length} منتج</span>
           </div>
           {productsToRender.length ? renderProductGrid(productsToRender) : <EmptyState title="مفيش منتجات دلوقتي" body="جرب تدور بكلمة تانية أو اختار قسم مختلف." />}
-          {hasMore && (
-            <div className="mt-4">
-              <SecondaryButton type="button" className="w-full" onClick={() => setVisibleCount((count) => count + VISIBLE_STEP)}>
-                عرض المزيد
-              </SecondaryButton>
-            </div>
-          )}
+          {hasMore && <div ref={sentinelRef} className="h-10" />}
         </section>
       )}
     </div>

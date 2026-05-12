@@ -6,6 +6,8 @@ import { SplashScreen } from '../components/Brand';
 import { Button, Card, Input, Textarea } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import { normalizeEgyptPhone } from '../lib/auth';
+import { checkRateLimit, recordAttempt, resetAttempts } from '../lib/rateLimiter';
+import { sanitizePhone, sanitizeText } from '../lib/sanitize';
 import { isSupabaseConfigured } from '../lib/supabase';
 import { roleHome } from '../routes/ProtectedRoute';
 
@@ -41,12 +43,23 @@ export function LoginPage() {
       toast.error('إعدادات الاتصال ناقصة');
       return;
     }
+
+    const sanitizedPhone = sanitizePhone(phone);
+    const rateLimitKey = `login_${sanitizedPhone}`;
+    const { allowed, retryAfterSeconds } = checkRateLimit(rateLimitKey);
+    if (!allowed) {
+      toast.error(`محاولات كتير. جرب تاني بعد ${retryAfterSeconds} ثانية.`);
+      return;
+    }
+
     setLoading(true);
     try {
-      await signIn(phone, password);
-      if (rememberMe) localStorage.setItem('azraq_remember_phone', normalizeEgyptPhone(phone));
+      await signIn(sanitizedPhone, password);
+      resetAttempts(rateLimitKey);
+      if (rememberMe) localStorage.setItem('azraq_remember_phone', normalizeEgyptPhone(sanitizedPhone));
       toast.success('دخلت حسابك بنجاح');
     } catch (error) {
+      recordAttempt(rateLimitKey);
       const message = error instanceof Error && error.message.includes('رقم موبايل صحيح')
         ? error.message
         : getAuthErrorMessage(error, 'رقم الموبايل أو الباسورد غير صحيح');
@@ -66,11 +79,27 @@ export function LoginPage() {
       toast.error('الباسورد وتأكيده مختلفين');
       return;
     }
+
+    const sanitizedPhone = sanitizePhone(phone);
+    const rateLimitKey = `signup_${sanitizedPhone}`;
+    const { allowed, retryAfterSeconds } = checkRateLimit(rateLimitKey);
+    if (!allowed) {
+      toast.error(`محاولات كتير. جرب تاني بعد ${retryAfterSeconds} ثانية.`);
+      return;
+    }
+
     setLoading(true);
     try {
-      const signedIn = await signUp({ fullName, phone, password, address });
+      const signedIn = await signUp({
+        fullName: sanitizeText(fullName),
+        phone: sanitizedPhone,
+        password,
+        address: sanitizeText(address),
+      });
+      resetAttempts(rateLimitKey);
       toast.success(signedIn ? 'حسابك اتعمل ودخلناك عليه' : 'حسابك اتعمل. ادخل بعد التفعيل.');
     } catch (error) {
+      recordAttempt(rateLimitKey);
       toast.error(getAuthErrorMessage(error, 'معرفناش نعمل الحساب'));
     } finally {
       setLoading(false);

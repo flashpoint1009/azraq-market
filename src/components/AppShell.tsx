@@ -5,6 +5,7 @@ import { AppAnnouncement } from './AppAnnouncement';
 import { LogoMark } from './Brand';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { usePushSetup } from '../hooks/usePushSetup';
 import { useRealtimeNotifications } from '../hooks/useRealtimeNotifications';
 import { roleLabels } from '../lib/labels';
 import { hasPermission } from '../lib/permissions';
@@ -28,6 +29,7 @@ const adminNav = [
   { to: '/admin/coupons', label: 'الكوبونات', icon: Ticket },
   { to: '/admin/reviews', label: 'التقييمات', icon: Star },
   { to: '/admin/orders', label: 'الطلبات', icon: ClipboardList },
+  { to: '/admin/tracking', label: 'تتبع المندوبين', icon: MapPinned },
   { to: '/admin/debts', label: 'المديونيات', icon: CreditCard },
   { to: '/admin/users', label: 'المستخدمين', icon: ShieldCheck },
   { to: '/admin/customers', label: 'العملاء', icon: Users },
@@ -39,6 +41,7 @@ const warehouseNav = [
   { to: '/warehouse/orders', label: 'الطلبات', icon: ClipboardList },
   { to: '/warehouse/products', label: 'الأصناف', icon: Package },
   { to: '/warehouse/categories', label: 'الأقسام', icon: Tags },
+  { to: '/warehouse/advanced', label: 'متقدم', icon: BarChart3 },
 ];
 
 const deliveryNav = [
@@ -59,6 +62,7 @@ export function AppShell({ mode }: { mode: 'customer' | 'admin' | 'warehouse' | 
   const { profile, signOut } = useAuth();
   const { count, total } = useCart();
   const { unreadCount } = useRealtimeNotifications(profile?.id);
+  usePushSetup(profile?.id);
   const location = useLocation();
   const nav = (mode === 'admin' ? adminNav : mode === 'warehouse' ? warehouseNav : mode === 'delivery' ? deliveryNav : customerNav).filter((item) => {
     if (mode !== 'admin') return true;
@@ -72,6 +76,7 @@ export function AppShell({ mode }: { mode: 'customer' | 'admin' | 'warehouse' | 
     if (item.to === '/admin/coupons') return hasPermission(profile, 'offers');
     if (item.to === '/admin/reviews') return hasPermission(profile, 'products');
     if (item.to === '/admin/orders') return hasPermission(profile, 'orders');
+    if (item.to === '/admin/tracking') return hasPermission(profile, 'orders');
     if (item.to === '/admin/debts') return hasPermission(profile, 'orders');
     if (item.to === '/admin/customers') return profile?.role === 'admin' || hasPermission(profile, 'customers');
     if (item.to === '/admin/users') return profile?.role === 'admin' || hasPermission(profile, 'users');
@@ -98,7 +103,7 @@ export function AppShell({ mode }: { mode: 'customer' | 'admin' | 'warehouse' | 
 
   return (
     <div className="min-h-screen bg-pearl text-ink">
-      <aside className="fixed inset-y-0 right-0 z-30 hidden w-72 border-l border-white/80 bg-white/80 p-5 shadow-soft backdrop-blur-xl lg:block">
+      <aside className="fixed inset-y-0 right-0 z-30 hidden w-72 border-l border-white/80 bg-white/80 p-5 shadow-soft backdrop-blur-xl lg:block" role="navigation" aria-label="القائمة الجانبية">
         <LogoMark />
         <div className="mt-8 rounded-[1.5rem] bg-gradient-to-br from-azraq-700 to-azraq-950 p-4 text-white shadow-soft">
           <div className="mb-3 grid h-14 w-14 place-items-center rounded-2xl bg-white/15">
@@ -139,7 +144,7 @@ export function AppShell({ mode }: { mode: 'customer' | 'admin' | 'warehouse' | 
         </button>
       </aside>
 
-      <main className="mx-auto max-w-7xl px-2 pb-20 pt-2 sm:px-3 sm:pt-3 lg:mr-72 lg:px-6 lg:pb-8">
+      <main className="mx-auto max-w-7xl px-2 pb-20 pt-2 sm:px-3 sm:pt-3 lg:mr-72 lg:px-6 lg:pb-8" role="main" aria-label="المحتوى الرئيسي">
         {mode === 'customer' && <AppAnnouncement />}
         {mode !== 'customer' && <header className="mb-3 flex items-center justify-between rounded-2xl border border-white/80 bg-white/70 p-2 shadow-sm backdrop-blur lg:hidden">
           <LogoMark compact />
@@ -171,7 +176,7 @@ export function AppShell({ mode }: { mode: 'customer' | 'admin' | 'warehouse' | 
         </Link>
       )}
 
-      <nav className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-4 rounded-2xl border border-white/80 bg-white/95 p-1.5 shadow-soft backdrop-blur lg:hidden">
+      <nav className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-4 rounded-2xl border border-white/80 bg-white/95 p-1.5 shadow-soft backdrop-blur lg:hidden" role="navigation" aria-label="التنقل الرئيسي">
         {(mode === 'admin' ? nav.filter((item) => ['/admin', '/admin/reports', '/admin/orders', '/admin/users'].includes(item.to)) : nav.slice(0, 4)).map((item) => {
           const active = location.pathname === item.to || (item.to !== '/' && location.pathname.startsWith(item.to));
           return (
