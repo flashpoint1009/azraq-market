@@ -760,8 +760,9 @@ function DataBrowserCard() {
     return [...keys].slice(0, 8);
   }, [data]);
 
-  const exportTable = () => {
+  const exportTable = async () => {
     if (!data?.length) { toast.error('لا توجد بيانات'); return; }
+    const XLSX = await import('xlsx');
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, selectedLabel.slice(0, 31));

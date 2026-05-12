@@ -5,7 +5,7 @@ import { Bell, Boxes, Headphones, Heart, Home, Menu, PackageCheck, Search, Shopp
 import { LogoMark } from '../components/Brand';
 import { ProductCard } from '../components/ProductCard';
 import { CategorySkeleton, ProductGridSkeleton } from '../components/Skeleton';
-import { EmptyState, ErrorState, SecondaryButton } from '../components/ui';
+import { EmptyState, ErrorState } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll';

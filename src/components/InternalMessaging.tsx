@@ -20,8 +20,7 @@ export function InternalMessaging() {
   const [unreadCount, setUnreadCount] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Only show for non-customer roles
-  if (!role || role === 'customer' || !profile) return null;
+  const isStaff = !!role && role !== 'customer' && !!profile;
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -29,7 +28,7 @@ export function InternalMessaging() {
 
   // Load staff members and unread count
   useEffect(() => {
-    if (!profile?.id) return;
+    if (!isStaff || !profile?.id) return;
 
     const loadStaff = async () => {
       const { data } = await supabase
@@ -103,6 +102,9 @@ export function InternalMessaging() {
   }, [selectedRecipient, profile?.id]);
 
   useEffect(scrollToBottom, [messages]);
+
+  // Only show for non-customer roles
+  if (!isStaff) return null;
 
   const handleSend = async (e: FormEvent) => {
     e.preventDefault();

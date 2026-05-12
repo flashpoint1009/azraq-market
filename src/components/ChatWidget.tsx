@@ -18,8 +18,7 @@ export function ChatWidget() {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Only show for customers
-  if (role !== 'customer' || !profile) return null;
+  const isCustomer = role === 'customer' && !!profile;
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -27,7 +26,7 @@ export function ChatWidget() {
 
   // Load existing conversation
   useEffect(() => {
-    if (!open || !profile?.id) return;
+    if (!isCustomer || !open || !profile?.id) return;
 
     const loadMessages = async () => {
       // Find open conversation
@@ -90,6 +89,9 @@ export function ChatWidget() {
   }, [conversationId]);
 
   useEffect(scrollToBottom, [messages]);
+
+  // Only show for customers
+  if (!isCustomer) return null;
 
   const handleSend = async (e: FormEvent) => {
     e.preventDefault();

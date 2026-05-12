@@ -27,11 +27,8 @@ import type {
   StockMovement,
   Stocktake,
   StocktakeItem,
-  StockAlert,
   CustomerReturn,
   BinLocation,
-  ProductLocation,
-  StockMovementType,
 } from '../types/warehouse';
 import {
   movementTypeLabels,
