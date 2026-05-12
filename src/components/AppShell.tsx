@@ -40,6 +40,7 @@ const warehouseNav = [
   { to: '/warehouse/orders', label: 'الطلبات', icon: ClipboardList },
   { to: '/warehouse/products', label: 'الأصناف', icon: Package },
   { to: '/warehouse/categories', label: 'الأقسام', icon: Tags },
+  { to: '/warehouse/advanced', label: 'متقدم', icon: BarChart3 },
 ];
 
 const deliveryNav = [

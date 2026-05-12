@@ -28,6 +28,7 @@ const OrdersPage = lazy(() => import('./pages/OrdersPage').then((module) => ({ d
 const ProductDetails = lazy(() => import('./pages/ProductDetails').then((module) => ({ default: module.ProductDetails })));
 const ProfilePage = lazy(() => import('./pages/ProfilePage').then((module) => ({ default: module.ProfilePage })));
 const SupportPage = lazy(() => import('./pages/SupportPage').then((module) => ({ default: module.SupportPage })));
+const WarehouseAdvancedPage = lazy(() => import('./pages/WarehouseAdvancedPage').then((module) => ({ default: module.WarehouseAdvancedPage })));
 const WarehousePage = lazy(() => import('./pages/WarehousePage').then((module) => ({ default: module.WarehousePage })));
 const WishlistPage = lazy(() => import('./pages/WishlistPage').then((module) => ({ default: module.WishlistPage })));
 
@@ -85,6 +86,7 @@ export function App() {
             <Route path="warehouse/orders" element={<WarehousePage />} />
             <Route path="warehouse/products" element={<WarehousePage />} />
             <Route path="warehouse/categories" element={<WarehousePage />} />
+            <Route path="warehouse/advanced" element={<WarehouseAdvancedPage />} />
           </Route>
         </Route>
         <Route element={<ProtectedRoute roles={['delivery']} />}>
