@@ -4,7 +4,9 @@ import { BrowserRouter } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { App } from './App';
 import { AppTheme } from './components/Brand';
+import { ChatWidget } from './components/ChatWidget';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { InternalMessaging } from './components/InternalMessaging';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { initSentry } from './lib/sentry';
@@ -20,6 +22,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <CartProvider>
             <AppTheme />
             <App />
+            <ChatWidget />
+            <InternalMessaging />
             <Toaster position="top-center" toastOptions={{ duration: 3500, style: { direction: 'rtl', fontFamily: 'Cairo, sans-serif' } }} />
           </CartProvider>
         </AuthProvider>
