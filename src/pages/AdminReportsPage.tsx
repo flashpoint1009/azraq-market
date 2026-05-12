@@ -1,5 +1,4 @@
 import { useMemo, useRef, useState } from 'react';
-import * as XLSX from 'xlsx';
 import { BarChart3, Download, Printer, RefreshCw } from 'lucide-react';
 import { Button, Card, EmptyState, ErrorState, LoadingState, PageHeader, Select } from '../components/ui';
 import { supabase } from '../lib/supabase';
@@ -74,8 +73,9 @@ export function AdminReportsPage() {
     return (result.data || []) as DataRow[];
   }, [source, fields.join('|')]);
 
-  const exportExcel = () => {
+  const exportExcel = async () => {
     if (!rows?.length || !fields.length) { return; }
+    const XLSX = await import('xlsx');
     const exportData = rows.map((row) => {
       const obj: Record<string, unknown> = {};
       fields.forEach((field) => { obj[field] = row[field] ?? ''; });

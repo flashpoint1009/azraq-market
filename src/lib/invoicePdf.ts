@@ -1,11 +1,14 @@
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import QRCode from 'qrcode';
 import { TENANT_CONFIG } from '../config/tenant';
 import { formatCurrency, formatDate, unitLabels } from './labels';
 import type { Order } from '../types/database';
 
 export async function downloadInvoicePdf(order: Order) {
+  const [{ default: jsPDF }, { default: autoTable }, { default: QRCode }] = await Promise.all([
+    import('jspdf'),
+    import('jspdf-autotable'),
+    import('qrcode'),
+  ]);
+
   const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
   const qrDataUrl = await QRCode.toDataURL(order.id, { margin: 1, width: 96 });
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -43,7 +46,7 @@ export async function downloadInvoicePdf(order: Order) {
     headStyles: { fillColor: [43, 91, 116], textColor: 255 },
   });
 
-  const finalY = (doc as jsPDF & { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY || 250;
+  const finalY = (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY || 250;
   const totals = [
     ['Subtotal', formatCurrency(Number(order.total_amount || 0) + Number(order.discount_amount || 0))],
     ['Discount', formatCurrency(order.discount_amount || 0)],
