@@ -1,9 +1,7 @@
 import { Card, EmptyState, ErrorState } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import { formatCurrency, statusLabels, unitLabels } from '../lib/labels';
-import { supabase } from '../lib/supabase';
-import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
-import type { Order } from '../types/database';
+import { useCustomerOrders } from '../api/hooks';
 
 function SkeletonOrderCard() {
   return (
@@ -33,17 +31,7 @@ const statusColors: Record<string, string> = {
 
 export function OrdersPage() {
   const { profile } = useAuth();
-
-  const { data: orders, loading, error } = useSupabaseQuery(async () => {
-    if (!profile?.id) return [] as Order[];
-    const { data, error } = await supabase
-      .from('orders')
-      .select('*, order_items(*)')
-      .eq('customer_id', profile.id)
-      .order('created_at', { ascending: false });
-    if (error) throw error;
-    return data as Order[];
-  }, [profile?.id]);
+  const { data: orders, isLoading, error } = useCustomerOrders(profile?.id);
 
   return (
     <div className="pb-24">
@@ -52,13 +40,13 @@ export function OrdersPage() {
         <p className="text-xs font-bold text-slate-400">تابع حالة كل طلب بسرعة</p>
       </div>
 
-      {loading && (
+      {isLoading && (
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: 4 }).map((_, index) => <SkeletonOrderCard key={index} />)}
         </div>
       )}
-      {error && <ErrorState message={error} />}
-      {!loading && !error && orders?.length === 0 && (
+      {error && <ErrorState message={error instanceof Error ? error.message : 'تعذر تحميل الطلبات'} />}
+      {!isLoading && !error && orders?.length === 0 && (
         <EmptyState title="لسه مفيش طلبات" body="أول طلب هتبعته هيظهر هنا." />
       )}
 

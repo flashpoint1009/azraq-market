@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Download, Search, X } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import { Card, EmptyState, ErrorState, LoadingState, PageHeader } from '../components/ui';
 import { formatCurrency, formatDate, statusLabels, statusTone } from '../lib/labels';
 import { supabase } from '../lib/supabase';
-import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
+import { queryKeys } from '../api/keys';
 import type { Order, OrderStatus } from '../types/database';
 
 const allStatuses: OrderStatus[] = ['new', 'preparing', 'ready_for_delivery', 'with_delivery', 'delivered', 'cancelled', 'rejected'];
@@ -61,18 +62,22 @@ export function OrdersManagementPage() {
   const [statusFilter, setStatusFilter] = useState<OrderStatus | 'all'>('all');
   const [dateRange, setDateRange] = useState<DateRange>('all');
 
-  const { data, loading, error } = useSupabaseQuery(async () => {
-    const result = await supabase
-      .from('orders')
-      .select('*, profiles(full_name,phone), order_items(*)')
-      .order('created_at', { ascending: false });
-    if (result.error) {
-      const fallback = await supabase.from('orders').select('*, order_items(*)').order('created_at', { ascending: false });
-      if (fallback.error) throw fallback.error;
-      return fallback.data as Order[];
-    }
-    return result.data as Order[];
-  }, []);
+  const { data, isLoading: loading, error: queryError } = useQuery({
+    queryKey: queryKeys.orders.management(),
+    queryFn: async () => {
+      const result = await supabase
+        .from('orders')
+        .select('*, profiles(full_name,phone), order_items(*)')
+        .order('created_at', { ascending: false });
+      if (result.error) {
+        const fallback = await supabase.from('orders').select('*, order_items(*)').order('created_at', { ascending: false });
+        if (fallback.error) throw fallback.error;
+        return fallback.data as unknown as Order[];
+      }
+      return result.data as unknown as Order[];
+    },
+  });
+  const error = queryError ? (queryError instanceof Error ? queryError.message : 'تعذر تحميل الطلبات') : null;
 
   const filtered = useMemo(() => {
     if (!data) return [];

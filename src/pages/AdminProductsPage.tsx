@@ -5,8 +5,10 @@ import { Button, Card, EmptyState, ErrorState, Input, LoadingState, PageHeader, 
 import { formatCurrency, unitLabels } from '../lib/labels';
 import { saveProductPayload } from '../lib/productMutations';
 import { supabase } from '../lib/supabase';
-import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
-import type { Category, Product, Subcategory, UnitType } from '../types/database';
+import { useAdminProducts } from '../api/hooks';
+import { queryKeys } from '../api/keys';
+import { useQueryClient } from '@tanstack/react-query';
+import type { Product, UnitType } from '../types/database';
 
 const emptyProduct = {
   name: '', category_id: '', subcategory_id: '', description: '',
@@ -19,18 +21,11 @@ export function AdminProductsPage() {
   const [form, setForm] = useState(emptyProduct);
   const [image1, setImage1] = useState<File | null>(null);
   const [image2, setImage2] = useState<File | null>(null);
+  const queryClient = useQueryClient();
 
-  const { data, loading, error, reload } = useSupabaseQuery(async () => {
-    const [categories, subcategories, products] = await Promise.all([
-      supabase.from('categories').select('*').order('sort_order'),
-      supabase.from('subcategories').select('*, categories(id,name)').order('sort_order'),
-      supabase.from('products').select('*, categories(id,name), subcategories(id,name)').order('created_at', { ascending: false }),
-    ]);
-    if (categories.error) throw categories.error;
-    if (subcategories.error) throw subcategories.error;
-    if (products.error) throw products.error;
-    return { categories: categories.data as Category[], subcategories: subcategories.data as Subcategory[], products: products.data as Product[] };
-  }, []);
+  const { data, isLoading: loading, error: queryError } = useAdminProducts();
+  const error = queryError ? (queryError instanceof Error ? queryError.message : 'تعذر تحميل البيانات') : null;
+  const reload = () => queryClient.invalidateQueries({ queryKey: queryKeys.products.all });
 
   const filteredSubcategories = (data?.subcategories || []).filter((item) => !form.category_id || item.category_id === form.category_id);
 

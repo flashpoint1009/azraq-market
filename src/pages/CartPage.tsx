@@ -1,13 +1,13 @@
 import { FormEvent, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { useQuery } from '@tanstack/react-query';
 import { AlertCircle, CheckCircle2, Loader2, Minus, Plus, Send, Tag, Trash2 } from 'lucide-react';
 import { Button, Card, EmptyState, ErrorState, Input, Textarea } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { formatCurrency, unitLabels } from '../lib/labels';
 import { supabase } from '../lib/supabase';
-import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
 import { getProductPricing } from '../lib/pricing';
 import type { Coupon, Promotion } from '../types/database';
 
@@ -30,28 +30,36 @@ export function CartPage() {
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
   const [couponError, setCouponError] = useState('');
 
-  const { data: appSettings } = useSupabaseQuery(async () => {
-    const { data } = await supabase
-      .from('app_settings')
-      .select('key,value')
-      .eq('key', 'min_order_amount')
-      .maybeSingle();
-    return data as { key: string; value: string } | null;
-  }, []);
+  const { data: appSettings } = useQuery({
+    queryKey: ['app-settings', 'min_order_amount'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('app_settings')
+        .select('key,value')
+        .eq('key', 'min_order_amount')
+        .maybeSingle();
+      return data as { key: string; value: string } | null;
+    },
+    staleTime: 5 * 60_000,
+  });
 
   const minOrderAmount = appSettings ? Number(appSettings.value) || DEFAULT_MIN_ORDER : DEFAULT_MIN_ORDER;
 
-  const { data: promotions } = useSupabaseQuery(async () => {
-    const now = new Date().toISOString();
-    const { data, error } = await supabase
-      .from('promotions')
-      .select('*')
-      .eq('is_active', true)
-      .lte('starts_at', now)
-      .gte('ends_at', now);
-    if (error) return [] as Promotion[];
-    return (data || []) as Promotion[];
-  }, []);
+  const { data: promotions } = useQuery({
+    queryKey: ['promotions', 'active'],
+    queryFn: async () => {
+      const now = new Date().toISOString();
+      const { data, error } = await supabase
+        .from('promotions')
+        .select('*')
+        .eq('is_active', true)
+        .lte('starts_at', now)
+        .gte('ends_at', now);
+      if (error) return [] as Promotion[];
+      return (data || []) as Promotion[];
+    },
+    staleTime: 60_000,
+  });
 
   const promotionDiscount_ = useMemo(() => {
     return (promotions || []).reduce((sum, promotion) => {
