@@ -55,8 +55,8 @@ export async function getLowStockProducts(threshold?: number) {
   if (error) throw error;
 
   // Filter products where stock is at or below their min_stock_level
-  return (data || []).filter((p: { stock_quantity: number; min_stock_level: number | null }) =>
-    p.stock_quantity <= (p.min_stock_level ?? 5)
+  return (data || []).filter((p) =>
+    p.stock_quantity <= ((p.min_stock_level as number | null) ?? 5)
   );
 }
 
@@ -103,16 +103,17 @@ export async function completeStocktake(stocktakeId: string, actorId: string) {
 
   if (itemsError) throw itemsError;
 
-  const discrepancies = (items || []).filter((item: { discrepancy: number }) => item.discrepancy !== 0);
+  const discrepancies = (items || []).filter((item) => (item as { discrepancy: number }).discrepancy !== 0);
 
   // Apply adjustments for discrepancies
   for (const item of discrepancies) {
+    const typedItem = item as { product_id: string; counted_quantity: number; discrepancy: number };
     await recordMovement(
-      item.product_id,
+      typedItem.product_id,
       'adjustment',
-      item.counted_quantity,
+      typedItem.counted_quantity,
       actorId,
-      { reason: `تسوية جرد: ${item.discrepancy > 0 ? '+' : ''}${item.discrepancy}`, referenceId: stocktakeId, referenceType: 'stocktake' }
+      { reason: `تسوية جرد: ${typedItem.discrepancy > 0 ? '+' : ''}${typedItem.discrepancy}`, referenceId: stocktakeId, referenceType: 'stocktake' }
     );
   }
 

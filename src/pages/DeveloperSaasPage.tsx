@@ -1,7 +1,7 @@
-import { FormEvent, useCallback, useEffect, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Code2, Database, Download, FileText, Palette, Save, Settings2, Shield, Type, Upload } from 'lucide-react';
-import { Button, Card, ErrorState, Input, LoadingState, PageHeader, Select, Textarea } from '../components/ui';
+import { Button, Card, ErrorState, Input, LoadingState, Select, Textarea } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { useSupabaseQuery } from '../hooks/useSupabaseQuery';

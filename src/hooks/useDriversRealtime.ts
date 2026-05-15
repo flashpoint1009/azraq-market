@@ -26,12 +26,12 @@ export function useDriversRealtime() {
     const fetchDrivers = async () => {
       const { data, error } = await supabase
         .from('driver_locations')
-        .select('*, profiles(full_name, phone)')
+        .select('*')
         .eq('is_online', true)
         .order('last_updated_at', { ascending: false });
 
       if (!error && data) {
-        setDrivers(data as DriverLocation[]);
+        setDrivers(data as unknown as DriverLocation[]);
       }
       setLoading(false);
     };
