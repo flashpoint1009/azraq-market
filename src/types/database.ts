@@ -483,6 +483,66 @@ export type AuditLog = {
 
 // ─── Database Schema Type ───
 
+// ─── Tenant / Billing Types ───
+
+export type Tenant = {
+  id: string;
+  slug: string;
+  name: string;
+  subtitle: string;
+  logo_url: string;
+  favicon_url: string;
+  primary_color: string;
+  secondary_color: string;
+  accent_color: string;
+  font_family: string;
+  border_radius: string;
+  login_background: string | null;
+  plan_id: string;
+  features: string[];
+  limits: Record<string, string | number>;
+  currency: string;
+  currency_symbol: string;
+  support_phone: string;
+  support_whatsapp: string;
+  delivery_fee: number;
+  min_order_amount: number;
+  tax_rate: number;
+  custom_domain: string | null;
+  is_active: boolean;
+  trial_ends_at: string | null;
+  expires_at: string | null;
+  owner_id: string | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+};
+
+export type TenantSubscription = {
+  id: string;
+  tenant_id: string;
+  plan_id: string;
+  status: string;
+  amount: number;
+  currency: string;
+  billing_cycle: string;
+  payment_method: string | null;
+  payment_reference: string | null;
+  starts_at: string;
+  ends_at: string | null;
+  cancelled_at: string | null;
+  created_at: string;
+};
+
+export type TenantUsage = {
+  id: string;
+  tenant_id: string;
+  metric: string;
+  value: number;
+  period: string | null;
+  updated_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -530,6 +590,10 @@ export type Database = {
       app_custom_css: { Row: AppCustomCSS; Insert: Partial<AppCustomCSS>; Update: Partial<AppCustomCSS>; Relationships: [] };
       app_snapshots: { Row: AppSnapshot; Insert: Partial<AppSnapshot>; Update: Partial<AppSnapshot>; Relationships: [] };
       audit_log: { Row: AuditLog; Insert: Partial<AuditLog>; Update: Partial<AuditLog>; Relationships: [] };
+      // Multi-Tenant / Billing
+      tenants: { Row: Tenant; Insert: Partial<Tenant>; Update: Partial<Tenant>; Relationships: [] };
+      tenant_subscriptions: { Row: TenantSubscription; Insert: Partial<TenantSubscription>; Update: Partial<TenantSubscription>; Relationships: [] };
+      tenant_usage: { Row: TenantUsage; Insert: Partial<TenantUsage>; Update: Partial<TenantUsage>; Relationships: [] };
     };
     Views: Record<string, never>;
     Functions: {

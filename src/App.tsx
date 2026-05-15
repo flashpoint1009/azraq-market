@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { AppShell } from './components/AppShell';
+import { FeatureGate } from './components/FeatureGate';
 import { ProtectedRoute } from './routes/ProtectedRoute';
 import { useAuth } from './context/AuthContext';
 
@@ -11,6 +12,7 @@ const AdminCategoriesPage = lazy(() => import('./pages/AdminCategoriesPage').the
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard').then((module) => ({ default: module.AdminDashboard })));
 const AdminLiveTrackingPage = lazy(() => import('./pages/AdminLiveTrackingPage').then((module) => ({ default: module.AdminLiveTrackingPage })));
 const AdminDeveloperPage = lazy(() => import('./pages/AdminDeveloperPage').then((module) => ({ default: module.AdminDeveloperPage })));
+const BillingPage = lazy(() => import('./pages/BillingPage').then((module) => ({ default: module.BillingPage })));
 const DeveloperSaasPage = lazy(() => import('./pages/DeveloperSaasPage').then((module) => ({ default: module.DeveloperSaasPage })));
 const AdminProductsPage = lazy(() => import('./pages/AdminProductsPage').then((module) => ({ default: module.AdminProductsPage })));
 const AdminPurchasesPage = lazy(() => import('./pages/AdminPurchasesPage').then((module) => ({ default: module.AdminPurchasesPage })));
@@ -26,6 +28,7 @@ const LoginPage = lazy(() => import('./pages/LoginPage').then((module) => ({ def
 const OrderDetailsPage = lazy(() => import('./pages/OrderDetailsPage').then((module) => ({ default: module.OrderDetailsPage })));
 const OrdersManagementPage = lazy(() => import('./pages/OrdersManagementPage').then((module) => ({ default: module.OrdersManagementPage })));
 const OrdersPage = lazy(() => import('./pages/OrdersPage').then((module) => ({ default: module.OrdersPage })));
+const PricingPage = lazy(() => import('./pages/PricingPage').then((module) => ({ default: module.PricingPage })));
 const ProductDetails = lazy(() => import('./pages/ProductDetails').then((module) => ({ default: module.ProductDetails })));
 const ProfilePage = lazy(() => import('./pages/ProfilePage').then((module) => ({ default: module.ProfilePage })));
 const SupportPage = lazy(() => import('./pages/SupportPage').then((module) => ({ default: module.SupportPage })));
@@ -51,6 +54,7 @@ export function App() {
     <Suspense fallback={<PageFallback />}>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/pricing" element={<PricingPage />} />
         <Route element={<ProtectedRoute roles={['customer']} />}>
           <Route element={<AppShell mode="customer" />}>
             <Route index element={<CustomerHome />} />
@@ -67,20 +71,21 @@ export function App() {
           <Route element={<AppShell mode="admin" />}>
             <Route path="admin" element={<ProtectedRoute permissions={['reports']}><AdminDashboard /></ProtectedRoute>} />
             <Route path="admin/reports" element={<ProtectedRoute permissions={['reports']}><AdminReportsPage /></ProtectedRoute>} />
-            <Route path="admin/analytics" element={<ProtectedRoute permissions={['reports']}><AdminAnalyticsPage /></ProtectedRoute>} />
+            <Route path="admin/analytics" element={<ProtectedRoute permissions={['reports']}><FeatureGate feature="analytics"><AdminAnalyticsPage /></FeatureGate></ProtectedRoute>} />
             <Route path="admin/products" element={<ProtectedRoute permissions={['products']}><AdminProductsPage /></ProtectedRoute>} />
-            <Route path="admin/purchases" element={<ProtectedRoute permissions={['purchases']}><AdminPurchasesPage /></ProtectedRoute>} />
+            <Route path="admin/purchases" element={<ProtectedRoute permissions={['purchases']}><FeatureGate feature="purchase_invoices"><AdminPurchasesPage /></FeatureGate></ProtectedRoute>} />
             <Route path="admin/categories" element={<ProtectedRoute permissions={['categories']}><AdminCategoriesPage /></ProtectedRoute>} />
-            <Route path="admin/offers" element={<ProtectedRoute permissions={['offers']}><AdminOffersPage /></ProtectedRoute>} />
-            <Route path="admin/coupons" element={<ProtectedRoute permissions={['offers']}><AdminCouponsPage /></ProtectedRoute>} />
-            <Route path="admin/reviews" element={<ProtectedRoute permissions={['products']}><AdminReviewsPage /></ProtectedRoute>} />
+            <Route path="admin/offers" element={<ProtectedRoute permissions={['offers']}><FeatureGate feature="promotions"><AdminOffersPage /></FeatureGate></ProtectedRoute>} />
+            <Route path="admin/coupons" element={<ProtectedRoute permissions={['offers']}><FeatureGate feature="coupons"><AdminCouponsPage /></FeatureGate></ProtectedRoute>} />
+            <Route path="admin/reviews" element={<ProtectedRoute permissions={['products']}><FeatureGate feature="reviews"><AdminReviewsPage /></FeatureGate></ProtectedRoute>} />
             <Route path="admin/orders" element={<ProtectedRoute permissions={['orders']}><OrdersManagementPage /></ProtectedRoute>} />
             <Route path="admin/debts" element={<ProtectedRoute permissions={['orders']}><AdminDebtsPage /></ProtectedRoute>} />
             <Route path="admin/customers" element={<ProtectedRoute permissions={['customers']}><AdminCustomersPage /></ProtectedRoute>} />
             <Route path="admin/users" element={<ProtectedRoute permissions={['users']}><AdminUsersPage /></ProtectedRoute>} />
-            <Route path="admin/developer" element={<ProtectedRoute permissions={['developer']}><AdminDeveloperPage /></ProtectedRoute>} />
-            <Route path="admin/developer/saas" element={<ProtectedRoute permissions={['developer']}><DeveloperSaasPage /></ProtectedRoute>} />
-            <Route path="admin/tracking" element={<ProtectedRoute permissions={['orders']}><AdminLiveTrackingPage /></ProtectedRoute>} />
+            <Route path="admin/billing" element={<BillingPage />} />
+            <Route path="admin/developer" element={<ProtectedRoute permissions={['developer']}><FeatureGate feature="developer"><AdminDeveloperPage /></FeatureGate></ProtectedRoute>} />
+            <Route path="admin/developer/saas" element={<ProtectedRoute permissions={['developer']}><FeatureGate feature="developer"><DeveloperSaasPage /></FeatureGate></ProtectedRoute>} />
+            <Route path="admin/tracking" element={<ProtectedRoute permissions={['orders']}><FeatureGate feature="live_tracking"><AdminLiveTrackingPage /></FeatureGate></ProtectedRoute>} />
           </Route>
         </Route>
         <Route element={<ProtectedRoute roles={['warehouse']} />}>
@@ -89,7 +94,7 @@ export function App() {
             <Route path="warehouse/orders" element={<WarehousePage />} />
             <Route path="warehouse/products" element={<WarehousePage />} />
             <Route path="warehouse/categories" element={<WarehousePage />} />
-            <Route path="warehouse/advanced" element={<WarehouseAdvancedPage />} />
+            <Route path="warehouse/advanced" element={<FeatureGate feature="stock_management"><WarehouseAdvancedPage /></FeatureGate>} />
           </Route>
         </Route>
         <Route element={<ProtectedRoute roles={['delivery']} />}>

@@ -11,5 +11,6 @@ export * from './products';
 export * from './categories';
 export * from './orders';
 export * from './customers';
+export * from './billing';
 export * from './hooks';
 export * from './mutations';
