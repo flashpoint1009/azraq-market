@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { MapPin, Phone, RefreshCw, Truck, Wifi, WifiOff } from 'lucide-react';
+import { MapPin, Phone, Truck, Wifi, WifiOff } from 'lucide-react';
 import { Card, LoadingState, PageHeader } from '../components/ui';
 import { useDriversRealtime } from '../hooks/useDriversRealtime';
 import type { DriverLocation } from '../hooks/useDriversRealtime';

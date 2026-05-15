@@ -12,7 +12,7 @@ import {
   Trash2,
   XCircle,
 } from 'lucide-react';
-import { Button, Card, EmptyState, ErrorState, Input, LoadingState, PageHeader, Select, Textarea } from '../components/ui';
+import { Button, Card, EmptyState, ErrorState, Input, LoadingState, PageHeader, Select } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
@@ -25,6 +25,7 @@ import {
 } from '../lib/stockMovements';
 import type {
   StockMovement,
+  StockMovementType,
   Stocktake,
   StocktakeItem,
   CustomerReturn,
@@ -94,10 +95,10 @@ function MovementsTab() {
       .select('*, products(name, sku, barcode), profiles(full_name)')
       .order('created_at', { ascending: false })
       .limit(100);
-    if (filterType !== 'all') query = query.eq('movement_type', filterType);
+    if (filterType !== 'all') query = query.eq('movement_type', filterType as StockMovementType);
     const { data, error } = await query;
     if (error) throw error;
-    return (data || []) as StockMovement[];
+    return (data || []) as unknown as StockMovement[];
   }, [filterType]);
 
   const { data: movements, loading, error } = useSupabaseQuery(loader, [filterType]);
@@ -311,7 +312,7 @@ function LowStockTab({ actorId }: { actorId: string | null }) {
       )}
       {products && products.length > 0 && (
         <div className="space-y-2">
-          {products.map((p: any) => (
+          {products.map((p: { id: string; name: string; stock_quantity: number; min_stock_level?: number | null }) => (
             <div key={p.id} className="flex items-center gap-2 rounded-xl border border-rose-100 bg-rose-50/50 p-2">
               <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-rose-100">
                 <AlertTriangle size={14} className="text-rose-600" />
