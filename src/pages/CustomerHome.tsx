@@ -228,20 +228,20 @@ export function CustomerHome() {
         </div>
       </section>
 
-      {/* Categories — circular chips */}
-      <section className="mt-3 flex gap-3 overflow-x-auto px-1 pb-2">
+      {/* Categories — circular scrollable chips */}
+      <section className="mt-3 flex gap-3 overflow-x-auto px-1 pb-2 scrollbar-hide">
         <button onClick={() => setCategoryId('all')} className="flex shrink-0 flex-col items-center gap-1.5">
-          <div className={`grid h-16 w-16 place-items-center overflow-hidden rounded-full border-2 shadow-sm ${categoryId === 'all' ? 'border-azraq-600' : 'border-white'}`}>
+          <div className={`grid h-16 w-16 place-items-center overflow-hidden rounded-full border-[2.5px] shadow-sm transition ${categoryId === 'all' ? 'border-azraq-600 scale-105' : 'border-slate-200'}`}>
             <img src={allCategoryImage} alt="الكل" className="h-full w-full object-cover" loading="lazy" decoding="async" />
           </div>
           <span className={`text-2xs font-bold ${categoryId === 'all' ? 'text-azraq-700' : 'text-slate-600'}`}>الكل</span>
         </button>
-        {data?.categories.slice(0, 8).map((category, index) => {
+        {data?.categories.map((category, index) => {
           const Icon = categoryIcons[index % categoryIcons.length];
           const active = categoryId === category.id;
           return (
             <button key={category.id} onClick={() => setCategoryId(category.id)} className="flex shrink-0 flex-col items-center gap-1.5">
-              <div className={`grid h-16 w-16 place-items-center overflow-hidden rounded-full border-2 shadow-sm ${active ? 'border-azraq-600' : 'border-white'}`}>
+              <div className={`grid h-16 w-16 place-items-center overflow-hidden rounded-full border-[2.5px] shadow-sm transition ${active ? 'border-azraq-600 scale-105' : 'border-slate-200'}`}>
                 {category.image_url ? (
                   <img src={category.image_url} alt={category.name} className="h-full w-full object-cover" loading="lazy" decoding="async" />
                 ) : (
@@ -262,35 +262,31 @@ export function CustomerHome() {
       {!loading && !error && (
         <div className="mt-4 space-y-5">
           {/* Row 1: العروض */}
-          {(() => {
-            const discounted = visibleProducts.filter((p) => p.discount_type && p.discount_type !== 'none' && (p.discount_value ?? 0) > 0);
-            if (!discounted.length) return null;
-            return (
-              <section>
-                <div className="mb-2 flex items-center justify-between">
-                  <h2 className="font-display text-base font-extrabold text-ink">🔥 العروض</h2>
-                  <span className="text-2xs font-bold text-slate-500">{discounted.length} منتج</span>
-                </div>
-                <div className="flex gap-2.5 overflow-x-auto pb-2">
-                  {discounted.slice(0, 10).map((product) => (
-                    <div key={product.id} className="w-[155px] shrink-0">
-                      <ProductCard product={product} onAdd={add} />
-                    </div>
-                  ))}
-                </div>
-              </section>
-            );
-          })()}
+          <section>
+            <div className="mb-2 flex items-center justify-between">
+              <h2 className="font-display text-base font-extrabold text-ink">🔥 العروض</h2>
+            </div>
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+              {(() => {
+                const discounted = visibleProducts.filter((p) => p.discount_type && p.discount_type !== 'none' && (p.discount_value ?? 0) > 0);
+                const items = discounted.length >= 3 ? discounted : visibleProducts.slice(0, 10);
+                return items.slice(0, 10).map((product) => (
+                  <div key={product.id} className="w-[calc(33.333%-6px)] min-w-[120px] shrink-0">
+                    <ProductCard product={product} onAdd={add} />
+                  </div>
+                ));
+              })()}
+            </div>
+          </section>
 
-          {/* Row 2: الأكثر مبيعًا (sorted by created_at as proxy) */}
+          {/* Row 2: الأكثر مبيعًا */}
           <section>
             <div className="mb-2 flex items-center justify-between">
               <h2 className="font-display text-base font-extrabold text-ink">⭐ الأكثر مبيعًا</h2>
-              <span className="text-2xs font-bold text-slate-500">{Math.min(visibleProducts.length, 10)} منتج</span>
             </div>
-            <div className="flex gap-2.5 overflow-x-auto pb-2">
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
               {visibleProducts.slice(0, 10).map((product) => (
-                <div key={product.id} className="w-[155px] shrink-0">
+                <div key={product.id} className="w-[calc(33.333%-6px)] min-w-[120px] shrink-0">
                   <ProductCard product={product} onAdd={add} />
                 </div>
               ))}
@@ -301,11 +297,10 @@ export function CustomerHome() {
           <section>
             <div className="mb-2 flex items-center justify-between">
               <h2 className="font-display text-base font-extrabold text-ink">💰 الأقل سعرًا</h2>
-              <span className="text-2xs font-bold text-slate-500">{Math.min(visibleProducts.length, 10)} منتج</span>
             </div>
-            <div className="flex gap-2.5 overflow-x-auto pb-2">
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
               {[...visibleProducts].sort((a, b) => a.price - b.price).slice(0, 10).map((product) => (
-                <div key={product.id} className="w-[155px] shrink-0">
+                <div key={product.id} className="w-[calc(33.333%-6px)] min-w-[120px] shrink-0">
                   <ProductCard product={product} onAdd={add} />
                 </div>
               ))}
