@@ -29,7 +29,8 @@ export type FeatureKey =
   | 'purchase_invoices'
   | 'pdf_export'
   | 'excel_export'
-  | 'api_access';
+  | 'api_access'
+  | 'about_section';
 
 export type TenantBranding = {
   name: string;
@@ -107,7 +108,7 @@ export const PLAN_DEFINITIONS: Record<PlanId, Omit<TenantPlan, 'id'>> = {
   },
   starter: {
     name: 'المبتدئ',
-    features: ['products', 'orders', 'branches', 'coupons', 'promotions', 'reviews', 'pdf_export'],
+    features: ['products', 'orders', 'branches', 'coupons', 'promotions', 'reviews', 'pdf_export', 'about_section'],
     limits: { maxProducts: 200, maxOrdersPerMonth: 500, maxBranches: 1, maxStaff: 5, maxStorageMB: 500 },
     priceMonthly: 299,
     priceYearly: 2990,
@@ -118,7 +119,7 @@ export const PLAN_DEFINITIONS: Record<PlanId, Omit<TenantPlan, 'id'>> = {
     features: [
       'products', 'orders', 'branches', 'sms', 'analytics', 'coupons', 'promotions',
       'reviews', 'wishlists', 'chat', 'internal_messaging', 'stock_management',
-      'purchase_invoices', 'pdf_export', 'excel_export',
+      'purchase_invoices', 'pdf_export', 'excel_export', 'about_section',
     ],
     limits: { maxProducts: 1000, maxOrdersPerMonth: 'unlimited', maxBranches: 3, maxStaff: 15, maxStorageMB: 2000 },
     priceMonthly: 799,
@@ -131,7 +132,7 @@ export const PLAN_DEFINITIONS: Record<PlanId, Omit<TenantPlan, 'id'>> = {
       'products', 'orders', 'branches', 'sms', 'analytics', 'custom_domain', 'developer',
       'coupons', 'promotions', 'reviews', 'wishlists', 'chat', 'internal_messaging',
       'live_tracking', 'stock_management', 'purchase_invoices', 'pdf_export',
-      'excel_export', 'api_access',
+      'excel_export', 'api_access', 'about_section',
     ],
     limits: { maxProducts: 'unlimited', maxOrdersPerMonth: 'unlimited', maxBranches: 'unlimited', maxStaff: 'unlimited', maxStorageMB: 'unlimited' },
     priceMonthly: 1999,

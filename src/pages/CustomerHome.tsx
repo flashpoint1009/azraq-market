@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Bell, Boxes, Headphones, Heart, Home, Menu, PackageCheck, Search, ShoppingCart, Sparkles, Tags, UserRound, X, Zap } from 'lucide-react';
+import { AboutSection } from '../components/AboutSection';
 import { LogoMark } from '../components/Brand';
 import { ProductCard } from '../components/ProductCard';
 import { CategorySkeleton, ProductGridSkeleton } from '../components/Skeleton';
@@ -308,6 +309,9 @@ export function CustomerHome() {
           </section>
         </div>
       )}
+
+      {/* About Us Section */}
+      <AboutSection />
     </div>
   );
 }

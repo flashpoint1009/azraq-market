@@ -49,6 +49,7 @@ const featureLabels: Partial<Record<FeatureKey, string>> = {
   pdf_export: 'تصدير PDF',
   excel_export: 'تصدير Excel',
   api_access: 'الوصول عبر API',
+  about_section: 'قسم عننا',
 };
 
 const limitLabels: Record<keyof TenantLimits, string> = {

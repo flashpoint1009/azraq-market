@@ -47,13 +47,14 @@ const allFeatureLabels: Record<FeatureKey, string> = {
   pdf_export: 'تصدير PDF',
   excel_export: 'تصدير Excel',
   api_access: 'الوصول عبر API',
+  about_section: 'قسم عننا',
 };
 
 const featureDisplayOrder: FeatureKey[] = [
   'products', 'orders', 'branches', 'coupons', 'promotions', 'reviews',
   'wishlists', 'pdf_export', 'excel_export', 'sms', 'analytics', 'chat',
   'internal_messaging', 'stock_management', 'purchase_invoices',
-  'live_tracking', 'custom_domain', 'developer', 'api_access',
+  'live_tracking', 'about_section', 'custom_domain', 'developer', 'api_access',
 ];
 
 export function PricingPage() {
