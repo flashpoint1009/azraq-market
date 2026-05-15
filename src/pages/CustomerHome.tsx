@@ -123,7 +123,7 @@ export function CustomerHome() {
   ];
 
   const renderProductGrid = (items: Product[]) => (
-    <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 xl:grid-cols-5">
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
       {items.map((product) => <ProductCard key={product.id} product={product} onAdd={add} />)}
     </div>
   );
@@ -131,25 +131,25 @@ export function CustomerHome() {
   return (
     <div className="pb-28">
       <header
-        className="relative min-h-[165px] overflow-hidden rounded-[20px] bg-white bg-cover bg-center p-3 shadow-sm"
+        className="relative min-h-[130px] overflow-hidden rounded-2xl bg-white bg-cover bg-center p-2.5 shadow-sm"
         style={{ backgroundImage: `linear-gradient(90deg, rgba(255,255,255,.22), rgba(255,255,255,.82) 54%, rgba(255,255,255,.94)), url(${homeHeroImage})` }}
       >
         <div className="flex items-center justify-between gap-2">
-          <div className="h-14 w-14 shrink-0 overflow-hidden rounded-3xl bg-white shadow-sm ring-2 ring-white">
+          <div className="h-10 w-10 shrink-0 overflow-hidden rounded-2xl bg-white shadow-sm ring-2 ring-white">
             <img src={homeHeroImage} alt="أزرق ماركت" className="h-full w-full object-cover" loading="eager" decoding="async" />
           </div>
-          <div className="mr-auto flex items-center gap-2">
-            <button type="button" onClick={() => setDrawerOpen(true)} className="grid h-9 w-9 place-items-center rounded-2xl bg-[#eef6fa] text-azraq-700" aria-label="افتح القائمة">
-              <Menu size={18} />
+          <div className="mr-auto flex items-center gap-1.5">
+            <button type="button" onClick={() => setDrawerOpen(true)} className="grid h-8 w-8 place-items-center rounded-xl bg-[#eef6fa]/80 text-azraq-700" aria-label="افتح القائمة">
+              <Menu size={16} />
             </button>
-            <button type="button" onClick={openNotifications} className="relative grid h-9 w-9 place-items-center rounded-2xl bg-[#eef6fa] text-azraq-700" aria-label="الإشعارات">
-              <Bell size={18} />
-              {unreadCount > 0 && <span className="absolute -top-1 -left-1 h-4 min-w-4 rounded-full bg-rose-500 px-1 text-center text-[9px] font-bold text-white">{unreadCount}</span>}
+            <button type="button" onClick={openNotifications} className="relative grid h-8 w-8 place-items-center rounded-xl bg-[#eef6fa]/80 text-azraq-700" aria-label="الإشعارات">
+              <Bell size={16} />
+              {unreadCount > 0 && <span className="absolute -top-0.5 -left-0.5 h-3.5 min-w-3.5 rounded-full bg-rose-500 px-0.5 text-center text-[8px] font-bold text-white">{unreadCount}</span>}
             </button>
           </div>
-          <Link to="/cart" className="rounded-2xl bg-azraq-700 px-3 py-2 text-left text-white">
+          <Link to="/cart" className="rounded-xl bg-azraq-700 px-2.5 py-1.5 text-left text-white">
             <p className="text-2xs font-bold text-white/70">السلة</p>
-            <p className="text-sm font-extrabold">{formatCurrency(total)}</p>
+            <p className="text-xs font-extrabold">{formatCurrency(total)}</p>
           </Link>
         </div>
 
@@ -178,9 +178,9 @@ export function CustomerHome() {
           </div>
         )}
 
-        <div className="relative z-10 mt-9 max-w-[70%] pr-1">
-          <p className="text-base font-extrabold text-ink">صباح الخير يا {profile?.full_name || 'تاجر'}</p>
-          <p className="text-xs font-bold text-slate-500">طلباتك أوامر</p>
+        <div className="relative z-10 mt-6 max-w-[70%] pr-1">
+          <p className="text-sm font-extrabold text-ink">صباح الخير يا {profile?.full_name || 'تاجر'}</p>
+          <p className="text-2xs font-bold text-slate-500">طلباتك أوامر</p>
         </div>
       </header>
 
@@ -215,42 +215,39 @@ export function CustomerHome() {
         </div>
       )}
 
-      <section className="sticky top-2 z-20 mt-3 rounded-[20px] border border-white bg-white/95 p-2 shadow-sm backdrop-blur" role="search" aria-label="بحث المنتجات">
+      <section className="sticky top-1 z-20 mt-2 rounded-2xl border border-white/80 bg-white/95 p-1.5 shadow-sm backdrop-blur" role="search" aria-label="بحث المنتجات">
         <div className="relative">
-          <Search className="absolute right-3 top-3 text-slate-500" size={17} aria-hidden="true" />
+          <Search className="absolute right-2.5 top-2.5 text-slate-400" size={15} aria-hidden="true" />
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="دور على منتج..."
             aria-label="ابحث عن منتج"
-            className="h-11 w-full rounded-2xl border border-slate-100 bg-[#eef6fa] pr-10 pl-3 text-sm font-semibold outline-none transition focus:border-azraq-300 focus:bg-white"
+            className="h-9 w-full rounded-xl border border-slate-100 bg-[#f4f9fc] pr-8 pl-3 text-xs font-medium outline-none transition focus:border-azraq-300 focus:bg-white"
           />
         </div>
       </section>
 
-      <section className="mt-3 grid grid-cols-3 gap-1.5">
-        <button onClick={() => setCategoryId('all')} className={`relative grid h-[82px] place-items-end overflow-hidden rounded-2xl bg-white px-1.5 pb-2 text-xs font-extrabold shadow-sm ${categoryId === 'all' ? 'ring-2 ring-azraq-700' : ''}`}>
-          <img src={allCategoryImage} alt="الكل" className="absolute inset-0 h-full w-full object-cover" loading="lazy" decoding="async" />
-          <span className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-white/95 to-white/0" />
-          <span className="relative z-10 line-clamp-1 rounded-full bg-white/90 px-3 py-0.5 text-ink shadow-sm">الكل</span>
+      <section className="mt-2 flex gap-1.5 overflow-x-auto pb-1">
+        <button onClick={() => setCategoryId('all')} className={`relative grid h-[60px] w-[70px] shrink-0 place-items-center overflow-hidden rounded-xl bg-white text-2xs font-bold shadow-sm ${categoryId === 'all' ? 'ring-2 ring-azraq-600' : ''}`}>
+          <img src={allCategoryImage} alt="الكل" className="absolute inset-0 h-full w-full object-cover opacity-80" loading="lazy" decoding="async" />
+          <span className="relative z-10 rounded-md bg-white/90 px-1.5 py-0.5 text-ink">الكل</span>
         </button>
         {data?.categories.slice(0, 8).map((category, index) => {
           const Icon = categoryIcons[index % categoryIcons.length];
           return (
-            <button key={category.id} onClick={() => setCategoryId(category.id)} className={`relative grid h-[82px] place-items-center overflow-hidden rounded-2xl bg-white px-1.5 text-xs font-extrabold shadow-sm ${categoryId === category.id ? 'bg-azraq-700 text-white' : 'text-slate-600'}`}>
+            <button key={category.id} onClick={() => setCategoryId(category.id)} className={`relative grid h-[60px] w-[70px] shrink-0 place-items-center overflow-hidden rounded-xl text-2xs font-bold shadow-sm ${categoryId === category.id ? 'bg-azraq-700 text-white ring-2 ring-azraq-600' : 'bg-white text-slate-600'}`}>
               {category.image_url ? (
                 <>
-                  <img src={category.image_url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-95" loading="lazy" decoding="async" />
-                  <span className={`absolute inset-0 ${categoryId === category.id ? 'bg-azraq-950/55' : 'bg-white/20'}`} />
-                  <span className="absolute -bottom-5 -left-4 h-16 w-16 rounded-full bg-white/35 blur-lg" />
+                  <img src={category.image_url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-90" loading="lazy" decoding="async" />
+                  <span className={`absolute inset-0 ${categoryId === category.id ? 'bg-azraq-900/50' : 'bg-white/10'}`} />
                 </>
-              ) : null}
-              {!category.image_url && (
-                <span className={`relative z-10 grid h-8 w-8 place-items-center rounded-full ${categoryId === category.id ? 'bg-white/20 text-white' : 'bg-[#eef6fa] text-azraq-700'}`}>
-                  <Icon size={15} />
+              ) : (
+                <span className={`relative z-10 grid h-6 w-6 place-items-center rounded-lg ${categoryId === category.id ? 'bg-white/20 text-white' : 'bg-azraq-50 text-azraq-600'}`}>
+                  <Icon size={13} />
                 </span>
               )}
-              <span className={`relative z-10 line-clamp-1 rounded-full px-2 py-0.5 ${category.image_url ? 'bg-white/85 text-ink shadow-sm' : ''}`}>{category.name}</span>
+              <span className={`relative z-10 line-clamp-1 px-1 ${category.image_url ? 'rounded-md bg-white/85 text-ink' : ''}`}>{category.name}</span>
             </button>
           );
         })}
@@ -260,10 +257,10 @@ export function CustomerHome() {
       {loading && <div className="mt-4"><CategorySkeleton /><div className="mt-4"><ProductGridSkeleton /></div></div>}
 
       {!loading && !error && (
-        <section className="mt-5">
-          <div className="mb-2 flex items-center justify-between">
-            <h2 className="font-display text-lg font-extrabold text-ink">{categoryId === 'all' ? 'المنتجات' : 'منتجات القسم'}</h2>
-            <span className="text-xs font-bold text-slate-500">{visibleProducts.length} منتج</span>
+        <section className="mt-3">
+          <div className="mb-1.5 flex items-center justify-between">
+            <h2 className="font-display text-base font-extrabold text-ink">{categoryId === 'all' ? 'المنتجات' : 'منتجات القسم'}</h2>
+            <span className="text-2xs font-bold text-slate-500">{visibleProducts.length} منتج</span>
           </div>
           {productsToRender.length ? renderProductGrid(productsToRender) : <EmptyState title="مفيش منتجات دلوقتي" body="جرب تدور بكلمة تانية أو اختار قسم مختلف." />}
           {hasMore && <div ref={sentinelRef} className="h-10" />}

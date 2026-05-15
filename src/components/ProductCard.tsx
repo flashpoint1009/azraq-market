@@ -40,11 +40,11 @@ export function ProductCard({ product, onAdd, list = false }: { product: Product
   };
 
   return (
-    <article className={`relative overflow-hidden rounded-[18px] border border-slate-100 bg-white p-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${list ? 'grid min-h-[132px] grid-cols-[96px_1fr] gap-2' : 'h-[268px] pb-14'}`}>
-      {!canBuy && <span className="absolute right-2 top-2 z-10 rounded-full bg-rose-600 px-2 py-1 text-2xs font-extrabold text-white">مش متاح دلوقتي</span>}
+    <article className={`relative overflow-hidden rounded-2xl border border-slate-50 bg-white p-1.5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${list ? 'grid min-h-[110px] grid-cols-[80px_1fr] gap-2' : 'pb-12'}`}>
+      {!canBuy && <span className="absolute right-1.5 top-1.5 z-10 rounded-full bg-rose-600/90 px-1.5 py-0.5 text-2xs font-bold text-white backdrop-blur-sm">غير متاح</span>}
       {pricing.hasDiscount && (
-        <span className="absolute left-2 top-2 z-10 rounded-full bg-orange-500 px-2 py-1 text-2xs font-extrabold text-white">
-          وفر {pricing.discountLabel || formatCurrency(pricing.saving)}
+        <span className="absolute left-1.5 top-1.5 z-10 rounded-full bg-orange-500/90 px-1.5 py-0.5 text-2xs font-bold text-white backdrop-blur-sm">
+          {pricing.discountLabel || `-${formatCurrency(pricing.saving)}`}
         </span>
       )}
 
@@ -53,14 +53,14 @@ export function ProductCard({ product, onAdd, list = false }: { product: Product
           type="button"
           onClick={toggleWishlist}
           disabled={wishlistLoading}
-          className={`absolute left-2 bottom-2 z-10 grid h-8 w-8 place-items-center rounded-full shadow transition ${wishlisted ? 'bg-rose-500 text-white' : 'bg-white text-slate-500 ring-1 ring-slate-200'}`}
+          className={`absolute left-1.5 bottom-14 z-10 grid h-7 w-7 place-items-center rounded-full transition ${wishlisted ? 'bg-rose-500 text-white shadow-sm' : 'bg-white/80 text-slate-400 ring-1 ring-slate-100 backdrop-blur-sm'}`}
           aria-label="أضف للمفضلة"
         >
-          <Heart size={14} fill={wishlisted ? 'currentColor' : 'none'} />
+          <Heart size={12} fill={wishlisted ? 'currentColor' : 'none'} />
         </button>
       )}
 
-      <Link to={`/products/${product.id}`} className={`block overflow-hidden rounded-2xl bg-[#eef6fa] ${list ? 'h-24' : 'h-[132px]'}`}>
+      <Link to={`/products/${product.id}`} className={`block overflow-hidden rounded-xl bg-[#f0f7fb] ${list ? 'h-20' : 'aspect-square'}`}>
         {shouldLoadImage ? (
           <img
             src={imageUrl}
@@ -78,43 +78,38 @@ export function ProductCard({ product, onAdd, list = false }: { product: Product
         ) : null}
 
         <div
-          className="grid h-full place-items-center bg-gradient-to-br from-azraq-100 to-azraq-500 text-white"
+          className="grid h-full place-items-center bg-gradient-to-br from-azraq-50 to-azraq-200 text-azraq-400"
           style={{ display: shouldLoadImage ? 'none' : 'grid' }}
         >
-          <Package size={34} strokeWidth={1.8} />
+          <Package size={28} strokeWidth={1.5} />
         </div>
       </Link>
 
-      <div className="flex min-h-0 flex-col pt-2 text-center">
-        <Link to={`/products/${product.id}`} className="line-clamp-2 min-h-[38px] text-sm font-extrabold leading-5 text-ink hover:text-azraq-700">
+      <div className="flex min-h-0 flex-col px-1 pt-1.5">
+        <Link to={`/products/${product.id}`} className="line-clamp-2 text-xs font-bold leading-[1.4] text-ink hover:text-azraq-700">
           {product.name}
         </Link>
-        <p className="mt-0.5 text-2xs font-bold text-slate-500">{unitLabels[product.unit_type]}</p>
-        <div className="mx-auto mt-1 min-w-[104px] rounded-2xl bg-azraq-50 px-2 py-1.5 text-center">
-          {pricing.hasDiscount && (
-            <p className="text-2xs font-extrabold leading-4 text-orange-600">
-              العرض وفر لك {formatCurrency(pricing.saving)}
+        <div className="mt-auto flex items-end justify-between gap-1 pt-1">
+          <div>
+            <p className="font-display text-sm font-extrabold text-azraq-800">
+              {formatCurrency(pricing.finalPrice)}
             </p>
-          )}
-          <p className="font-display text-xl font-extrabold leading-none text-azraq-950">
-            {formatCurrency(pricing.finalPrice)}
-          </p>
-          {pricing.hasDiscount && (
-            <p className="mt-0.5 text-2xs font-bold leading-none text-slate-500 line-through">
-              {formatCurrency(pricing.basePrice)}
-            </p>
-          )}
+            {pricing.hasDiscount && (
+              <p className="text-2xs font-bold text-slate-400 line-through">
+                {formatCurrency(pricing.basePrice)}
+              </p>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => onAdd(product)}
+            disabled={!canBuy}
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-azraq-700 text-white shadow-sm transition hover:bg-azraq-800 disabled:cursor-not-allowed disabled:opacity-40"
+            aria-label="زود المنتج"
+          >
+            <Plus size={15} />
+          </button>
         </div>
-
-        <button
-          type="button"
-          onClick={() => onAdd(product)}
-          disabled={!canBuy}
-          className="absolute bottom-2 right-2 z-10 grid h-10 w-10 place-items-center rounded-full bg-azraq-700 text-white shadow-lg ring-4 ring-white disabled:cursor-not-allowed disabled:opacity-50"
-          aria-label="زود المنتج"
-        >
-          <Plus size={19} />
-        </button>
       </div>
     </article>
   );
