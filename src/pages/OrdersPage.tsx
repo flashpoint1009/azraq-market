@@ -1,12 +1,9 @@
-import { useNavigate } from 'react-router-dom';
-import toast from 'react-hot-toast';
 import { Card, EmptyState, ErrorState } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
-import { useCart } from '../context/CartContext';
 import { formatCurrency, statusLabels, unitLabels } from '../lib/labels';
 import { supabase } from '../lib/supabase';
 import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
-import type { Order, Product } from '../types/database';
+import type { Order } from '../types/database';
 
 function SkeletonOrderCard() {
   return (
@@ -36,8 +33,6 @@ const statusColors: Record<string, string> = {
 
 export function OrdersPage() {
   const { profile } = useAuth();
-  const { fillFromOrder } = useCart();
-  const navigate = useNavigate();
 
   const { data: orders, loading, error } = useSupabaseQuery(async () => {
     if (!profile?.id) return [] as Order[];
@@ -49,20 +44,6 @@ export function OrdersPage() {
     if (error) throw error;
     return data as Order[];
   }, [profile?.id]);
-
-  const addProducts = async (order: Order) => {
-    const ids = order.order_items?.map((item) => item.product_id).filter(Boolean) as string[];
-    const { data } = await supabase.from('products').select('*').in('id', ids);
-    const products = (data || []) as Product[];
-    fillFromOrder(
-      (order.order_items || []).flatMap((item) => {
-        const product = products.find((entry) => entry.id === item.product_id);
-        return product ? [{ product, quantity: item.quantity }] : [];
-      }),
-    );
-    toast.success('منتجات الطلب اتضافت');
-    navigate('/cart');
-  };
 
   return (
     <div className="pb-24">

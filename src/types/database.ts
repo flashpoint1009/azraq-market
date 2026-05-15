@@ -6,6 +6,12 @@ export type PermissionKey = 'reports' | 'products' | 'purchases' | 'categories' 
 export type DiscountType = 'percentage' | 'fixed';
 export type PromotionType = 'product' | 'quantity' | 'bundle' | 'order_total';
 export type CouponType = 'percent' | 'fixed';
+export type StockMovementType = 'in' | 'out' | 'adjustment' | 'return' | 'damage' | 'transfer';
+export type StocktakeStatus = 'draft' | 'in_progress' | 'completed' | 'cancelled';
+export type ReturnStatus = 'pending' | 'approved' | 'rejected' | 'completed';
+export type ReturnCondition = 'good' | 'damaged' | 'expired';
+export type ConversationStatus = 'open' | 'assigned' | 'resolved' | 'closed';
+export type SenderType = 'customer' | 'admin' | 'bot';
 
 export type Profile = {
   id: string;
@@ -52,6 +58,9 @@ export type Product = {
   image_1_url: string | null;
   image_2_url: string | null;
   stock_quantity: number;
+  min_stock_level?: number | null;
+  sku?: string | null;
+  barcode?: string | null;
   is_available: boolean;
   created_at: string;
   updated_at: string;
@@ -257,6 +266,223 @@ export type Wishlist = {
   products?: Product | null;
 };
 
+// ─── Chat & Messaging Tables ───
+
+export type ChatConversation = {
+  id: string;
+  customer_id: string;
+  status: ConversationStatus;
+  assigned_to: string | null;
+  subject: string | null;
+  last_message_at: string;
+  created_at: string;
+  profiles?: { full_name: string | null; phone: string | null } | null;
+};
+
+export type ChatMessage = {
+  id: string;
+  conversation_id: string;
+  sender_id: string | null;
+  sender_type: SenderType;
+  content: string;
+  is_read: boolean;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+};
+
+export type ChatbotFAQ = {
+  id: string;
+  keywords: string[];
+  question: string;
+  answer: string;
+  category: string;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+};
+
+export type InternalMessage = {
+  id: string;
+  sender_id: string;
+  recipient_id: string;
+  content: string;
+  is_read: boolean;
+  created_at: string;
+  sender?: { full_name: string | null } | null;
+  recipient?: { full_name: string | null } | null;
+};
+
+// ─── Driver GPS Tables ───
+
+export type DriverLocation = {
+  driver_id: string;
+  latitude: number;
+  longitude: number;
+  accuracy: number | null;
+  heading: number | null;
+  speed: number | null;
+  is_online: boolean;
+  last_updated_at: string;
+};
+
+export type DriverLocationHistory = {
+  id: string;
+  driver_id: string;
+  latitude: number;
+  longitude: number;
+  speed: number | null;
+  created_at: string;
+};
+
+// ─── Stock & Warehouse Tables ───
+
+export type StockMovement = {
+  id: string;
+  product_id: string;
+  movement_type: StockMovementType;
+  quantity: number;
+  previous_quantity: number;
+  new_quantity: number;
+  reason: string | null;
+  reference_id: string | null;
+  reference_type: string | null;
+  created_by: string | null;
+  created_at: string;
+  products?: { name: string; sku: string | null; barcode: string | null } | null;
+  profiles?: { full_name: string | null } | null;
+};
+
+export type Stocktake = {
+  id: string;
+  title: string;
+  status: StocktakeStatus;
+  notes: string | null;
+  total_items: number;
+  discrepancies: number;
+  created_by: string | null;
+  completed_at: string | null;
+  created_at: string;
+  profiles?: { full_name: string | null } | null;
+};
+
+export type StocktakeItem = {
+  id: string;
+  stocktake_id: string;
+  product_id: string;
+  system_quantity: number;
+  counted_quantity: number | null;
+  discrepancy: number;
+  notes: string | null;
+  counted_at: string | null;
+  counted_by: string | null;
+  products?: { name: string; sku: string | null; barcode: string | null; image_1_url: string | null } | null;
+};
+
+export type CustomerReturn = {
+  id: string;
+  order_id: string | null;
+  customer_id: string;
+  status: ReturnStatus;
+  reason: string;
+  total_amount: number;
+  notes: string | null;
+  processed_by: string | null;
+  processed_at: string | null;
+  created_at: string;
+  profiles?: { full_name: string | null; phone: string | null } | null;
+  customer_return_items?: CustomerReturnItem[];
+};
+
+export type CustomerReturnItem = {
+  id: string;
+  return_id: string;
+  product_id: string;
+  quantity: number;
+  unit_price: number;
+  line_total: number;
+  condition: ReturnCondition;
+  products?: { name: string } | null;
+};
+
+export type BinLocation = {
+  id: string;
+  code: string;
+  name: string;
+  zone: string | null;
+  capacity?: number | null;
+  is_active: boolean;
+  created_at: string;
+};
+
+// ─── Developer / SaaS Tables ───
+
+export type AppTypography = {
+  key: string;
+  value: string;
+  category: 'font' | 'size' | 'weight' | 'spacing';
+  label: string;
+  css_variable: string | null;
+  updated_at: string;
+};
+
+export type AppLabel = {
+  key: string;
+  value: string;
+  default_value: string;
+  category: string;
+  description: string | null;
+  updated_by: string | null;
+  updated_at: string;
+};
+
+export type PlanConfig = {
+  id: string;
+  name: string;
+  name_ar: string;
+  price_monthly: number;
+  price_yearly: number;
+  currency: string;
+  limits: Record<string, number | string>;
+  features: string[];
+  is_active: boolean;
+  sort_order: number;
+  badge_text: string | null;
+  updated_at: string;
+};
+
+export type AppCustomCSS = {
+  id: string;
+  css_content: string;
+  is_active: boolean;
+  updated_by: string | null;
+  updated_at: string;
+};
+
+export type AppSnapshot = {
+  id: string;
+  title: string;
+  description: string | null;
+  snapshot_data: Record<string, unknown>;
+  version: string;
+  created_by: string | null;
+  created_at: string;
+  profiles?: { full_name: string | null } | null;
+};
+
+export type AuditLog = {
+  id: string;
+  actor_id: string | null;
+  action: string;
+  entity_type: string;
+  entity_id: string | null;
+  changes: Record<string, { old?: unknown; new?: unknown }> | null;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+  profiles?: { full_name: string | null; role: string | null } | null;
+};
+
+// ─── Database Schema Type ───
+
 export type Database = {
   public: {
     Tables: {
@@ -282,6 +508,28 @@ export type Database = {
       coupons: { Row: Coupon; Insert: Partial<Coupon>; Update: Partial<Coupon>; Relationships: [] };
       product_reviews: { Row: ProductReview; Insert: Partial<ProductReview>; Update: Partial<ProductReview>; Relationships: [] };
       wishlists: { Row: Wishlist; Insert: Partial<Wishlist>; Update: Partial<Wishlist>; Relationships: [] };
+      // Chat & Messaging
+      chat_conversations: { Row: ChatConversation; Insert: Partial<ChatConversation>; Update: Partial<ChatConversation>; Relationships: [] };
+      chat_messages: { Row: ChatMessage; Insert: Partial<ChatMessage>; Update: Partial<ChatMessage>; Relationships: [] };
+      chatbot_faqs: { Row: ChatbotFAQ; Insert: Partial<ChatbotFAQ>; Update: Partial<ChatbotFAQ>; Relationships: [] };
+      internal_messages: { Row: InternalMessage; Insert: Partial<InternalMessage>; Update: Partial<InternalMessage>; Relationships: [] };
+      // Driver GPS
+      driver_locations: { Row: DriverLocation; Insert: Partial<DriverLocation>; Update: Partial<DriverLocation>; Relationships: [] };
+      driver_location_history: { Row: DriverLocationHistory; Insert: Partial<DriverLocationHistory>; Update: Partial<DriverLocationHistory>; Relationships: [] };
+      // Stock & Warehouse
+      stock_movements: { Row: StockMovement; Insert: Partial<StockMovement>; Update: Partial<StockMovement>; Relationships: [] };
+      stocktakes: { Row: Stocktake; Insert: Partial<Stocktake>; Update: Partial<Stocktake>; Relationships: [] };
+      stocktake_items: { Row: StocktakeItem; Insert: Partial<StocktakeItem>; Update: Partial<StocktakeItem>; Relationships: [] };
+      customer_returns: { Row: CustomerReturn; Insert: Partial<CustomerReturn>; Update: Partial<CustomerReturn>; Relationships: [] };
+      customer_return_items: { Row: CustomerReturnItem; Insert: Partial<CustomerReturnItem>; Update: Partial<CustomerReturnItem>; Relationships: [] };
+      bin_locations: { Row: BinLocation; Insert: Partial<BinLocation>; Update: Partial<BinLocation>; Relationships: [] };
+      // Developer / SaaS
+      app_typography: { Row: AppTypography; Insert: Partial<AppTypography>; Update: Partial<AppTypography>; Relationships: [] };
+      app_labels: { Row: AppLabel; Insert: Partial<AppLabel>; Update: Partial<AppLabel>; Relationships: [] };
+      plan_config: { Row: PlanConfig; Insert: Partial<PlanConfig>; Update: Partial<PlanConfig>; Relationships: [] };
+      app_custom_css: { Row: AppCustomCSS; Insert: Partial<AppCustomCSS>; Update: Partial<AppCustomCSS>; Relationships: [] };
+      app_snapshots: { Row: AppSnapshot; Insert: Partial<AppSnapshot>; Update: Partial<AppSnapshot>; Relationships: [] };
+      audit_log: { Row: AuditLog; Insert: Partial<AuditLog>; Update: Partial<AuditLog>; Relationships: [] };
     };
     Views: Record<string, never>;
     Functions: {
@@ -331,11 +579,40 @@ export type Database = {
         };
         Returns: string;
       };
+      log_audit: {
+        Args: {
+          p_actor_id: string | null;
+          p_action: string;
+          p_entity_type: string;
+          p_entity_id: string | null;
+          p_changes: string | null;
+          p_metadata: string | null;
+        };
+        Returns: void;
+      };
+      record_stock_movement: {
+        Args: {
+          p_product_id: string;
+          p_movement_type: string;
+          p_quantity: number;
+          p_reason: string | null;
+          p_reference_id: string | null;
+          p_reference_type: string | null;
+          p_actor_id: string | null;
+        };
+        Returns: string;
+      };
     };
     Enums: {
       user_role: Role;
       unit_type: UnitType;
       order_status: OrderStatus;
+      stock_movement_type: StockMovementType;
+      stocktake_status: StocktakeStatus;
+      return_status: ReturnStatus;
+      return_condition: ReturnCondition;
+      conversation_status: ConversationStatus;
+      sender_type: SenderType;
     };
     CompositeTypes: Record<string, never>;
   };

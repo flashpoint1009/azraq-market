@@ -49,7 +49,7 @@ export function SetupWizardPage() {
       ['setup_completed_by', profile?.id || null],
     ].map(([key, value]) => ({ key, value, updated_at: new Date().toISOString() }));
 
-    const { error } = await (supabase as any).from('app_settings').upsert(settings, { onConflict: 'key' });
+    const { error } = await supabase.from('app_settings').upsert(settings, { onConflict: 'key' });
     if (!error && form.category_name.trim()) {
       const { data: category } = await supabase.from('categories').insert({ name: form.category_name.trim(), sort_order: 0, is_active: true }).select('*').single();
       if (category && form.product_name.trim()) {

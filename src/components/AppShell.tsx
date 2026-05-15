@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
-import { BarChart3, Bell, Boxes, ClipboardList, Code2, CreditCard, Heart, Headphones, Home, LayoutDashboard, LineChart, LogOut, MapPinHouse, MapPinned, Package, Percent, ReceiptText, ShieldCheck, ShoppingCart, Star, Tags, Ticket, UserRound, Users } from 'lucide-react';
+import { BarChart3, Bell, Boxes, ClipboardList, Code2, CreditCard, Heart, Headphones, Home, LayoutDashboard, LineChart, LogOut, MapPinned, Package, Percent, ReceiptText, ShieldCheck, ShoppingCart, Star, Tags, Ticket, UserRound, Users } from 'lucide-react';
 import { AppAnnouncement } from './AppAnnouncement';
 import { LogoMark } from './Brand';
 import { useAuth } from '../context/AuthContext';

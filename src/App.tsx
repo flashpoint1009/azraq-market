@@ -21,7 +21,6 @@ const AdminDebtsPage = lazy(() => import('./pages/AdminDebtsPage').then((module)
 const AdminUsersPage = lazy(() => import('./pages/AdminUsersPage').then((module) => ({ default: module.AdminUsersPage })));
 const CartPage = lazy(() => import('./pages/CartPage').then((module) => ({ default: module.CartPage })));
 const CustomerHome = lazy(() => import('./pages/CustomerHome').then((module) => ({ default: module.CustomerHome })));
-const DealsPage = lazy(() => import('./pages/DealsPage').then((module) => ({ default: module.DealsPage })));
 const DeliveryPage = lazy(() => import('./pages/DeliveryPage').then((module) => ({ default: module.DeliveryPage })));
 const LoginPage = lazy(() => import('./pages/LoginPage').then((module) => ({ default: module.LoginPage })));
 const OrderDetailsPage = lazy(() => import('./pages/OrderDetailsPage').then((module) => ({ default: module.OrderDetailsPage })));
