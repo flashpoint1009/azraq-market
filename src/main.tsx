@@ -10,6 +10,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { InternalMessaging } from './components/InternalMessaging';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { TenantProvider } from './tenants';
 import { queryClient } from './lib/queryClient';
 import { initSentry } from './lib/sentry';
 import './styles.css';
@@ -19,19 +20,21 @@ initSentry();
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-          <AuthProvider>
-            <CartProvider>
-              <AppTheme />
-              <App />
-              <ChatWidget />
-              <InternalMessaging />
-              <Toaster position="top-center" toastOptions={{ duration: 3500, style: { direction: 'rtl', fontFamily: 'Cairo, sans-serif' } }} />
-            </CartProvider>
-          </AuthProvider>
-        </BrowserRouter>
-      </QueryClientProvider>
+      <TenantProvider>
+        <QueryClientProvider client={queryClient}>
+          <BrowserRouter>
+            <AuthProvider>
+              <CartProvider>
+                <AppTheme />
+                <App />
+                <ChatWidget />
+                <InternalMessaging />
+                <Toaster position="top-center" toastOptions={{ duration: 3500, style: { direction: 'rtl', fontFamily: 'Cairo, sans-serif' } }} />
+              </CartProvider>
+            </AuthProvider>
+          </BrowserRouter>
+        </QueryClientProvider>
+      </TenantProvider>
     </ErrorBoundary>
   </React.StrictMode>,
 );
