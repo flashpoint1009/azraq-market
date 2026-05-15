@@ -228,26 +228,29 @@ export function CustomerHome() {
         </div>
       </section>
 
-      <section className="mt-2 flex gap-1.5 overflow-x-auto pb-1">
-        <button onClick={() => setCategoryId('all')} className={`relative grid h-[60px] w-[70px] shrink-0 place-items-center overflow-hidden rounded-xl bg-white text-2xs font-bold shadow-sm ${categoryId === 'all' ? 'ring-2 ring-azraq-600' : ''}`}>
-          <img src={allCategoryImage} alt="الكل" className="absolute inset-0 h-full w-full object-cover opacity-80" loading="lazy" decoding="async" />
-          <span className="relative z-10 rounded-md bg-white/90 px-1.5 py-0.5 text-ink">الكل</span>
+      {/* Categories — circular chips */}
+      <section className="mt-3 flex gap-3 overflow-x-auto px-1 pb-2">
+        <button onClick={() => setCategoryId('all')} className="flex shrink-0 flex-col items-center gap-1.5">
+          <div className={`grid h-16 w-16 place-items-center overflow-hidden rounded-full border-2 shadow-sm ${categoryId === 'all' ? 'border-azraq-600' : 'border-white'}`}>
+            <img src={allCategoryImage} alt="الكل" className="h-full w-full object-cover" loading="lazy" decoding="async" />
+          </div>
+          <span className={`text-2xs font-bold ${categoryId === 'all' ? 'text-azraq-700' : 'text-slate-600'}`}>الكل</span>
         </button>
         {data?.categories.slice(0, 8).map((category, index) => {
           const Icon = categoryIcons[index % categoryIcons.length];
+          const active = categoryId === category.id;
           return (
-            <button key={category.id} onClick={() => setCategoryId(category.id)} className={`relative grid h-[60px] w-[70px] shrink-0 place-items-center overflow-hidden rounded-xl text-2xs font-bold shadow-sm ${categoryId === category.id ? 'bg-azraq-700 text-white ring-2 ring-azraq-600' : 'bg-white text-slate-600'}`}>
-              {category.image_url ? (
-                <>
-                  <img src={category.image_url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-90" loading="lazy" decoding="async" />
-                  <span className={`absolute inset-0 ${categoryId === category.id ? 'bg-azraq-900/50' : 'bg-white/10'}`} />
-                </>
-              ) : (
-                <span className={`relative z-10 grid h-6 w-6 place-items-center rounded-lg ${categoryId === category.id ? 'bg-white/20 text-white' : 'bg-azraq-50 text-azraq-600'}`}>
-                  <Icon size={13} />
-                </span>
-              )}
-              <span className={`relative z-10 line-clamp-1 px-1 ${category.image_url ? 'rounded-md bg-white/85 text-ink' : ''}`}>{category.name}</span>
+            <button key={category.id} onClick={() => setCategoryId(category.id)} className="flex shrink-0 flex-col items-center gap-1.5">
+              <div className={`grid h-16 w-16 place-items-center overflow-hidden rounded-full border-2 shadow-sm ${active ? 'border-azraq-600' : 'border-white'}`}>
+                {category.image_url ? (
+                  <img src={category.image_url} alt={category.name} className="h-full w-full object-cover" loading="lazy" decoding="async" />
+                ) : (
+                  <div className={`grid h-full w-full place-items-center ${active ? 'bg-azraq-700 text-white' : 'bg-azraq-50 text-azraq-600'}`}>
+                    <Icon size={22} />
+                  </div>
+                )}
+              </div>
+              <span className={`max-w-[64px] truncate text-2xs font-bold ${active ? 'text-azraq-700' : 'text-slate-600'}`}>{category.name}</span>
             </button>
           );
         })}
@@ -257,14 +260,58 @@ export function CustomerHome() {
       {loading && <div className="mt-4"><CategorySkeleton /><div className="mt-4"><ProductGridSkeleton /></div></div>}
 
       {!loading && !error && (
-        <section className="mt-3">
-          <div className="mb-1.5 flex items-center justify-between">
-            <h2 className="font-display text-base font-extrabold text-ink">{categoryId === 'all' ? 'المنتجات' : 'منتجات القسم'}</h2>
-            <span className="text-2xs font-bold text-slate-500">{visibleProducts.length} منتج</span>
-          </div>
-          {productsToRender.length ? renderProductGrid(productsToRender) : <EmptyState title="مفيش منتجات دلوقتي" body="جرب تدور بكلمة تانية أو اختار قسم مختلف." />}
-          {hasMore && <div ref={sentinelRef} className="h-10" />}
-        </section>
+        <div className="mt-4 space-y-5">
+          {/* Row 1: العروض */}
+          {(() => {
+            const discounted = visibleProducts.filter((p) => p.discount_type && p.discount_type !== 'none' && (p.discount_value ?? 0) > 0);
+            if (!discounted.length) return null;
+            return (
+              <section>
+                <div className="mb-2 flex items-center justify-between">
+                  <h2 className="font-display text-base font-extrabold text-ink">🔥 العروض</h2>
+                  <span className="text-2xs font-bold text-slate-500">{discounted.length} منتج</span>
+                </div>
+                <div className="flex gap-2.5 overflow-x-auto pb-2">
+                  {discounted.slice(0, 10).map((product) => (
+                    <div key={product.id} className="w-[155px] shrink-0">
+                      <ProductCard product={product} onAdd={add} />
+                    </div>
+                  ))}
+                </div>
+              </section>
+            );
+          })()}
+
+          {/* Row 2: الأكثر مبيعًا (sorted by created_at as proxy) */}
+          <section>
+            <div className="mb-2 flex items-center justify-between">
+              <h2 className="font-display text-base font-extrabold text-ink">⭐ الأكثر مبيعًا</h2>
+              <span className="text-2xs font-bold text-slate-500">{Math.min(visibleProducts.length, 10)} منتج</span>
+            </div>
+            <div className="flex gap-2.5 overflow-x-auto pb-2">
+              {visibleProducts.slice(0, 10).map((product) => (
+                <div key={product.id} className="w-[155px] shrink-0">
+                  <ProductCard product={product} onAdd={add} />
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Row 3: الأقل سعرًا */}
+          <section>
+            <div className="mb-2 flex items-center justify-between">
+              <h2 className="font-display text-base font-extrabold text-ink">💰 الأقل سعرًا</h2>
+              <span className="text-2xs font-bold text-slate-500">{Math.min(visibleProducts.length, 10)} منتج</span>
+            </div>
+            <div className="flex gap-2.5 overflow-x-auto pb-2">
+              {[...visibleProducts].sort((a, b) => a.price - b.price).slice(0, 10).map((product) => (
+                <div key={product.id} className="w-[155px] shrink-0">
+                  <ProductCard product={product} onAdd={add} />
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
       )}
     </div>
   );
