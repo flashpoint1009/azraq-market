@@ -80,7 +80,7 @@ function WarehouseOrderCard({ order, onOpen }: { order: Order; onOpen: () => voi
             )}
           </div>
           <div className="text-left shrink-0">
-            <p className="text-xs font-bold text-slate-400">
+            <p className="text-xs font-bold text-slate-500">
               {order.order_items?.length || 0} منتجات
             </p>
             <p className="text-sm font-extrabold text-azraq-800">
@@ -91,7 +91,7 @@ function WarehouseOrderCard({ order, onOpen }: { order: Order; onOpen: () => voi
 
         {/* Address */}
         {(order.profiles?.address) && (
-          <p className="text-xs text-slate-400 truncate">
+          <p className="text-xs text-slate-500 truncate">
             📍 {order.profiles.address}
           </p>
         )}
@@ -106,7 +106,7 @@ function WarehouseOrderCard({ order, onOpen }: { order: Order; onOpen: () => voi
               </div>
             ))}
             {order.order_items.length > 3 && (
-              <p className="text-slate-400">+{order.order_items.length - 3} منتجات أخرى</p>
+              <p className="text-slate-500">+{order.order_items.length - 3} منتجات أخرى</p>
             )}
           </div>
         )}
@@ -282,7 +282,7 @@ export function WarehousePage() {
               </span>
             ) : null}
             {value === 'orders' && newOrderCount > 0 && tab !== 'orders' && (
-              <span className="absolute -top-1 -left-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white">
+              <span className="absolute -top-1 -left-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1 text-2xs font-bold text-white">
                 {newOrderCount}
               </span>
             )}
@@ -310,7 +310,7 @@ export function WarehousePage() {
                   <span className={`inline-block rounded-full border px-3 py-1 text-xs font-extrabold ${statusTone[st as Order['status']]}`}>
                     {statusLabels[st as Order['status']]}
                   </span>
-                  <span className="text-xs font-bold text-slate-400">{groupOrders.length} طلبات</span>
+                  <span className="text-xs font-bold text-slate-500">{groupOrders.length} طلبات</span>
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {groupOrders.map((order) => (
@@ -345,7 +345,7 @@ export function WarehousePage() {
             {/* Existing categories list */}
             {data?.categories && data.categories.length > 0 && (
               <div className="mt-5 space-y-2 border-t border-slate-100 pt-4">
-                <p className="text-xs font-bold text-slate-400">الأقسام الحالية</p>
+                <p className="text-xs font-bold text-slate-500">الأقسام الحالية</p>
                 {data.categories.map((cat) => (
                   <button
                     key={cat.id}
@@ -443,7 +443,7 @@ export function WarehousePage() {
           <Card className="p-0 overflow-hidden">
             <div className="px-4 py-3 border-b border-slate-100">
               <h2 className="font-display text-xl font-extrabold">الأصناف الحالية</h2>
-              <p className="text-xs text-slate-400 mt-0.5">{data?.products.length || 0} صنف</p>
+              <p className="text-xs text-slate-500 mt-0.5">{data?.products.length || 0} صنف</p>
             </div>
             <div className="divide-y divide-slate-50 max-h-[70vh] overflow-y-auto">
               {data?.products.map((product) => (
@@ -457,11 +457,11 @@ export function WarehousePage() {
                   )}
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-bold text-slate-800 truncate">{product.name}</p>
-                    <p className="text-xs text-slate-400">{product.categories?.name} - {unitLabels[product.unit_type]}</p>
+                    <p className="text-xs text-slate-500">{product.categories?.name} - {unitLabels[product.unit_type]}</p>
                   </div>
                   <div className="text-left shrink-0">
                     <p className="text-sm font-extrabold text-azraq-800">{formatCurrency(product.price)}</p>
-                    <p className={`text-xs font-bold ${product.stock_quantity === 0 ? 'text-rose-500' : 'text-slate-400'}`}>
+                    <p className={`text-xs font-bold ${product.stock_quantity === 0 ? 'text-rose-500' : 'text-slate-500'}`}>
                       {product.stock_quantity} في المخزن
                     </p>
                   </div>

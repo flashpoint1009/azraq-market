@@ -38,7 +38,7 @@ export function MapPreview({ latitude, longitude }: { latitude: number | null; l
   return (
     <div>
       <div ref={ref} className="h-56 overflow-hidden rounded-[1.5rem]">
-        {!loaded && <div className="grid h-full place-items-center text-sm text-slate-400">جاري تحميل الخريطة...</div>}
+        {!loaded && <div className="grid h-full place-items-center text-sm text-slate-500">جاري تحميل الخريطة...</div>}
       </div>
       <div className="mt-3 flex gap-2">
         <a

@@ -104,15 +104,15 @@ export function AdminAnalyticsPage() {
         <div className="grid gap-3">
           <div className="grid grid-cols-3 gap-2">
             <Card>
-              <p className="text-[10px] font-bold text-slate-400">إجمالي الإيراد</p>
+              <p className="text-2xs font-bold text-slate-500">إجمالي الإيراد</p>
               <p className="mt-1 font-display text-base font-extrabold">{formatCurrency(analytics.totalRevenue)}</p>
             </Card>
             <Card>
-              <p className="text-[10px] font-bold text-slate-400">متوسط الطلب</p>
+              <p className="text-2xs font-bold text-slate-500">متوسط الطلب</p>
               <p className="mt-1 font-display text-base font-extrabold">{formatCurrency(analytics.averageOrder)}</p>
             </Card>
             <Card>
-              <p className="text-[10px] font-bold text-slate-400">عدد الطلبات</p>
+              <p className="text-2xs font-bold text-slate-500">عدد الطلبات</p>
               <p className="mt-1 font-display text-base font-extrabold">{data?.orders.length || 0}</p>
             </Card>
           </div>

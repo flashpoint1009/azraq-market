@@ -199,12 +199,12 @@ export function AdminOffersPage() {
             <Card key={promotion.id}>
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <div className="mb-1 inline-flex items-center gap-1.5 rounded-full bg-azraq-50 px-2.5 py-0.5 text-[11px] font-extrabold text-azraq-700">
+                  <div className="mb-1 inline-flex items-center gap-1.5 rounded-full bg-azraq-50 px-2.5 py-0.5 text-xs font-extrabold text-azraq-700">
                     <Percent size={11} /> {promotion.is_active ? 'نشط' : 'متوقف'}
                   </div>
                   <h3 className="font-display text-sm font-extrabold">{promotion.title}</h3>
                   <p className="mt-0.5 text-xs font-bold text-slate-500">{describePromotion(promotion)}</p>
-                  <p className="mt-1 flex items-center gap-1 text-[11px] text-slate-400">
+                  <p className="mt-1 flex items-center gap-1 text-xs text-slate-500">
                     <CalendarDays size={11} />
                     {new Date(promotion.starts_at).toLocaleDateString('ar-EG')} - {new Date(promotion.ends_at).toLocaleDateString('ar-EG')}
                   </p>

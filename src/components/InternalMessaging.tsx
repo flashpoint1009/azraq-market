@@ -150,7 +150,7 @@ export function InternalMessaging() {
         >
           <MessageSquare size={22} />
           {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white">
+            <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-2xs font-bold text-white">
               {unreadCount}
             </span>
           )}
@@ -166,7 +166,7 @@ export function InternalMessaging() {
               <p className="text-sm font-extrabold">
                 {selectedRecipient ? selectedStaffName : 'المراسلات الداخلية'}
               </p>
-              <p className="text-[10px] text-slate-300">رسائل الفريق</p>
+              <p className="text-2xs text-slate-300">رسائل الفريق</p>
             </div>
             <div className="flex gap-1">
               {selectedRecipient && (
@@ -183,7 +183,7 @@ export function InternalMessaging() {
           {/* Staff List or Messages */}
           {!selectedRecipient ? (
             <div className="flex-1 overflow-y-auto p-2 space-y-1" dir="rtl">
-              <p className="px-2 py-1 text-[11px] font-bold text-slate-400">اختر شخص للمراسلة:</p>
+              <p className="px-2 py-1 text-xs font-bold text-slate-500">اختر شخص للمراسلة:</p>
               {staff.map((member) => (
                 <button
                   key={member.id}
@@ -195,12 +195,12 @@ export function InternalMessaging() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-xs font-bold text-ink truncate">{member.full_name || 'بدون اسم'}</p>
-                    <p className="text-[10px] text-slate-400">{member.role === 'admin' ? 'مشرف' : member.role === 'warehouse' ? 'مخزن' : 'حركة'}</p>
+                    <p className="text-2xs text-slate-500">{member.role === 'admin' ? 'مشرف' : member.role === 'warehouse' ? 'مخزن' : 'حركة'}</p>
                   </div>
                 </button>
               ))}
               {staff.length === 0 && (
-                <p className="text-center text-xs text-slate-400 py-8">لا يوجد فريق آخر</p>
+                <p className="text-center text-xs text-slate-500 py-8">لا يوجد فريق آخر</p>
               )}
             </div>
           ) : (
@@ -208,7 +208,7 @@ export function InternalMessaging() {
               {/* Messages */}
               <div className="flex-1 overflow-y-auto p-3 space-y-2" dir="rtl">
                 {messages.length === 0 && (
-                  <p className="text-center text-xs text-slate-400 py-8">ابدأ المحادثة...</p>
+                  <p className="text-center text-xs text-slate-500 py-8">ابدأ المحادثة...</p>
                 )}
                 {messages.map((msg) => {
                   const isMe = msg.sender_id === profile?.id;
@@ -222,7 +222,7 @@ export function InternalMessaging() {
                         }`}
                       >
                         <p className="whitespace-pre-wrap">{msg.content}</p>
-                        <p className={`text-[9px] mt-0.5 ${isMe ? 'text-azraq-200' : 'text-slate-400'}`}>
+                        <p className={`text-[9px] mt-0.5 ${isMe ? 'text-azraq-200' : 'text-slate-500'}`}>
                           {new Date(msg.created_at).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}
                         </p>
                       </div>

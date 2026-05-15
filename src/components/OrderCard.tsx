@@ -16,7 +16,7 @@ export function OrderCard({ order, to }: { order: Order; to?: string }) {
           <span className={`rounded-full border px-3 py-1 text-xs font-extrabold ${statusTone[order.status]}`}>{statusLabels[order.status]}</span>
         </div>
         <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
-          <span className="text-xs text-slate-400">{order.order_items?.length ?? 0} صنف</span>
+          <span className="text-xs text-slate-500">{order.order_items?.length ?? 0} صنف</span>
           <strong className="text-azraq-800">{formatCurrency(order.total_amount)}</strong>
         </div>
       </Card>

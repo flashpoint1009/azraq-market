@@ -91,7 +91,7 @@ export function PricingPage() {
             }`}
           >
             سنوي
-            <span className="mr-1.5 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+            <span className="mr-1.5 rounded-full bg-emerald-100 px-2 py-0.5 text-2xs font-bold text-emerald-700">
               وفّر 17%
             </span>
           </button>
@@ -115,7 +115,7 @@ export function PricingPage() {
               className={`relative flex flex-col overflow-hidden rounded-3xl border p-5 shadow-sm transition hover:shadow-md ${colors.border} ${colors.bg} ${isPopular ? 'ring-2 ring-azraq-400 ring-offset-2' : ''}`}
             >
               {isPopular && (
-                <div className="absolute -left-8 top-5 rotate-[-45deg] bg-azraq-700 px-10 py-1 text-[10px] font-extrabold text-white shadow-sm">
+                <div className="absolute -left-8 top-5 rotate-[-45deg] bg-azraq-700 px-10 py-1 text-2xs font-extrabold text-white shadow-sm">
                   الأكثر شيوعًا
                 </div>
               )}
@@ -138,10 +138,10 @@ export function PricingPage() {
                   <>
                     <p className="font-display text-3xl font-extrabold text-ink">
                       {perMonth.toLocaleString('ar-EG')}
-                      <span className="mr-1 text-base font-bold text-slate-400">ج.م/شهر</span>
+                      <span className="mr-1 text-base font-bold text-slate-500">ج.م/شهر</span>
                     </p>
                     {cycle === 'yearly' && (
-                      <p className="mt-1 text-xs text-slate-400">
+                      <p className="mt-1 text-xs text-slate-500">
                         يُدفع {price.toLocaleString('ar-EG')} ج.م سنويًا
                       </p>
                     )}
@@ -155,25 +155,25 @@ export function PricingPage() {
                   <p className="text-lg font-extrabold text-ink">
                     {def.limits.maxProducts === 'unlimited' ? '∞' : def.limits.maxProducts}
                   </p>
-                  <p className="text-[10px] font-bold text-slate-400">منتج</p>
+                  <p className="text-2xs font-bold text-slate-500">منتج</p>
                 </div>
                 <div className="text-center">
                   <p className="text-lg font-extrabold text-ink">
                     {def.limits.maxOrdersPerMonth === 'unlimited' ? '∞' : def.limits.maxOrdersPerMonth}
                   </p>
-                  <p className="text-[10px] font-bold text-slate-400">طلب/شهر</p>
+                  <p className="text-2xs font-bold text-slate-500">طلب/شهر</p>
                 </div>
                 <div className="text-center">
                   <p className="text-lg font-extrabold text-ink">
                     {def.limits.maxBranches === 'unlimited' ? '∞' : def.limits.maxBranches}
                   </p>
-                  <p className="text-[10px] font-bold text-slate-400">فرع</p>
+                  <p className="text-2xs font-bold text-slate-500">فرع</p>
                 </div>
                 <div className="text-center">
                   <p className="text-lg font-extrabold text-ink">
                     {def.limits.maxStaff === 'unlimited' ? '∞' : def.limits.maxStaff}
                   </p>
-                  <p className="text-[10px] font-bold text-slate-400">مستخدم</p>
+                  <p className="text-2xs font-bold text-slate-500">مستخدم</p>
                 </div>
               </div>
 

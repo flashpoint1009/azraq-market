@@ -158,7 +158,7 @@ export function ChatWidget() {
           <div className="flex items-center justify-between bg-azraq-700 px-4 py-3 text-white">
             <div>
               <p className="text-sm font-extrabold">أزرق ماركت</p>
-              <p className="text-[10px] text-azraq-200">بوت الدعم • متاح 24/7</p>
+              <p className="text-2xs text-azraq-200">بوت الدعم • متاح 24/7</p>
             </div>
             <button onClick={() => setOpen(false)} className="grid h-8 w-8 place-items-center rounded-xl bg-white/10 transition hover:bg-white/20">
               <X size={16} />
@@ -182,10 +182,10 @@ export function ChatWidget() {
                   }`}
                 >
                   {msg.sender_type === 'admin' && (
-                    <p className="text-[10px] font-bold text-emerald-600 mb-0.5">فريق الدعم</p>
+                    <p className="text-2xs font-bold text-emerald-600 mb-0.5">فريق الدعم</p>
                   )}
                   {msg.sender_type === 'bot' && (
-                    <p className="text-[10px] font-bold text-slate-400 mb-0.5">🤖 بوت</p>
+                    <p className="text-2xs font-bold text-slate-500 mb-0.5">🤖 بوت</p>
                   )}
                   <p className="whitespace-pre-wrap">{msg.content}</p>
                 </div>

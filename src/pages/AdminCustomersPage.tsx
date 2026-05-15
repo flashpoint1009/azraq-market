@@ -102,7 +102,7 @@ export function AdminCustomersPage() {
 
         <div>
           <div className="relative mb-2">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+            <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
             <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="ابحث بالاسم أو الهاتف أو العنوان" className="pr-9" />
           </div>
           {loading && <LoadingState />}
@@ -116,8 +116,8 @@ export function AdminCustomersPage() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <h3 className="truncate font-display text-sm font-extrabold text-ink">{customer.full_name || 'عميل بدون اسم'}</h3>
-                  <p className="text-[11px] font-bold text-slate-500" dir="ltr">{customer.phone || '-'}</p>
-                  <p className="truncate text-[11px] text-slate-400">{customer.address || 'لا يوجد عنوان'}</p>
+                  <p className="text-xs font-bold text-slate-500" dir="ltr">{customer.phone || '-'}</p>
+                  <p className="truncate text-xs text-slate-500">{customer.address || 'لا يوجد عنوان'}</p>
                 </div>
                 <button onClick={() => startEdit(customer)} className="shrink-0 rounded-xl bg-azraq-50 px-2.5 py-1.5 text-xs font-extrabold text-azraq-700">
                   تعديل

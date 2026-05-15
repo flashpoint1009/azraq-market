@@ -166,13 +166,13 @@ export function AdminUsersPage() {
             <Card key={profile.id} className="flex items-center justify-between gap-2">
               <div className="min-w-0 flex-1">
                 <h3 className="truncate font-display text-sm font-extrabold">{profile.full_name || 'بدون اسم'}</h3>
-                <p className="text-xs text-slate-400" dir="ltr">{profile.phone}</p>
+                <p className="text-xs text-slate-500" dir="ltr">{profile.phone}</p>
                 {profile.role === 'admin' && profile.app_permissions?.length ? (
-                  <p className="mt-0.5 truncate text-[10px] font-bold text-slate-400">{profile.app_permissions.map((p) => permissionLabels[p as PermissionKey]).join(' · ')}</p>
+                  <p className="mt-0.5 truncate text-2xs font-bold text-slate-500">{profile.app_permissions.map((p) => permissionLabels[p as PermissionKey]).join(' · ')}</p>
                 ) : null}
               </div>
               <div className="flex shrink-0 items-center gap-1.5">
-                <span className="rounded-full bg-azraq-50 px-2 py-0.5 text-[10px] font-extrabold text-azraq-700">{profile.role === 'admin' ? accountTypeLabels[accountTypeForProfile(profile)] : roleLabels[profile.role]}</span>
+                <span className="rounded-full bg-azraq-50 px-2 py-0.5 text-2xs font-extrabold text-azraq-700">{profile.role === 'admin' ? accountTypeLabels[accountTypeForProfile(profile)] : roleLabels[profile.role]}</span>
                 <button type="button" onClick={() => startEdit(profile)} className="rounded-xl bg-slate-100 px-2.5 py-1.5 text-xs font-bold text-azraq-700">تعديل</button>
               </div>
             </Card>

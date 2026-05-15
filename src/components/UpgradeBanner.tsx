@@ -138,7 +138,7 @@ export function UpgradeBadge({ feature }: { feature: FeatureKey }) {
   return (
     <Link
       to="/admin/billing"
-      className="inline-flex items-center gap-1 rounded-full bg-gradient-to-l from-amber-100 to-orange-100 px-2.5 py-1 text-[10px] font-extrabold text-amber-700 transition hover:shadow-sm"
+      className="inline-flex items-center gap-1 rounded-full bg-gradient-to-l from-amber-100 to-orange-100 px-2.5 py-1 text-2xs font-extrabold text-amber-700 transition hover:shadow-sm"
       title={`${featureLabel} — ارقِ خطتك`}
     >
       <Crown size={10} />

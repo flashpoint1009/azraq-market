@@ -123,8 +123,8 @@ export function AdminProductsPage() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <h3 className="truncate font-display text-sm font-extrabold">{product.name}</h3>
-                  <p className="truncate text-[11px] text-slate-500">{product.categories?.name || 'بدون قسم'} · {formatCurrency(product.price)} / {unitLabels[product.unit_type]}</p>
-                  <p className={`text-[11px] font-bold ${(product.is_available && (product.stock_quantity == null || product.stock_quantity > 0)) ? 'text-emerald-600' : 'text-rose-600'}`}>
+                  <p className="truncate text-xs text-slate-500">{product.categories?.name || 'بدون قسم'} · {formatCurrency(product.price)} / {unitLabels[product.unit_type]}</p>
+                  <p className={`text-xs font-bold ${(product.is_available && (product.stock_quantity == null || product.stock_quantity > 0)) ? 'text-emerald-600' : 'text-rose-600'}`}>
                     مخزون: {product.stock_quantity ?? 0} · {(product.is_available && (product.stock_quantity == null || product.stock_quantity > 0)) ? 'متاح' : 'غير متاح'}
                   </p>
                 </div>

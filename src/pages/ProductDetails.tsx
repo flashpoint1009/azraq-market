@@ -112,10 +112,10 @@ export function ProductDetails() {
         <div className="bg-white p-3">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-[11px] font-bold text-slate-400">{product.categories?.name || 'تفاصيل المنتج'}</p>
+              <p className="text-xs font-bold text-slate-500">{product.categories?.name || 'تفاصيل المنتج'}</p>
               <h1 className="mt-0.5 font-display text-lg font-extrabold leading-6 text-ink">{product.name}</h1>
             </div>
-            <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-extrabold ${canBuy ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}`}>
+            <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-extrabold ${canBuy ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}`}>
               {canBuy ? 'متوفر' : 'غير متاح'}
             </span>
           </div>
@@ -132,7 +132,7 @@ export function ProductDetails() {
           <div className="mt-2 flex items-center justify-between rounded-xl bg-[#F4FAFF] px-3 py-2">
             <div>
               <p className="font-display text-xl font-extrabold text-azraq-900">{formatCurrency(product.price)}</p>
-              <p className="text-[11px] font-bold text-slate-500">{unitLabels[product.unit_type]}</p>
+              <p className="text-xs font-bold text-slate-500">{unitLabels[product.unit_type]}</p>
             </div>
           </div>
 
@@ -203,7 +203,7 @@ export function ProductDetails() {
         )}
 
         {!reviewsLoading && reviews && reviews.length === 0 && (
-          <div className="rounded-2xl border border-slate-100 bg-white px-4 py-3 text-center text-xs font-bold text-slate-400">
+          <div className="rounded-2xl border border-slate-100 bg-white px-4 py-3 text-center text-xs font-bold text-slate-500">
             لا توجد تقييمات — كن أول من يقيّم المنتج!
           </div>
         )}
@@ -216,7 +216,7 @@ export function ProductDetails() {
                 <StarRating value={review.rating} size={13} />
               </div>
               {review.comment && <p className="mt-1 text-xs leading-5 text-slate-600">{review.comment}</p>}
-              <p className="mt-1 text-[10px] font-bold text-slate-400">{new Date(review.created_at).toLocaleDateString('ar-EG')}</p>
+              <p className="mt-1 text-2xs font-bold text-slate-500">{new Date(review.created_at).toLocaleDateString('ar-EG')}</p>
             </div>
           ))}
         </div>

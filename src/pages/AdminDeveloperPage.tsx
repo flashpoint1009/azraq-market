@@ -275,7 +275,7 @@ function SectionHeader({ icon, title, subtitle, color = 'bg-azraq-50 text-azraq-
       <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${color}`}>{icon}</div>
       <div>
         <h2 className="font-display text-sm font-extrabold text-ink sm:text-base">{title}</h2>
-        <p className="text-[11px] leading-5 text-slate-500">{subtitle}</p>
+        <p className="text-xs leading-5 text-slate-500">{subtitle}</p>
       </div>
     </div>
   );
@@ -284,14 +284,14 @@ function SectionHeader({ icon, title, subtitle, color = 'bg-azraq-50 text-azraq-
 function DeveloperHeader() {
   return (
     <div className="mb-3 overflow-hidden rounded-2xl border border-white/80 bg-gradient-to-br from-azraq-700 via-azraq-800 to-azraq-950 p-4 text-white shadow-soft">
-      <p className="text-[10px] font-extrabold text-azraq-300">لوحة التحكم الكاملة</p>
+      <p className="text-2xs font-extrabold text-azraq-300">لوحة التحكم الكاملة</p>
       <h1 className="mt-0.5 font-display text-lg font-extrabold sm:text-2xl">لوحة المطور</h1>
       <p className="mt-1 text-xs leading-5 text-azraq-200">
         تحكم كامل في هوية المشروع، إعداداته، بياناته، صلاحيات الفريق، وتصدير التقارير.
       </p>
       <div className="mt-3 flex flex-wrap gap-1.5">
         {['هوية المشروع', 'تقارير Excel', 'فيتشر فلاجز', 'صلاحيات الفريق', 'مصنع التقارير', 'قاعدة البيانات'].map((label) => (
-          <span key={label} className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-bold text-white">
+          <span key={label} className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 text-2xs font-bold text-white">
             <CheckCircle2 size={10} />
             {label}
           </span>
@@ -392,7 +392,7 @@ function DeveloperSettingsCard() {
                 <label key={key} className="rounded-2xl bg-white p-3 text-xs font-bold text-slate-600">
                   {settingsFields.find((field) => field.key === key)?.label}
                   <div className="mt-2 grid grid-cols-[1fr_42px] items-center gap-2">
-                    <Input value={form[key] || ''} onChange={(event) => setForm({ ...form, [key]: event.target.value })} dir="ltr" className="px-2 py-2 text-[11px]" />
+                    <Input value={form[key] || ''} onChange={(event) => setForm({ ...form, [key]: event.target.value })} dir="ltr" className="px-2 py-2 text-xs" />
                     <input type="color" value={form[key] || '#0f78d2'} onChange={(event) => setForm({ ...form, [key]: event.target.value })} className="h-10 w-[42px] rounded-xl border border-slate-200 bg-white p-1" />
                   </div>
                 </label>
@@ -579,19 +579,19 @@ function PermissionsManagerCard() {
               >
                 <div className="min-w-0">
                   <p className="font-extrabold text-ink">{profile.full_name || 'بدون اسم'}</p>
-                  <p className="text-xs font-bold text-slate-400" dir="ltr">{profile.phone}</p>
+                  <p className="text-xs font-bold text-slate-500" dir="ltr">{profile.phone}</p>
                   <div className="mt-1 flex flex-wrap gap-1">
                     {isDeveloper ? (
-                      <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-bold text-indigo-700">مطور</span>
+                      <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-2xs font-bold text-indigo-700">مطور</span>
                     ) : currentPerms.length === 0 ? (
-                      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-500">بدون صلاحيات</span>
+                      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-2xs font-bold text-slate-500">بدون صلاحيات</span>
                     ) : currentPerms.slice(0, 3).map((perm) => (
-                      <span key={perm} className="rounded-full bg-azraq-50 px-2 py-0.5 text-[10px] font-bold text-azraq-700">{permissionLabels[perm]}</span>
+                      <span key={perm} className="rounded-full bg-azraq-50 px-2 py-0.5 text-2xs font-bold text-azraq-700">{permissionLabels[perm]}</span>
                     ))}
-                    {currentPerms.length > 3 && <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-500">+{currentPerms.length - 3}</span>}
+                    {currentPerms.length > 3 && <span className="rounded-full bg-slate-100 px-2 py-0.5 text-2xs font-bold text-slate-500">+{currentPerms.length - 3}</span>}
                   </div>
                 </div>
-                {isOpen ? <ChevronUp size={18} className="text-slate-400 shrink-0" /> : <ChevronDown size={18} className="text-slate-400 shrink-0" />}
+                {isOpen ? <ChevronUp size={18} className="text-slate-500 shrink-0" /> : <ChevronDown size={18} className="text-slate-500 shrink-0" />}
               </button>
               {isOpen && !isDeveloper && (
                 <div className="border-t border-slate-100 p-4">
@@ -736,7 +736,7 @@ function DeveloperReportsCard() {
               <p className="mt-2 text-xs font-bold text-azraq-700">{report.allowed_permissions?.join(' - ') || '-'}</p>
             </div>
           ))}
-          {!data?.length && <p className="p-3 text-sm font-bold text-slate-400">لا توجد تقارير حتى الآن.</p>}
+          {!data?.length && <p className="p-3 text-sm font-bold text-slate-500">لا توجد تقارير حتى الآن.</p>}
         </div>
       )}
     </Card>
@@ -813,7 +813,7 @@ function DataBrowserCard() {
                 <div className="grid gap-1">
                   {columns.slice(0, 5).map((column) => (
                     <div key={column} className="flex items-start justify-between gap-3 border-b border-slate-50 py-1 last:border-b-0">
-                      <span className="text-xs font-extrabold text-slate-400">{column}</span>
+                      <span className="text-xs font-extrabold text-slate-500">{column}</span>
                       <span className="max-w-[58%] break-words text-left text-xs font-bold text-slate-700">{shortValue(row[column])}</span>
                     </div>
                   ))}
@@ -824,7 +824,7 @@ function DataBrowserCard() {
                 </div>
               </div>
             ))}
-            {!data?.length && <p className="p-4 text-sm font-bold text-slate-400">لا توجد بيانات.</p>}
+            {!data?.length && <p className="p-4 text-sm font-bold text-slate-500">لا توجد بيانات.</p>}
           </div>
           <div className="hidden overflow-x-auto rounded-2xl border border-slate-100 md:block">
             <table className="w-full min-w-[780px] text-sm">
@@ -843,7 +843,7 @@ function DataBrowserCard() {
                 ))}
               </tbody>
             </table>
-            {!data?.length && <p className="p-4 text-sm font-bold text-slate-400">لا توجد بيانات.</p>}
+            {!data?.length && <p className="p-4 text-sm font-bold text-slate-500">لا توجد بيانات.</p>}
           </div>
         </div>
       )}

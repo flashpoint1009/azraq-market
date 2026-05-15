@@ -183,7 +183,7 @@ export function CartPage() {
     <form onSubmit={submit} className="pb-24">
       <div className="mb-3">
         <h1 className="font-display text-2xl font-extrabold text-ink">طلبك</h1>
-        <p className="text-xs font-bold text-slate-400">{count} أصناف في الطلب</p>
+        <p className="text-xs font-bold text-slate-500">{count} أصناف في الطلب</p>
       </div>
 
       <div className="grid gap-3 lg:grid-cols-[1fr_360px]">
@@ -224,7 +224,7 @@ export function CartPage() {
             ) : (
               <div className="grid grid-cols-[1fr_auto] gap-2">
                 <div className="relative">
-                  <Tag size={15} className="absolute right-3 top-3.5 text-slate-400" />
+                  <Tag size={15} className="absolute right-3 top-3.5 text-slate-500" />
                   <Input
                     value={couponCode}
                     onChange={(event) => { setCouponCode(event.target.value); setCouponError(''); }}

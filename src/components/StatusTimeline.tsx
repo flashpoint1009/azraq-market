@@ -40,19 +40,19 @@ export function StatusTimeline({ status, history = [] }: { status: OrderStatus; 
               key={item}
               className={`flex items-center gap-3 rounded-xl px-3 py-2.5 transition ${active ? 'bg-azraq-50 border border-azraq-100' : 'bg-slate-50 border border-transparent'}`}
             >
-              <div className={`grid h-8 w-8 shrink-0 place-items-center rounded-xl ${active ? 'bg-azraq-700 text-white' : 'bg-slate-200 text-slate-400'}`}>
+              <div className={`grid h-8 w-8 shrink-0 place-items-center rounded-xl ${active ? 'bg-azraq-700 text-white' : 'bg-slate-200 text-slate-500'}`}>
                 <Icon size={15} />
               </div>
               <div className="min-w-0 flex-1">
-                <p className={`text-xs font-extrabold ${active ? 'text-azraq-900' : 'text-slate-400'}`}>{statusLabels[item]}</p>
+                <p className={`text-xs font-extrabold ${active ? 'text-azraq-900' : 'text-slate-500'}`}>{statusLabels[item]}</p>
                 {historyItem ? (
-                  <p className="text-[10px] text-slate-400">{formatDate(historyItem.created_at)}</p>
+                  <p className="text-2xs text-slate-500">{formatDate(historyItem.created_at)}</p>
                 ) : active ? (
-                  <p className="text-[10px] text-azraq-400">الحالة الحالية</p>
+                  <p className="text-2xs text-azraq-400">الحالة الحالية</p>
                 ) : null}
               </div>
               {isCurrent && (
-                <span className="shrink-0 rounded-full bg-azraq-700 px-2 py-0.5 text-[10px] font-extrabold text-white">الآن</span>
+                <span className="shrink-0 rounded-full bg-azraq-700 px-2 py-0.5 text-2xs font-extrabold text-white">الآن</span>
               )}
             </div>
           );
@@ -66,12 +66,12 @@ export function StatusTimeline({ status, history = [] }: { status: OrderStatus; 
           const Icon = timelineIcons[item] || Circle;
           const historyItem = history.find((entry) => entry.status === item);
           return (
-            <div key={item} className={`relative overflow-hidden rounded-2xl border p-3 transition ${active ? 'border-azraq-100 bg-gradient-to-br from-azraq-50 to-white text-azraq-900 shadow-sm' : 'border-slate-100 bg-white text-slate-400'}`}>
-              <div className={`grid h-9 w-9 place-items-center rounded-xl ${active ? 'bg-azraq-700 text-white' : 'bg-slate-100 text-slate-400'}`}>
+            <div key={item} className={`relative overflow-hidden rounded-2xl border p-3 transition ${active ? 'border-azraq-100 bg-gradient-to-br from-azraq-50 to-white text-azraq-900 shadow-sm' : 'border-slate-100 bg-white text-slate-500'}`}>
+              <div className={`grid h-9 w-9 place-items-center rounded-xl ${active ? 'bg-azraq-700 text-white' : 'bg-slate-100 text-slate-500'}`}>
                 <Icon size={17} />
               </div>
               <p className="mt-2 text-xs font-extrabold">{statusLabels[item]}</p>
-              <p className="mt-0.5 text-[10px] leading-4 text-slate-400">{historyItem ? formatDate(historyItem.created_at) : active ? 'اتحدث' : 'مستني'}</p>
+              <p className="mt-0.5 text-2xs leading-4 text-slate-500">{historyItem ? formatDate(historyItem.created_at) : active ? 'اتحدث' : 'مستني'}</p>
               {active && <div className="absolute -left-6 -top-6 h-14 w-14 rounded-full bg-azraq-200/30" />}
             </div>
           );

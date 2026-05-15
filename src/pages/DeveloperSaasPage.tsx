@@ -15,7 +15,7 @@ function SectionHeader({ icon, title, subtitle, color = 'bg-azraq-50 text-azraq-
       <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${color}`}>{icon}</div>
       <div>
         <h2 className="font-display text-sm font-extrabold text-ink sm:text-base">{title}</h2>
-        <p className="text-[11px] leading-5 text-slate-500">{subtitle}</p>
+        <p className="text-xs leading-5 text-slate-500">{subtitle}</p>
       </div>
     </div>
   );
@@ -87,7 +87,7 @@ function TypographySection() {
                   className="py-1.5 text-xs"
                   dir="ltr"
                 />
-                <span className="text-[10px] text-slate-400 font-mono hidden sm:block" style={{ [row.css_variable?.includes('size') ? 'fontSize' : 'fontWeight']: form[row.key] || row.value }}>
+                <span className="text-2xs text-slate-500 font-mono hidden sm:block" style={{ [row.css_variable?.includes('size') ? 'fontSize' : 'fontWeight']: form[row.key] || row.value }}>
                   معاينة
                 </span>
               </div>
@@ -166,7 +166,7 @@ function LabelsSection() {
           <div className="grid gap-2 max-h-[400px] overflow-y-auto">
             {filtered.map((row) => (
               <div key={row.key} className="grid grid-cols-[0.8fr_1fr_auto] items-center gap-2 rounded-xl bg-slate-50 p-2">
-                <span className="text-[11px] font-bold text-slate-500 truncate font-mono" dir="ltr">{row.key}</span>
+                <span className="text-xs font-bold text-slate-500 truncate font-mono" dir="ltr">{row.key}</span>
                 <Input
                   value={form[row.key] ?? ''}
                   onChange={(e) => setForm({ ...form, [row.key]: e.target.value })}
@@ -175,7 +175,7 @@ function LabelsSection() {
                 <button
                   type="button"
                   onClick={() => resetToDefault(row.key, row.default_value)}
-                  className="text-[10px] font-bold text-azraq-600 hover:text-azraq-800 whitespace-nowrap"
+                  className="text-2xs font-bold text-azraq-600 hover:text-azraq-800 whitespace-nowrap"
                   title="إعادة للافتراضي"
                 >
                   ↺
@@ -262,13 +262,13 @@ function PlansSection() {
                   <>
                     <div className="flex items-center justify-between mb-2">
                       <h3 className="font-extrabold text-sm text-ink">{plan.name_ar}</h3>
-                      {plan.badge_text && <span className="rounded-full bg-azraq-100 px-2 py-0.5 text-[10px] font-bold text-azraq-700">{plan.badge_text}</span>}
+                      {plan.badge_text && <span className="rounded-full bg-azraq-100 px-2 py-0.5 text-2xs font-bold text-azraq-700">{plan.badge_text}</span>}
                     </div>
                     <p className="text-xs text-slate-500 mb-1">{plan.price_monthly} {plan.currency}/شهري • {plan.price_yearly} {plan.currency}/سنوي</p>
-                    <p className="text-[10px] text-slate-400 mb-2">{plan.features.slice(0, 3).join(' • ')}{plan.features.length > 3 ? ` +${plan.features.length - 3}` : ''}</p>
+                    <p className="text-2xs text-slate-500 mb-2">{plan.features.slice(0, 3).join(' • ')}{plan.features.length > 3 ? ` +${plan.features.length - 3}` : ''}</p>
                     <div className="flex gap-2">
                       <button type="button" onClick={() => startEdit(plan)} className="text-xs font-bold text-azraq-700 hover:underline">تعديل</button>
-                      <span className={`text-[10px] font-bold ${plan.is_active ? 'text-emerald-600' : 'text-slate-400'}`}>{plan.is_active ? 'نشط' : 'متوقف'}</span>
+                      <span className={`text-2xs font-bold ${plan.is_active ? 'text-emerald-600' : 'text-slate-500'}`}>{plan.is_active ? 'نشط' : 'متوقف'}</span>
                     </div>
                   </>
                 ) : (
@@ -353,17 +353,17 @@ function AuditLogSection() {
                   <tr key={row.id} className="hover:bg-slate-50/50">
                     <td className="p-2 font-bold text-ink">{row.profiles?.full_name || 'نظام'}</td>
                     <td className="p-2">
-                      <span className="rounded-full bg-azraq-50 px-2 py-0.5 text-[10px] font-bold text-azraq-700">
+                      <span className="rounded-full bg-azraq-50 px-2 py-0.5 text-2xs font-bold text-azraq-700">
                         {auditActionLabels[row.action] || row.action}
                       </span>
                     </td>
                     <td className="p-2 text-slate-500">{auditEntityLabels[row.entity_type] || row.entity_type}</td>
-                    <td className="p-2 text-slate-400 hidden sm:table-cell" dir="ltr">{formatTime(row.created_at)}</td>
+                    <td className="p-2 text-slate-500 hidden sm:table-cell" dir="ltr">{formatTime(row.created_at)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            {filtered.length === 0 && <p className="p-4 text-center text-xs text-slate-400">لا توجد سجلات</p>}
+            {filtered.length === 0 && <p className="p-4 text-center text-xs text-slate-500">لا توجد سجلات</p>}
           </div>
         </div>
       )}
@@ -429,7 +429,7 @@ function CustomCSSSection() {
               <input type="checkbox" checked={isActive} onChange={handleToggle} className="accent-azraq-700" />
               {isActive ? 'مفعّل' : 'متوقف'}
             </label>
-            <span className="text-[10px] text-slate-400">التغييرات تظهر فورًا عند التفعيل</span>
+            <span className="text-2xs text-slate-500">التغييرات تظهر فورًا عند التفعيل</span>
           </div>
           <Textarea
             value={css}
@@ -542,7 +542,7 @@ function SnapshotsSection() {
                 <div key={snap.id} className="flex items-center justify-between gap-3 rounded-xl bg-slate-50 p-3">
                   <div className="min-w-0">
                     <p className="text-xs font-bold text-ink truncate">{snap.title}</p>
-                    <p className="text-[10px] text-slate-400">
+                    <p className="text-2xs text-slate-500">
                       {snap.profiles?.full_name || 'نظام'} • {new Date(snap.created_at).toLocaleDateString('ar-EG', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </p>
                   </div>
@@ -558,7 +558,7 @@ function SnapshotsSection() {
               ))}
             </div>
           )}
-          {data?.length === 0 && <p className="text-center text-xs text-slate-400 py-4">لا توجد نسخ احتياطية بعد</p>}
+          {data?.length === 0 && <p className="text-center text-xs text-slate-500 py-4">لا توجد نسخ احتياطية بعد</p>}
         </div>
       )}
     </Card>
@@ -573,14 +573,14 @@ export function DeveloperSaasPage() {
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white p-3 sm:p-4" dir="rtl">
       {/* Header */}
       <div className="mb-4 overflow-hidden rounded-2xl border border-white/80 bg-gradient-to-br from-azraq-700 via-azraq-800 to-azraq-950 p-4 text-white shadow-soft">
-        <p className="text-[10px] font-extrabold text-azraq-300">SaaS Control Panel</p>
+        <p className="text-2xs font-extrabold text-azraq-300">SaaS Control Panel</p>
         <h1 className="mt-0.5 font-display text-lg font-extrabold sm:text-2xl">لوحة تحكم المطور الكاملة</h1>
         <p className="mt-1 text-xs leading-5 text-azraq-200">
           تحكم مطلق في الخطوط، النصوص، الخطط، سجل التغييرات، التصميم المخصص، والنسخ الاحتياطي.
         </p>
         <div className="mt-3 flex flex-wrap gap-1.5">
           {['الخطوط', 'النصوص', 'الخطط', 'سجل التغييرات', 'CSS مخصص', 'نسخ احتياطي'].map((label) => (
-            <span key={label} className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-bold text-white">
+            <span key={label} className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 text-2xs font-bold text-white">
               <Palette size={10} />
               {label}
             </span>

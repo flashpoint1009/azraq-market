@@ -48,7 +48,7 @@ function AdminAnnouncementCard() {
   return (
     <Card className="p-3">
       <h2 className="mb-1 font-display text-base font-extrabold">إعلان العملاء</h2>
-      <p className="mb-3 text-[11px] text-slate-500">رسالة تظهر للعميل أول ما يفتح التطبيق.</p>
+      <p className="mb-3 text-xs text-slate-500">رسالة تظهر للعميل أول ما يفتح التطبيق.</p>
       {loading && <LoadingState label="بنحمّل الإعلان..." />}
       {error && <ErrorState message="جدول الإعلانات لسه مش متفعل." />}
       {!loading && (
@@ -134,7 +134,7 @@ export function AdminDashboard() {
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {orderCards.map(({ label, value, color }) => (
               <div key={label} className="rounded-2xl border border-white/80 bg-white p-3 shadow-sm">
-                <p className="text-[11px] font-bold text-slate-400 leading-4">{label}</p>
+                <p className="text-xs font-bold text-slate-500 leading-4">{label}</p>
                 <p className={`mt-1 break-words font-display text-xl font-extrabold sm:text-2xl ${color}`}>{value}</p>
               </div>
             ))}
@@ -144,7 +144,7 @@ export function AdminDashboard() {
           <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
             {stockCards.map(({ label, value }) => (
               <div key={label} className="rounded-2xl border border-white/80 bg-white p-3 shadow-sm">
-                <p className="text-[11px] font-bold text-slate-400">{label}</p>
+                <p className="text-xs font-bold text-slate-500">{label}</p>
                 <p className="mt-1 break-words font-display text-xl font-extrabold text-ink sm:text-2xl">{value}</p>
               </div>
             ))}

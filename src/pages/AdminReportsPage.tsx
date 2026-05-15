@@ -105,7 +105,7 @@ export function AdminReportsPage() {
             </div>
             <div>
               <h2 className="font-display text-lg font-extrabold text-ink">مركز التقارير</h2>
-              <p className="text-xs font-bold text-slate-400">اختار التقرير — اطبعه أو صدّره Excel.</p>
+              <p className="text-xs font-bold text-slate-500">اختار التقرير — اطبعه أو صدّره Excel.</p>
             </div>
           </div>
           <div className="no-print flex flex-wrap gap-2">
@@ -157,14 +157,14 @@ export function AdminReportsPage() {
                 <div className="mb-3 hidden print:block">
                   <h1 className="text-xl font-bold">{selectedReport?.title}</h1>
                   <p className="text-xs text-slate-500">{selectedReport?.description}</p>
-                  <p className="text-xs text-slate-400 mt-1">تاريخ التصدير: {new Date().toLocaleDateString('ar-EG')}</p>
+                  <p className="text-xs text-slate-500 mt-1">تاريخ التصدير: {new Date().toLocaleDateString('ar-EG')}</p>
                 </div>
 
                 <div className="overflow-x-auto rounded-xl border border-slate-100 bg-white">
                   <table className="w-full text-xs">
                     <thead className="bg-slate-50 text-right font-extrabold text-slate-500">
                       <tr>
-                        <th className="px-2 py-2.5 text-slate-400 w-8">#</th>
+                        <th className="px-2 py-2.5 text-slate-500 w-8">#</th>
                         {fields.map((field) => (
                           <th key={field} className="px-2 py-2.5 max-w-[160px]">
                             {field.replace(/_/g, ' ')}
@@ -175,7 +175,7 @@ export function AdminReportsPage() {
                     <tbody>
                       {rows?.map((row, index) => (
                         <tr key={index} className="border-t border-slate-100 hover:bg-slate-50">
-                          <td className="px-2 py-2 text-slate-400 w-8">{index + 1}</td>
+                          <td className="px-2 py-2 text-slate-500 w-8">{index + 1}</td>
                           {fields.map((field) => (
                             <td key={field} className="max-w-[160px] truncate px-2 py-2 text-slate-600">
                               {valueText(row[field])}
@@ -187,14 +187,14 @@ export function AdminReportsPage() {
                     {!!rows?.length && (
                       <tfoot className="bg-slate-50">
                         <tr>
-                          <td colSpan={fields.length + 1} className="px-2 py-2 text-xs font-bold text-slate-400">
+                          <td colSpan={fields.length + 1} className="px-2 py-2 text-xs font-bold text-slate-500">
                             إجمالي: {rows.length} سطر
                           </td>
                         </tr>
                       </tfoot>
                     )}
                   </table>
-                  {!rows?.length && <p className="p-4 text-center text-xs font-bold text-slate-400">لا توجد بيانات في هذا التقرير.</p>}
+                  {!rows?.length && <p className="p-4 text-center text-xs font-bold text-slate-500">لا توجد بيانات في هذا التقرير.</p>}
                 </div>
               </div>
             )}

@@ -165,7 +165,7 @@ export function AdminCategoriesPage() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <h3 className="font-display text-sm font-extrabold">{category.name}</h3>
-                  <p className="text-[11px] text-slate-500">ترتيب: {category.sort_order} · {category.is_active === false ? 'متوقف' : 'شغال'}</p>
+                  <p className="text-xs text-slate-500">ترتيب: {category.sort_order} · {category.is_active === false ? 'متوقف' : 'شغال'}</p>
                 </div>
                 <div className="flex shrink-0 gap-1.5">
                   <button type="button" onClick={() => startCategoryEdit(category)} className="rounded-xl bg-azraq-50 px-2.5 py-1.5 text-xs font-bold text-azraq-800">تعديل</button>
@@ -179,11 +179,11 @@ export function AdminCategoriesPage() {
                     <div key={subcategory.id} className="flex items-center justify-between gap-2 rounded-xl bg-slate-50 px-3 py-2">
                       <div>
                         <p className="text-xs font-extrabold text-slate-700">{subcategory.name}</p>
-                        <p className="text-[10px] font-bold text-slate-400">ترتيب: {subcategory.sort_order} · {subcategory.is_active === false ? 'متوقف' : 'شغال'}</p>
+                        <p className="text-2xs font-bold text-slate-500">ترتيب: {subcategory.sort_order} · {subcategory.is_active === false ? 'متوقف' : 'شغال'}</p>
                       </div>
                       <div className="flex gap-1.5">
-                        <button type="button" onClick={() => startSubcategoryEdit(subcategory)} className="rounded-xl bg-white px-2 py-1 text-[11px] font-bold text-azraq-800">تعديل</button>
-                        <button type="button" onClick={() => removeSubcategory(subcategory)} className="rounded-xl bg-rose-50 px-2 py-1 text-[11px] font-bold text-rose-700">حذف</button>
+                        <button type="button" onClick={() => startSubcategoryEdit(subcategory)} className="rounded-xl bg-white px-2 py-1 text-xs font-bold text-azraq-800">تعديل</button>
+                        <button type="button" onClick={() => removeSubcategory(subcategory)} className="rounded-xl bg-rose-50 px-2 py-1 text-xs font-bold text-rose-700">حذف</button>
                       </div>
                     </div>
                   ))}

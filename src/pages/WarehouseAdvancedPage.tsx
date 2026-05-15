@@ -127,7 +127,7 @@ function MovementsTab() {
         <div className="space-y-2">
           {movements.map((m) => (
             <div key={m.id} className="flex items-center gap-2 rounded-xl border border-slate-100 bg-slate-50/50 p-2 text-xs">
-              <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-bold ${movementTypeColors[m.movement_type]}`}>
+              <span className={`shrink-0 rounded-full border px-2 py-0.5 text-2xs font-bold ${movementTypeColors[m.movement_type]}`}>
                 {movementTypeLabels[m.movement_type]}
               </span>
               <div className="min-w-0 flex-1">
@@ -138,9 +138,9 @@ function MovementsTab() {
                 <p className={`font-extrabold ${m.quantity > 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
                   {m.quantity > 0 ? `+${m.quantity}` : m.quantity}
                 </p>
-                <p className="text-[10px] text-slate-400">{m.profiles?.full_name || '—'}</p>
+                <p className="text-2xs text-slate-500">{m.profiles?.full_name || '—'}</p>
               </div>
-              <p className="shrink-0 text-[10px] text-slate-400">{new Date(m.created_at).toLocaleDateString('ar')}</p>
+              <p className="shrink-0 text-2xs text-slate-500">{new Date(m.created_at).toLocaleDateString('ar')}</p>
             </div>
           ))}
         </div>
@@ -216,11 +216,11 @@ function StocktakeTab({ actorId }: { actorId: string | null }) {
             {stocktakes.map((st) => (
               <div key={st.id} className="rounded-xl border border-slate-100 bg-slate-50/50 p-2">
                 <div className="flex items-center gap-2 text-xs" onClick={() => setExpandedId(expandedId === st.id ? null : st.id)}>
-                  <span className="rounded-full border border-azraq-200 bg-azraq-50 px-2 py-0.5 text-[10px] font-bold text-azraq-700">
+                  <span className="rounded-full border border-azraq-200 bg-azraq-50 px-2 py-0.5 text-2xs font-bold text-azraq-700">
                     {stocktakeStatusLabels[st.status]}
                   </span>
                   <span className="flex-1 font-bold text-ink">{st.title}</span>
-                  <span className="text-[10px] text-slate-400">{st.total_items} منتج</span>
+                  <span className="text-2xs text-slate-500">{st.total_items} منتج</span>
                 </div>
                 {expandedId === st.id && (
                   <StocktakeItemsList stocktakeId={st.id} status={st.status} onComplete={() => handleComplete(st.id)} />
@@ -262,7 +262,7 @@ function StocktakeItemsList({ stocktakeId, status, onComplete }: { stocktakeId: 
       {items?.map((item) => (
         <div key={item.id} className="flex items-center gap-2 text-xs">
           <span className="flex-1 truncate font-medium text-ink">{item.products?.name || '—'}</span>
-          <span className="text-slate-400">نظام: {item.system_quantity}</span>
+          <span className="text-slate-500">نظام: {item.system_quantity}</span>
           <Input
             type="number"
             placeholder="الفعلي"
@@ -319,11 +319,11 @@ function LowStockTab({ actorId }: { actorId: string | null }) {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-xs font-bold text-ink">{p.name}</p>
-                <p className="text-[10px] text-rose-600">
+                <p className="text-2xs text-rose-600">
                   المتبقي: {p.stock_quantity} / الحد الأدنى: {p.min_stock_level ?? 5}
                 </p>
               </div>
-              <Button onClick={() => handleRestock(p.id, p.name)} className="shrink-0 text-[10px] !px-2 !py-1">
+              <Button onClick={() => handleRestock(p.id, p.name)} className="shrink-0 text-2xs !px-2 !py-1">
                 <Plus size={12} /> أضف كمية
               </Button>
             </div>
@@ -371,17 +371,17 @@ function ReturnsTab({ actorId }: { actorId: string | null }) {
           {returns.map((r) => (
             <div key={r.id} className="rounded-xl border border-slate-100 bg-slate-50/50 p-2 text-xs">
               <div className="flex items-center gap-2">
-                <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700">
+                <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-2xs font-bold text-amber-700">
                   {returnStatusLabels[r.status]}
                 </span>
                 <span className="flex-1 font-bold text-ink">{r.profiles?.full_name || 'عميل'}</span>
-                <span className="text-[10px] text-slate-400">{new Date(r.created_at).toLocaleDateString('ar')}</span>
+                <span className="text-2xs text-slate-500">{new Date(r.created_at).toLocaleDateString('ar')}</span>
               </div>
               <p className="mt-1 text-slate-600">{r.reason}</p>
               {r.customer_return_items && r.customer_return_items.length > 0 && (
                 <div className="mt-1 flex flex-wrap gap-1">
                   {r.customer_return_items.map((item) => (
-                    <span key={item.id} className="rounded-lg bg-white px-1.5 py-0.5 text-[10px] text-slate-600 border border-slate-100">
+                    <span key={item.id} className="rounded-lg bg-white px-1.5 py-0.5 text-2xs text-slate-600 border border-slate-100">
                       {item.products?.name} × {item.quantity} ({returnConditionLabels[item.condition]})
                     </span>
                   ))}
@@ -389,10 +389,10 @@ function ReturnsTab({ actorId }: { actorId: string | null }) {
               )}
               {r.status === 'pending' && (
                 <div className="mt-2 flex gap-2">
-                  <Button onClick={() => handleAction(r.id, true)} className="flex-1 !bg-emerald-600 text-[10px] hover:!bg-emerald-700">
+                  <Button onClick={() => handleAction(r.id, true)} className="flex-1 !bg-emerald-600 text-2xs hover:!bg-emerald-700">
                     <CheckCircle2 size={12} /> موافقة
                   </Button>
-                  <Button onClick={() => handleAction(r.id, false)} className="flex-1 !bg-rose-600 text-[10px] hover:!bg-rose-700">
+                  <Button onClick={() => handleAction(r.id, false)} className="flex-1 !bg-rose-600 text-2xs hover:!bg-rose-700">
                     <XCircle size={12} /> رفض
                   </Button>
                 </div>
@@ -480,7 +480,7 @@ function BinLocationsTab() {
                 </div>
                 <span className="font-extrabold text-azraq-700">{bin.code}</span>
                 <span className="flex-1 truncate font-medium text-ink">{bin.name}</span>
-                {bin.zone && <span className="rounded-lg bg-slate-100 px-1.5 py-0.5 text-[10px] text-slate-500">{bin.zone}</span>}
+                {bin.zone && <span className="rounded-lg bg-slate-100 px-1.5 py-0.5 text-2xs text-slate-500">{bin.zone}</span>}
                 <button onClick={() => handleDelete(bin.id)} className="text-rose-400 transition hover:text-rose-600">
                   <Trash2 size={14} />
                 </button>

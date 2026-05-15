@@ -113,7 +113,7 @@ export function OrdersManagementPage() {
 
       {/* Search */}
       <div className="mb-3 relative">
-        <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
+        <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500" />
         <input
           type="text"
           value={search}
@@ -123,7 +123,7 @@ export function OrdersManagementPage() {
           dir="rtl"
         />
         {search && (
-          <button onClick={() => setSearch('')} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+          <button onClick={() => setSearch('')} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
             <X size={15} />
           </button>
         )}
@@ -189,12 +189,12 @@ export function OrdersManagementPage() {
                   <span className="font-display font-extrabold text-ink">#{order.id.slice(0, 8)}</span>
                   <div>
                     <p className="font-bold text-slate-800">{order.profiles?.full_name || 'عميل'}</p>
-                    {order.profiles?.phone && <p className="text-xs text-slate-400">{order.profiles.phone}</p>}
+                    {order.profiles?.phone && <p className="text-xs text-slate-500">{order.profiles.phone}</p>}
                   </div>
                   <span className="font-bold text-slate-600">{order.order_items?.length || 0} منتج</span>
                   <span className="font-display font-extrabold text-azraq-800">{formatCurrency(order.total_amount)}</span>
                   <span className={`w-fit rounded-full border px-3 py-1 text-xs font-extrabold ${statusTone[order.status]}`}>{statusLabels[order.status]}</span>
-                  <span className="text-xs text-slate-400">{formatDate(order.created_at)}</span>
+                  <span className="text-xs text-slate-500">{formatDate(order.created_at)}</span>
                 </Link>
               ))}
             </div>
@@ -211,12 +211,12 @@ export function OrdersManagementPage() {
                   </div>
                   <div className="px-4 py-3 grid gap-1">
                     <p className="font-bold text-slate-800">{order.profiles?.full_name || 'عميل'}</p>
-                    {order.profiles?.phone && <p className="text-xs text-slate-400">{order.profiles.phone}</p>}
+                    {order.profiles?.phone && <p className="text-xs text-slate-500">{order.profiles.phone}</p>}
                     <div className="mt-1 flex items-center justify-between text-sm">
                       <span className="text-slate-500">{order.order_items?.length || 0} منتجات</span>
                       <span className="font-display font-extrabold text-azraq-800">{formatCurrency(order.total_amount)}</span>
                     </div>
-                    <p className="text-xs text-slate-400">{formatDate(order.created_at)}</p>
+                    <p className="text-xs text-slate-500">{formatDate(order.created_at)}</p>
                   </div>
                 </Card>
               </Link>

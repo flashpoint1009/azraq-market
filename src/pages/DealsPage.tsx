@@ -70,7 +70,7 @@ export function DealsPage() {
             <Card key={promotion.id} className="p-4">
               <h3 className="font-display text-xl font-extrabold text-ink">{promotion.title}</h3>
               <p className="mt-2 text-sm font-bold text-azraq-700">{describePromotion(promotion)}</p>
-              <p className="mt-3 flex items-center gap-1 text-xs text-slate-400">
+              <p className="mt-3 flex items-center gap-1 text-xs text-slate-500">
                 <CalendarDays size={13} />
                 {new Date(promotion.starts_at).toLocaleDateString('ar-EG')} - {new Date(promotion.ends_at).toLocaleDateString('ar-EG')}
               </p>

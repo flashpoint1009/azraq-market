@@ -33,7 +33,7 @@ export function AdminReviewsPage() {
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <h3 className="font-display text-sm font-extrabold">{review.products?.name || 'منتج'}</h3>
-                <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-extrabold text-amber-600">
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-2xs font-extrabold text-amber-600">
                   <Star size={10} fill="currentColor" /> {review.rating}
                 </span>
               </div>

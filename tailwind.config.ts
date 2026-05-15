@@ -5,8 +5,11 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        display: ['Tajawal', 'Cairo', 'sans-serif'],
-        sans: ['Cairo', 'Tajawal', 'sans-serif'],
+        display: ['Tajawal', 'Cairo', 'system-ui', 'sans-serif'],
+        sans: ['Cairo', 'Tajawal', 'system-ui', 'sans-serif'],
+      },
+      fontSize: {
+        '2xs': ['0.6875rem', { lineHeight: '1rem' }],   // 11px — minimum readable
       },
       colors: {
         azraq: {

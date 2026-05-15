@@ -37,7 +37,7 @@ export function OrdersPage() {
     <div className="pb-24">
       <div className="mb-3">
         <h1 className="font-display text-2xl font-extrabold text-ink">طلباتي</h1>
-        <p className="text-xs font-bold text-slate-400">تابع حالة كل طلب بسرعة</p>
+        <p className="text-xs font-bold text-slate-500">تابع حالة كل طلب بسرعة</p>
       </div>
 
       {isLoading && (
@@ -58,13 +58,13 @@ export function OrdersPage() {
               {/* Header */}
               <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-slate-100 bg-slate-50">
                 <div>
-                  <p className="text-[11px] font-bold text-slate-400">طلب #{order.id.slice(0, 8)}</p>
-                  <p className="mt-0.5 text-[11px] font-bold text-slate-400">
+                  <p className="text-xs font-bold text-slate-500">طلب #{order.id.slice(0, 8)}</p>
+                  <p className="mt-0.5 text-xs font-bold text-slate-500">
                     {new Date(order.created_at).toLocaleString('ar-EG')}
                   </p>
                 </div>
                 <div className="flex flex-col items-end gap-1">
-                  <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-extrabold ${statusColors[order.status] || 'bg-slate-100 text-slate-500'}`}>
+                  <span className={`rounded-full px-2.5 py-0.5 text-xs font-extrabold ${statusColors[order.status] || 'bg-slate-100 text-slate-500'}`}>
                     {statusLabels[order.status]}
                   </span>
                   <strong className="text-sm font-extrabold text-azraq-800">{formatCurrency(order.total_amount)}</strong>
@@ -73,7 +73,7 @@ export function OrdersPage() {
 
               {/* Invoice items — always visible */}
               <div className="px-4 py-3">
-                <p className="mb-2 text-[11px] font-extrabold text-slate-400">
+                <p className="mb-2 text-xs font-extrabold text-slate-500">
                   الفاتورة ({items.length} {items.length === 1 ? 'صنف' : 'أصناف'})
                 </p>
                 <div className="grid gap-1.5">
@@ -81,7 +81,7 @@ export function OrdersPage() {
                     <div key={item.id || i} className="flex items-center justify-between gap-2 rounded-xl bg-[#F4FAFF] px-3 py-2">
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-xs font-bold text-slate-700">{item.product_name_snapshot}</p>
-                        <p className="text-[10px] text-slate-400">
+                        <p className="text-2xs text-slate-500">
                           {item.quantity} {unitLabels[item.unit_type_snapshot]} × {formatCurrency(item.unit_price_snapshot)}
                         </p>
                       </div>

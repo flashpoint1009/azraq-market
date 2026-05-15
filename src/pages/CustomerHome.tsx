@@ -148,7 +148,7 @@ export function CustomerHome() {
             </button>
           </div>
           <Link to="/cart" className="rounded-2xl bg-azraq-700 px-3 py-2 text-left text-white">
-            <p className="text-[10px] font-bold text-white/70">السلة</p>
+            <p className="text-2xs font-bold text-white/70">السلة</p>
             <p className="text-sm font-extrabold">{formatCurrency(total)}</p>
           </Link>
         </div>
@@ -158,7 +158,7 @@ export function CustomerHome() {
             <div className="mb-2 flex items-center justify-between gap-2 px-1">
               <p className="text-sm font-extrabold text-ink">الإشعارات</p>
               {isPushNotificationsConfigured() && (
-                <button type="button" onClick={enableNotifications} className="rounded-xl bg-white px-3 py-1.5 text-[11px] font-extrabold text-azraq-700">
+                <button type="button" onClick={enableNotifications} className="rounded-xl bg-white px-3 py-1.5 text-xs font-extrabold text-azraq-700">
                   تفعيل الهاتف
                 </button>
               )}
@@ -173,14 +173,14 @@ export function CustomerHome() {
                 ))}
               </div>
             ) : (
-              <p className="rounded-2xl bg-white p-3 text-xs font-bold text-slate-400">لا توجد إشعارات حاليًا.</p>
+              <p className="rounded-2xl bg-white p-3 text-xs font-bold text-slate-500">لا توجد إشعارات حاليًا.</p>
             )}
           </div>
         )}
 
         <div className="relative z-10 mt-9 max-w-[70%] pr-1">
           <p className="text-base font-extrabold text-ink">صباح الخير يا {profile?.full_name || 'تاجر'}</p>
-          <p className="text-xs font-bold text-slate-400">طلباتك أوامر</p>
+          <p className="text-xs font-bold text-slate-500">طلباتك أوامر</p>
         </div>
       </header>
 
@@ -191,9 +191,9 @@ export function CustomerHome() {
             <div className="flex items-start justify-between gap-3">
               <div>
                 <LogoMark compact />
-                <p className="mt-4 text-xs font-bold text-slate-400">أهلا</p>
+                <p className="mt-4 text-xs font-bold text-slate-500">أهلا</p>
                 <h2 className="font-display text-xl font-extrabold text-ink">{profile?.full_name || profile?.phone || 'عميل أزرق'}</h2>
-                {profile?.phone && <p className="mt-1 text-xs font-bold text-slate-400" dir="ltr">{profile.phone}</p>}
+                {profile?.phone && <p className="mt-1 text-xs font-bold text-slate-500" dir="ltr">{profile.phone}</p>}
               </div>
               <button type="button" onClick={closeDrawer} className="grid h-9 w-9 place-items-center rounded-2xl bg-[#eef6fa] text-slate-600">
                 <X size={18} />
@@ -217,7 +217,7 @@ export function CustomerHome() {
 
       <section className="sticky top-2 z-20 mt-3 rounded-[20px] border border-white bg-white/95 p-2 shadow-sm backdrop-blur" role="search" aria-label="بحث المنتجات">
         <div className="relative">
-          <Search className="absolute right-3 top-3 text-slate-400" size={17} aria-hidden="true" />
+          <Search className="absolute right-3 top-3 text-slate-500" size={17} aria-hidden="true" />
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
@@ -229,7 +229,7 @@ export function CustomerHome() {
       </section>
 
       <section className="mt-3 grid grid-cols-3 gap-1.5">
-        <button onClick={() => setCategoryId('all')} className={`relative grid h-[82px] place-items-end overflow-hidden rounded-2xl bg-white px-1.5 pb-2 text-[11px] font-extrabold shadow-sm ${categoryId === 'all' ? 'ring-2 ring-azraq-700' : ''}`}>
+        <button onClick={() => setCategoryId('all')} className={`relative grid h-[82px] place-items-end overflow-hidden rounded-2xl bg-white px-1.5 pb-2 text-xs font-extrabold shadow-sm ${categoryId === 'all' ? 'ring-2 ring-azraq-700' : ''}`}>
           <img src={allCategoryImage} alt="الكل" className="absolute inset-0 h-full w-full object-cover" loading="lazy" decoding="async" />
           <span className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-white/95 to-white/0" />
           <span className="relative z-10 line-clamp-1 rounded-full bg-white/90 px-3 py-0.5 text-ink shadow-sm">الكل</span>
@@ -237,7 +237,7 @@ export function CustomerHome() {
         {data?.categories.slice(0, 8).map((category, index) => {
           const Icon = categoryIcons[index % categoryIcons.length];
           return (
-            <button key={category.id} onClick={() => setCategoryId(category.id)} className={`relative grid h-[82px] place-items-center overflow-hidden rounded-2xl bg-white px-1.5 text-[11px] font-extrabold shadow-sm ${categoryId === category.id ? 'bg-azraq-700 text-white' : 'text-slate-600'}`}>
+            <button key={category.id} onClick={() => setCategoryId(category.id)} className={`relative grid h-[82px] place-items-center overflow-hidden rounded-2xl bg-white px-1.5 text-xs font-extrabold shadow-sm ${categoryId === category.id ? 'bg-azraq-700 text-white' : 'text-slate-600'}`}>
               {category.image_url ? (
                 <>
                   <img src={category.image_url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-95" loading="lazy" decoding="async" />
@@ -263,7 +263,7 @@ export function CustomerHome() {
         <section className="mt-5">
           <div className="mb-2 flex items-center justify-between">
             <h2 className="font-display text-lg font-extrabold text-ink">{categoryId === 'all' ? 'المنتجات' : 'منتجات القسم'}</h2>
-            <span className="text-xs font-bold text-slate-400">{visibleProducts.length} منتج</span>
+            <span className="text-xs font-bold text-slate-500">{visibleProducts.length} منتج</span>
           </div>
           {productsToRender.length ? renderProductGrid(productsToRender) : <EmptyState title="مفيش منتجات دلوقتي" body="جرب تدور بكلمة تانية أو اختار قسم مختلف." />}
           {hasMore && <div ref={sentinelRef} className="h-10" />}

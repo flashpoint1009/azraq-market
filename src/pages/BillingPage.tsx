@@ -119,7 +119,7 @@ export function BillingPage() {
         <Card className="lg:col-span-2">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-bold text-slate-400">خطتك الحالية</p>
+              <p className="text-xs font-bold text-slate-500">خطتك الحالية</p>
               <h2 className="mt-1 font-display text-2xl font-extrabold text-ink">{plan.name}</h2>
               {subscription && (
                 <span className={`mt-2 inline-flex items-center rounded-full border px-3 py-1 text-xs font-extrabold ${statusLabels[subscription.status]?.color || 'bg-slate-100 text-slate-500'}`}>
@@ -134,7 +134,7 @@ export function BillingPage() {
 
           {subscription?.ends_at && (
             <div className="mt-4 flex items-center gap-2 rounded-2xl bg-slate-50 p-3">
-              <Calendar size={16} className="text-slate-400" />
+              <Calendar size={16} className="text-slate-500" />
               <p className="text-sm text-slate-600">
                 <span className="font-bold">ينتهي في:</span>{' '}
                 {new Date(subscription.ends_at).toLocaleDateString('ar-EG', { day: 'numeric', month: 'long', year: 'numeric' })}
@@ -155,7 +155,7 @@ export function BillingPage() {
                 <p className="mt-1 text-lg font-extrabold text-ink">
                   {item.usage}/{item.limit === 'unlimited' ? '∞' : item.limit}
                 </p>
-                <p className="text-[10px] font-bold text-slate-400">{item.label}</p>
+                <p className="text-2xs font-bold text-slate-500">{item.label}</p>
               </div>
             ))}
           </div>
@@ -185,7 +185,7 @@ export function BillingPage() {
         {/* Quick Upgrade Card */}
         <Card>
           <h3 className="font-display text-sm font-extrabold text-ink">ترقية سريعة</h3>
-          <p className="mt-1 text-xs text-slate-400">اختر الخطة الجديدة</p>
+          <p className="mt-1 text-xs text-slate-500">اختر الخطة الجديدة</p>
 
           <div className="mt-3 space-y-2">
             {(['starter', 'business', 'enterprise'] as PlanId[])
@@ -206,7 +206,7 @@ export function BillingPage() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-xs font-extrabold text-ink">{def.name}</p>
-                      <p className="text-[10px] text-slate-400">{def.priceMonthly} ج.م/شهر</p>
+                      <p className="text-2xs text-slate-500">{def.priceMonthly} ج.م/شهر</p>
                     </div>
                   </button>
                 );
@@ -247,7 +247,7 @@ export function BillingPage() {
         <h3 className="mb-3 font-display text-sm font-extrabold text-ink">سجل الاشتراكات</h3>
         {historyLoading && <LoadingState />}
         {!historyLoading && (!history || history.length === 0) && (
-          <p className="text-center text-xs text-slate-400 py-6">لا يوجد سجل اشتراكات بعد</p>
+          <p className="text-center text-xs text-slate-500 py-6">لا يوجد سجل اشتراكات بعد</p>
         )}
         {history && history.length > 0 && (
           <div className="overflow-x-auto">
@@ -266,13 +266,13 @@ export function BillingPage() {
                   <tr key={sub.id} className="hover:bg-slate-50/50">
                     <td className="p-2 font-bold text-ink">{PLAN_DEFINITIONS[sub.plan_id as PlanId]?.name || sub.plan_id}</td>
                     <td className="p-2">
-                      <span className={`inline-flex rounded-full border px-2 py-0.5 text-[10px] font-extrabold ${statusLabels[sub.status]?.color || ''}`}>
+                      <span className={`inline-flex rounded-full border px-2 py-0.5 text-2xs font-extrabold ${statusLabels[sub.status]?.color || ''}`}>
                         {statusLabels[sub.status]?.label || sub.status}
                       </span>
                     </td>
                     <td className="p-2 font-bold text-azraq-700">{sub.amount} {sub.currency}</td>
                     <td className="p-2 text-slate-500">{sub.billing_cycle === 'yearly' ? 'سنوي' : 'شهري'}</td>
-                    <td className="p-2 text-slate-400">{new Date(sub.created_at).toLocaleDateString('ar-EG')}</td>
+                    <td className="p-2 text-slate-500">{new Date(sub.created_at).toLocaleDateString('ar-EG')}</td>
                   </tr>
                 ))}
               </tbody>

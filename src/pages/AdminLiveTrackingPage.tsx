@@ -24,12 +24,12 @@ function DriverCard({ driver }: { driver: DriverLocation }) {
       <div className="min-w-0 flex-1">
         <p className="text-sm font-extrabold text-ink truncate">{driver.profiles?.full_name || 'مندوب'}</p>
         <div className="flex items-center gap-2 mt-0.5">
-          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600">
+          <span className="inline-flex items-center gap-1 text-2xs font-bold text-emerald-600">
             <Wifi size={10} /> متصل
           </span>
-          <span className="text-[10px] text-slate-400">{formatTime(driver.last_updated_at)}</span>
+          <span className="text-2xs text-slate-500">{formatTime(driver.last_updated_at)}</span>
           {driver.speed != null && driver.speed > 0 && (
-            <span className="text-[10px] text-slate-400">{Math.round(driver.speed * 3.6)} كم/س</span>
+            <span className="text-2xs text-slate-500">{Math.round(driver.speed * 3.6)} كم/س</span>
           )}
         </div>
       </div>
@@ -131,7 +131,7 @@ function LiveMap({ drivers }: { drivers: DriverLocation[] }) {
   return (
     <div ref={mapRef} className="h-[400px] sm:h-[500px] w-full rounded-2xl overflow-hidden border border-slate-200">
       {!loaded && (
-        <div className="grid h-full place-items-center text-sm text-slate-400">جاري تحميل الخريطة...</div>
+        <div className="grid h-full place-items-center text-sm text-slate-500">جاري تحميل الخريطة...</div>
       )}
     </div>
   );
@@ -170,7 +170,7 @@ export function AdminLiveTrackingPage() {
               <div className="col-span-full rounded-2xl bg-slate-50 p-6 text-center">
                 <WifiOff size={24} className="mx-auto text-slate-300 mb-2" />
                 <p className="text-sm font-bold text-slate-500">لا يوجد مندوبين متصلين حاليًا</p>
-                <p className="text-xs text-slate-400 mt-1">المندوبين هيظهروا هنا لما يفتحوا التطبيق ويبدأوا التوصيل</p>
+                <p className="text-xs text-slate-500 mt-1">المندوبين هيظهروا هنا لما يفتحوا التطبيق ويبدأوا التوصيل</p>
               </div>
             )}
             {drivers.map((driver) => (

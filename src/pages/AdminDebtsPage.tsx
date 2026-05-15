@@ -154,15 +154,15 @@ export function AdminDebtsPage() {
       {!loading && data && (
         <div className="mb-3 grid grid-cols-3 gap-2">
           <Card>
-            <p className="text-[10px] font-bold text-slate-400">ديون مفتوحة</p>
+            <p className="text-2xs font-bold text-slate-500">ديون مفتوحة</p>
             <p className="mt-0.5 font-display text-xl font-extrabold text-rose-600">{summary.totalOpen}</p>
           </Card>
           <Card>
-            <p className="text-[10px] font-bold text-slate-400">إجمالي المتبقي</p>
+            <p className="text-2xs font-bold text-slate-500">إجمالي المتبقي</p>
             <p className="mt-0.5 font-display text-base font-extrabold text-rose-700">{formatCurrency(summary.totalRemaining)}</p>
           </Card>
           <Card>
-            <p className="text-[10px] font-bold text-slate-400">إجمالي السجلات</p>
+            <p className="text-2xs font-bold text-slate-500">إجمالي السجلات</p>
             <p className="mt-0.5 font-display text-xl font-extrabold text-ink">{summary.totalCount}</p>
           </Card>
         </div>
@@ -218,7 +218,7 @@ export function AdminDebtsPage() {
                     <Link to={`/orders/${debt.order_id}`} className="flex items-center gap-1 text-xs font-bold text-azraq-700 hover:underline">
                       <ReceiptText size={12} /> #{debt.order_id.slice(0, 8)}
                     </Link>
-                  ) : <span className="text-xs text-slate-400">—</span>}
+                  ) : <span className="text-xs text-slate-500">—</span>}
                   <span className="font-bold text-slate-700">{formatCurrency(debt.amount)}</span>
                   <span className="font-bold text-emerald-600">{formatCurrency(debt.paid_amount)}</span>
                   <span className="font-extrabold text-rose-600">{formatCurrency(debt.remaining_amount)}</span>
@@ -256,15 +256,15 @@ export function AdminDebtsPage() {
                 <div className="px-4 py-3 space-y-2">
                   <div className="grid grid-cols-3 gap-2 text-center">
                     <div className="rounded-xl bg-slate-50 p-2">
-                      <p className="text-[10px] font-bold text-slate-400">الإجمالي</p>
+                      <p className="text-2xs font-bold text-slate-500">الإجمالي</p>
                       <p className="text-sm font-extrabold text-slate-700">{formatCurrency(debt.amount)}</p>
                     </div>
                     <div className="rounded-xl bg-emerald-50 p-2">
-                      <p className="text-[10px] font-bold text-slate-400">المسدد</p>
+                      <p className="text-2xs font-bold text-slate-500">المسدد</p>
                       <p className="text-sm font-extrabold text-emerald-700">{formatCurrency(debt.paid_amount)}</p>
                     </div>
                     <div className="rounded-xl bg-rose-50 p-2">
-                      <p className="text-[10px] font-bold text-slate-400">المتبقي</p>
+                      <p className="text-2xs font-bold text-slate-500">المتبقي</p>
                       <p className="text-sm font-extrabold text-rose-700">{formatCurrency(debt.remaining_amount)}</p>
                     </div>
                   </div>
@@ -286,7 +286,7 @@ export function AdminDebtsPage() {
                       <span className="text-xs font-bold text-emerald-600">✓ مسدد بالكامل</span>
                     )}
                   </div>
-                  <p className="text-xs text-slate-400">{formatDate(debt.created_at)}</p>
+                  <p className="text-xs text-slate-500">{formatDate(debt.created_at)}</p>
                 </div>
               </Card>
             ))}

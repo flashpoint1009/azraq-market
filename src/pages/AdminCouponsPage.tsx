@@ -73,16 +73,16 @@ export function AdminCouponsPage() {
             <Input required type="number" min="0" value={form.value} onChange={(e) => setForm({ ...form, value: e.target.value })} placeholder={form.type === 'percent' ? 'نسبة الخصم (مثال: 10)' : 'قيمة الخصم (مثال: 50)'} />
             <Input type="number" min="0" value={form.min_order} onChange={(e) => setForm({ ...form, min_order: e.target.value })} placeholder="أقل قيمة للطلب (0 = بدون حد)" />
             <div>
-              <label className="mb-1 block text-[10px] font-bold text-slate-500">عدد مرات الاستخدام (فارغ = غير محدود)</label>
+              <label className="mb-1 block text-2xs font-bold text-slate-500">عدد مرات الاستخدام (فارغ = غير محدود)</label>
               <Input type="number" min="1" value={form.max_uses} onChange={(e) => setForm({ ...form, max_uses: e.target.value })} placeholder="مثال: 1 = مرة واحدة" />
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="mb-1 block text-[10px] font-bold text-slate-500">صالح من</label>
+                <label className="mb-1 block text-2xs font-bold text-slate-500">صالح من</label>
                 <Input type="datetime-local" value={form.starts_at} onChange={(e) => setForm({ ...form, starts_at: e.target.value })} />
               </div>
               <div>
-                <label className="mb-1 block text-[10px] font-bold text-slate-500">صالح حتى</label>
+                <label className="mb-1 block text-2xs font-bold text-slate-500">صالح حتى</label>
                 <Input type="datetime-local" value={form.expires_at} onChange={(e) => setForm({ ...form, expires_at: e.target.value })} />
               </div>
             </div>
@@ -98,7 +98,7 @@ export function AdminCouponsPage() {
           {loading && <LoadingState />}
           {error && <ErrorState message={error} />}
           {!loading && !error && data?.length === 0 && (
-            <div className="rounded-xl border-2 border-dashed border-slate-200 p-6 text-center text-xs font-bold text-slate-400">
+            <div className="rounded-xl border-2 border-dashed border-slate-200 p-6 text-center text-xs font-bold text-slate-500">
               لا توجد كوبونات بعد — أضف أول كوبون من الجانب
             </div>
           )}
@@ -116,15 +116,15 @@ export function AdminCouponsPage() {
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="font-display text-base font-extrabold tracking-wider text-ink" dir="ltr">{coupon.code}</span>
                       {effectivelyActive
-                        ? <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-extrabold text-emerald-700"><CheckCircle2 size={10} /> نشط</span>
-                        : <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2 py-0.5 text-[10px] font-extrabold text-rose-600"><XCircle size={10} /> {isExpired ? 'منتهي' : notStartedYet ? 'لم يبدأ' : isMaxed ? 'استنفد' : 'موقوف'}</span>
+                        ? <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-2xs font-extrabold text-emerald-700"><CheckCircle2 size={10} /> نشط</span>
+                        : <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2 py-0.5 text-2xs font-extrabold text-rose-600"><XCircle size={10} /> {isExpired ? 'منتهي' : notStartedYet ? 'لم يبدأ' : isMaxed ? 'استنفد' : 'موقوف'}</span>
                       }
                     </div>
                     <p className="mt-1 text-xs font-bold text-slate-600">
                       خصم {coupon.type === 'percent' ? `${coupon.value}%` : formatCurrency(coupon.value)}
                       {coupon.min_order > 0 && ` — أقل طلب ${formatCurrency(coupon.min_order)}`}
                     </p>
-                    <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[10px] font-bold text-slate-400">
+                    <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-2xs font-bold text-slate-500">
                       <span>استخدام: {coupon.used_count}{coupon.max_uses ? ` / ${coupon.max_uses}` : ' (غير محدود)'}</span>
                       {coupon.starts_at && <span className="flex items-center gap-1"><Calendar size={10} /> من: {formatDate(coupon.starts_at)}</span>}
                       {coupon.expires_at && <span className={`flex items-center gap-1 ${isExpired ? 'text-rose-500' : ''}`}><Calendar size={10} /> حتى: {formatDate(coupon.expires_at)}</span>}

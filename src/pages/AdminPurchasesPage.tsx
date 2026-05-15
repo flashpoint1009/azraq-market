@@ -110,7 +110,7 @@ export function AdminPurchasesPage() {
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <h3 className="font-display text-sm font-extrabold">{entry.supplier_name || 'مورد بدون اسم'}</h3>
-                    <p className="text-[11px] text-slate-400">{new Date(entry.created_at).toLocaleString('ar-EG')}</p>
+                    <p className="text-xs text-slate-500">{new Date(entry.created_at).toLocaleString('ar-EG')}</p>
                   </div>
                   <strong className="shrink-0 text-sm text-azraq-800">{formatCurrency(entry.total_amount)}</strong>
                 </div>

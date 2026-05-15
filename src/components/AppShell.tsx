@@ -149,11 +149,11 @@ export function AppShell({ mode }: { mode: 'customer' | 'admin' | 'warehouse' | 
         {mode !== 'customer' && <header className="mb-3 flex items-center justify-between rounded-2xl border border-white/80 bg-white/70 p-2 shadow-sm backdrop-blur lg:hidden">
           <LogoMark compact />
           <div className="flex items-center gap-2">
-            <div className="relative grid h-9 w-9 place-items-center rounded-xl bg-azraq-50 text-azraq-700">
+            <div className="relative grid h-11 w-11 place-items-center rounded-xl bg-azraq-50 text-azraq-700">
               <Bell size={17} />
               {unreadCount > 0 && <span className="absolute -top-1 -left-1 h-4 min-w-4 rounded-full bg-rose-500 px-1 text-center text-[9px] font-bold text-white">{unreadCount}</span>}
             </div>
-            <button onClick={signOut} className="grid h-9 w-9 place-items-center rounded-xl bg-white text-slate-500">
+            <button onClick={signOut} className="grid h-11 w-11 place-items-center rounded-xl bg-white text-slate-500">
               <LogOut size={16} />
             </button>
             {installPrompt && (
@@ -170,20 +170,20 @@ export function AppShell({ mode }: { mode: 'customer' | 'admin' | 'warehouse' | 
         <Link to="/cart" className="fixed inset-x-3 bottom-[72px] z-40 flex items-center justify-between rounded-2xl border border-white bg-white/95 px-3 py-2 shadow-soft backdrop-blur lg:hidden">
           <div>
             <p className="text-xs font-extrabold text-slate-500">{count ? `${count} أصناف • ${total.toLocaleString('ar-EG')} ج.م` : 'الحق العروض واطلب دلوقتي'}</p>
-            <p className="text-[11px] font-bold text-slate-400">{count ? 'راجع الطلب قبل الإرسال' : 'الحق العروض واطلب دلوقتي'}</p>
+            <p className="text-xs font-bold text-slate-500">{count ? 'راجع الطلب قبل الإرسال' : 'الحق العروض واطلب دلوقتي'}</p>
           </div>
           <span className="rounded-xl bg-azraq-700 px-3 py-2 text-xs font-extrabold text-white">كمل طلبك</span>
         </Link>
       )}
 
-      <nav className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-4 rounded-2xl border border-white/80 bg-white/95 p-1.5 shadow-soft backdrop-blur lg:hidden" role="navigation" aria-label="التنقل الرئيسي">
+      <nav className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-4 rounded-2xl border border-white/80 bg-white/95 p-1 shadow-soft backdrop-blur lg:hidden" role="navigation" aria-label="التنقل الرئيسي">
         {(mode === 'admin' ? nav.filter((item) => ['/admin', '/admin/reports', '/admin/orders', '/admin/users'].includes(item.to)) : nav.slice(0, 4)).map((item) => {
           const active = location.pathname === item.to || (item.to !== '/' && location.pathname.startsWith(item.to));
           return (
-            <NavLink key={item.to} to={item.to} end className={`relative flex flex-col items-center gap-0.5 rounded-xl px-1.5 py-1.5 text-[10px] font-extrabold ${active ? 'bg-azraq-700 text-white' : 'text-slate-500'}`}>
-              <item.icon size={16} />
+            <NavLink key={item.to} to={item.to} end className={`relative flex flex-col items-center justify-center gap-0.5 rounded-xl min-h-[44px] px-1.5 py-2 text-2xs font-extrabold ${active ? 'bg-azraq-700 text-white' : 'text-slate-500'}`}>
+              <item.icon size={18} />
               {item.label}
-              {item.to === '/cart' && count > 0 && <span className="absolute -top-1 left-2 rounded-full bg-rose-500 px-1.5 text-[10px] text-white">{count}</span>}
+              {item.to === '/cart' && count > 0 && <span className="absolute -top-1 left-2 rounded-full bg-rose-500 px-1.5 text-2xs text-white">{count}</span>}
             </NavLink>
           );
         })}
